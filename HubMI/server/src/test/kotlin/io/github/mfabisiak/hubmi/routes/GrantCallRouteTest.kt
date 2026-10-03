@@ -7,6 +7,7 @@ import io.github.mfabisiak.hubmi.api.CallField
 import io.github.mfabisiak.hubmi.api.CallFieldType
 import io.github.mfabisiak.hubmi.api.CallStatus
 import io.github.mfabisiak.hubmi.api.Calls
+import io.github.mfabisiak.hubmi.api.CreateApplicationDraftRequest
 import io.github.mfabisiak.hubmi.api.CreateApplicationRequest
 import io.github.mfabisiak.hubmi.api.CreateIdeaRequest
 import io.github.mfabisiak.hubmi.api.GrantCallDto
@@ -233,11 +234,7 @@ class GrantCallRouteTest {
             val unauthResponse =
                 client.post(Calls.ById.Applications(Calls.ById(id = openCall.id))) {
                     contentType(ContentType.Application.Json)
-                    setBody(
-                        CreateApplicationRequest(
-                            answers = mapOf("title" to "T", "summary" to "S"),
-                        ),
-                    )
+                    setBody(CreateApplicationDraftRequest())
                 }
             assertEquals(HttpStatusCode.Unauthorized, unauthResponse.status)
 
@@ -246,82 +243,36 @@ class GrantCallRouteTest {
                 client.post(Calls.ById.Applications(Calls.ById(id = closedCall.id))) {
                     header(HttpHeaders.Authorization, "Bearer $user1Token")
                     contentType(ContentType.Application.Json)
-                    setBody(
-                        CreateApplicationRequest(
-                            answers = mapOf("title" to "T"),
-                        ),
-                    )
+                    setBody(CreateApplicationDraftRequest())
                 }
             assertEquals(HttpStatusCode.Conflict, closedSubmit.status)
 
-            // 3. Submit with missing required field -> 400 Bad Request
-            val missingFieldSubmit =
-                client.post(Calls.ById.Applications(Calls.ById(id = openCall.id))) {
-                    header(HttpHeaders.Authorization, "Bearer $user1Token")
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        CreateApplicationRequest(
-                            answers = mapOf("title" to "Tylko tytuł"),
-                        ),
-                    )
-                }
-            assertEquals(HttpStatusCode.BadRequest, missingFieldSubmit.status)
-
-            // 4. Submit with unknown field -> 400 Bad Request
-            val unknownFieldSubmit =
-                client.post(Calls.ById.Applications(Calls.ById(id = openCall.id))) {
-                    header(HttpHeaders.Authorization, "Bearer $user1Token")
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        CreateApplicationRequest(
-                            answers =
-                                mapOf(
-                                    "title" to "Tytuł",
-                                    "summary" to "Streszczenie",
-                                    "hacker_field" to "Niedozwolone pole",
-                                ),
-                        ),
-                    )
-                }
-            assertEquals(HttpStatusCode.BadRequest, unknownFieldSubmit.status)
-
-            // 5. Submit with ideaId belonging to someone else -> 403 Forbidden
+            // 3. Submit with ideaId belonging to someone else -> 403 Forbidden
             val foreignIdeaSubmit =
                 client.post(Calls.ById.Applications(Calls.ById(id = openCall.id))) {
                     header(HttpHeaders.Authorization, "Bearer $user1Token")
                     contentType(ContentType.Application.Json)
-                    setBody(
-                        CreateApplicationRequest(
-                            ideaId = ideaUser2.id,
-                            answers = mapOf("title" to "Tytuł", "summary" to "Streszczenie"),
-                        ),
-                    )
+                    setBody(CreateApplicationDraftRequest(ideaId = ideaUser2.id))
                 }
             assertEquals(HttpStatusCode.Forbidden, foreignIdeaSubmit.status)
 
-            // 6. Valid submission -> 201 Created
-            val validSubmit =
+            // 4. Valid draft creation with prefill -> 201 Created
+            val user2Draft =
                 client.post(Calls.ById.Applications(Calls.ById(id = openCall.id))) {
-                    header(HttpHeaders.Authorization, "Bearer $user1Token")
+                    header(HttpHeaders.Authorization, "Bearer $user2Token")
                     contentType(ContentType.Application.Json)
-                    setBody(
-                        CreateApplicationRequest(
-                            answers =
-                                mapOf(
-                                    "title" to "Prawidłowy wniosek",
-                                    "summary" to "Kompletny opis wniosku",
-                                    "extra_notes" to "Opcjonalna uwaga",
-                                ),
-                        ),
-                    )
+                    setBody(CreateApplicationDraftRequest(ideaId = ideaUser2.id))
                 }
-            assertEquals(HttpStatusCode.Created, validSubmit.status)
-            val applicationDto = validSubmit.body<ApplicationDto>()
-            assertEquals(openCall.id, applicationDto.callId)
-            assertNotNull(applicationDto.id)
-            assertEquals(
-                "/api/calls/${openCall.id}/applications/${applicationDto.id}",
-                validSubmit.headers[HttpHeaders.Location],
-            )
+            assertEquals(HttpStatusCode.Created, user2Draft.status)
+            val draftDto = user2Draft.body<ApplicationDto>()
+            assertEquals(openCall.id, draftDto.callId)
+            assertEquals("Pomysł Użytkownika 2", draftDto.title)
+            assertEquals("Opis pomysłu U2", draftDto.description)
+            assertEquals("/api/applications/${draftDto.id}", user2Draft.headers[HttpHeaders.Location])
+
+            // 5. Declarations endpoint
+            val declarationsResponse =
+                client.get(Calls.ById.Declarations(Calls.ById(id = openCall.id), applicantType = "INDIVIDUAL"))
+            assertEquals(HttpStatusCode.OK, declarationsResponse.status)
         }
 }

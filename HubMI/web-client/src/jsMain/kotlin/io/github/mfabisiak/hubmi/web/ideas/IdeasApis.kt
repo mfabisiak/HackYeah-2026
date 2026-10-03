@@ -109,7 +109,6 @@ class CallsApi internal constructor(
     /** Submits an application generated from the call's template. */
     fun apply(
         callId: String,
-        answers: Array<AnswerJs>,
         ideaId: String? = null,
     ): Promise<ApiResult<ApplicationJs>> =
         scope.promiseResult {
@@ -117,7 +116,7 @@ class CallsApi internal constructor(
                 .send<Calls.ById.Applications, CreateApplicationRequest, ApplicationDto>(
                     HttpMethod.Post,
                     Calls.ById.Applications(parent = Calls.ById(id = callId)),
-                    CreateApplicationRequest(ideaId, answers.toList().toAnswers()),
+                    CreateApplicationRequest(ideaId),
                 ).map { it.toJs() }
         }
 }

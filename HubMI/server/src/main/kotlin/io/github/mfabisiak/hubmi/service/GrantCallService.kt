@@ -4,12 +4,18 @@ import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
+import io.github.mfabisiak.hubmi.api.ApplicantType
 import io.github.mfabisiak.hubmi.api.ApplicationDto
+import io.github.mfabisiak.hubmi.api.ApplicationStatus
 import io.github.mfabisiak.hubmi.api.CallStatus
-import io.github.mfabisiak.hubmi.api.CreateApplicationRequest
+import io.github.mfabisiak.hubmi.api.CreateApplicationDraftRequest
+import io.github.mfabisiak.hubmi.api.DeclarationsResponse
 import io.github.mfabisiak.hubmi.api.FieldError
 import io.github.mfabisiak.hubmi.api.FieldErrorCode
 import io.github.mfabisiak.hubmi.api.GrantCallDto
+import io.github.mfabisiak.hubmi.api.Page
+import io.github.mfabisiak.hubmi.api.PageRequest
+import io.github.mfabisiak.hubmi.api.SaveApplicationDraftRequest
 import io.github.mfabisiak.hubmi.api.UpsertCallRequest
 import io.github.mfabisiak.hubmi.models.ApplicationItem
 import io.github.mfabisiak.hubmi.models.GrantCallItem
@@ -178,7 +184,7 @@ class GrantCallService(
     suspend fun apply(
         callIdString: String,
         applicantId: String,
-        request: CreateApplicationRequest,
+        request: CreateApplicationDraftRequest,
     ): Either<DomainError, ApplicationDto> =
         either {
             val callObjectId = parseObjectId(callIdString).bind()
@@ -197,7 +203,7 @@ class GrantCallService(
             }
 
             val reqIdeaId = request.ideaId
-            val ideaObjectId =
+            val (ideaObjectId, prefillTitle, prefillDesc, prefillAudience) =
                 if (reqIdeaId != null) {
                     val id = parseObjectId(reqIdeaId).bind()
                     val idea =
@@ -212,65 +218,257 @@ class GrantCallService(
                     ensure(idea.authorId == applicantId) {
                         DomainError.Forbidden("Wskazany pomysł nie należy do Ciebie")
                     }
-                    id
+                    val audience = idea.targetGroups.joinToString(", ") { it.name }
+                    listOf(id, idea.title, idea.essence, audience)
                 } else {
-                    null
+                    listOf(null, null, null, null)
                 }
 
-            val allowedKeys = call.fields.map { it.key }.toSet()
-            val fieldErrors =
-                buildList {
-                    // Check required fields
-                    call.fields.filter { it.required }.forEach { field ->
-                        val value = request.answers[field.key]
-                        if (value.isNullOrBlank()) {
-                            add(
-                                FieldError(
-                                    field = field.key,
-                                    code = FieldErrorCode.Blank,
-                                    message = "Pole '${field.label}' jest wymagane",
-                                ),
-                            )
-                        }
-                    }
-
-                    // Check unknown keys
-                    request.answers.keys.forEach { key ->
-                        if (key !in allowedKeys) {
-                            add(
-                                FieldError(
-                                    field = key,
-                                    code = FieldErrorCode.InvalidFormat,
-                                    message = "Nieznane pole wniosku: $key",
-                                ),
-                            )
-                        }
-                    }
-                }
-
-            ensure(fieldErrors.isEmpty()) {
-                DomainError.Validation(
-                    message = "Błąd walidacji wniosku",
-                    details = fieldErrors,
-                )
-            }
-
-            val application =
+            val now = clock.instant()
+            val draft =
                 ApplicationItem(
                     callId = callObjectId,
                     applicantId = applicantId,
-                    ideaId = ideaObjectId,
-                    answers = request.answers,
-                    createdAt = clock.instant(),
+                    ideaId = ideaObjectId as? ObjectId,
+                    status = ApplicationStatus.DRAFT,
+                    formVersion = RopsDeclarations.FORM_VERSION,
+                    title = prefillTitle as? String,
+                    description = prefillDesc as? String,
+                    audienceDescription = prefillAudience as? String,
+                    createdAt = now,
+                    updatedAt = now,
                 )
 
             val created =
                 applicationRepository
-                    .create(application)
+                    .create(draft)
                     .mapLeft { it.toDomainError() }
                     .bind()
 
             created.toDto()
+        }
+
+    suspend fun saveDraft(
+        idString: String,
+        callerId: String,
+        isAdmin: Boolean,
+        request: SaveApplicationDraftRequest,
+    ): Either<DomainError, ApplicationDto> =
+        either {
+            val objectId = parseObjectId(idString).bind()
+            val existing =
+                ensureNotNull(
+                    applicationRepository
+                        .findById(objectId)
+                        .mapLeft { it.toDomainError() }
+                        .bind(),
+                ) {
+                    DomainError.NotFound("Nie znaleziono wniosku o id: $idString")
+                }
+
+            ensure(existing.applicantId == callerId || isAdmin) {
+                DomainError.Forbidden("Brak uprawnień do edycji tego wniosku")
+            }
+
+            ensure(existing.status == ApplicationStatus.DRAFT) {
+                DomainError.Conflict("Wniosek został już złożony i nie może być modyfikowany")
+            }
+
+            val updated =
+                existing.copy(
+                    title = request.title ?: existing.title,
+                    applicant = request.applicant ?: existing.applicant,
+                    description = request.description ?: existing.description,
+                    innovativeness = request.innovativeness ?: existing.innovativeness,
+                    problemDiagnosis = request.problemDiagnosis ?: existing.problemDiagnosis,
+                    socialArea = request.socialArea ?: existing.socialArea,
+                    audienceDescription = request.audienceDescription ?: existing.audienceDescription,
+                    expectedChange = request.expectedChange ?: existing.expectedChange,
+                    futureVision = request.futureVision ?: existing.futureVision,
+                    plan = request.plan ?: existing.plan,
+                    requestedGrantAmountGrosze =
+                        request.requestedGrantAmountGrosze ?: existing.requestedGrantAmountGrosze,
+                    projectTeam = request.projectTeam ?: existing.projectTeam,
+                    declarations =
+                        if (request.declarations.isNotEmpty()) {
+                            request.declarations
+                        } else {
+                            existing.declarations
+                        },
+                    updatedAt = clock.instant(),
+                )
+
+            val saved =
+                ensureNotNull(
+                    applicationRepository
+                        .updateDraft(updated)
+                        .mapLeft { it.toDomainError() }
+                        .bind(),
+                ) {
+                    DomainError.Conflict("Wniosek został zmieniony lub złożony w międzyczasie")
+                }
+
+            saved.toDto()
+        }
+
+    suspend fun submit(
+        idString: String,
+        callerId: String,
+        isAdmin: Boolean,
+    ): Either<DomainError, ApplicationDto> =
+        either {
+            val objectId = parseObjectId(idString).bind()
+            val existing =
+                ensureNotNull(
+                    applicationRepository
+                        .findById(objectId)
+                        .mapLeft { it.toDomainError() }
+                        .bind(),
+                ) {
+                    DomainError.NotFound("Nie znaleziono wniosku o id: $idString")
+                }
+
+            ensure(existing.applicantId == callerId || isAdmin) {
+                DomainError.Forbidden("Brak uprawnień do złożenia tego wniosku")
+            }
+
+            ensure(existing.status == ApplicationStatus.DRAFT) {
+                DomainError.Conflict("Wniosek został już złożony")
+            }
+
+            val call =
+                ensureNotNull(
+                    callRepository
+                        .findById(existing.callId)
+                        .mapLeft { it.toDomainError() }
+                        .bind(),
+                ) {
+                    DomainError.NotFound("Nie znaleziono naboru o id: ${existing.callId.toHexString()}")
+                }
+
+            ensure(call.computeStatus(clock) == CallStatus.OPEN) {
+                DomainError.Conflict("Nabór jest zamknięty. Nie można złożyć wniosku.")
+            }
+
+            // Enforce limit: max 2 submitted applications per caller in this call
+            val submittedCount =
+                applicationRepository
+                    .countSubmittedByCallAndApplicant(existing.callId, existing.applicantId)
+                    .mapLeft { it.toDomainError() }
+                    .bind()
+
+            ensure(submittedCount < 2) {
+                DomainError.Conflict("Osiągnięto limit maksymalnie 2 złożonych wniosków w tym naborze")
+            }
+
+            // Full validation of all 12 points
+            RopsApplicationValidator.validateForSubmission(existing).bind()
+
+            // Atomically change status to SUBMITTED
+            val submitted =
+                ensureNotNull(
+                    applicationRepository
+                        .submit(objectId, clock.instant())
+                        .mapLeft { it.toDomainError() }
+                        .bind(),
+                ) {
+                    DomainError.Conflict("Nie udało się złożyć wniosku (stan uległ zmianie)")
+                }
+
+            submitted.toDto()
+        }
+
+    suspend fun getApplicationById(
+        idString: String,
+        callerId: String,
+        isAdmin: Boolean,
+    ): Either<DomainError, ApplicationDto> =
+        either {
+            val objectId = parseObjectId(idString).bind()
+            val app =
+                ensureNotNull(
+                    applicationRepository
+                        .findById(objectId)
+                        .mapLeft { it.toDomainError() }
+                        .bind(),
+                ) {
+                    DomainError.NotFound("Nie znaleziono wniosku o id: $idString")
+                }
+
+            ensure(app.applicantId == callerId || isAdmin) {
+                DomainError.Forbidden("Brak uprawnień do odczytu tego wniosku")
+            }
+
+            app.toDto()
+        }
+
+    suspend fun listMyApplications(
+        callerId: String,
+        page: Int,
+        size: Int,
+    ): Either<DomainError, Page<ApplicationDto>> =
+        either {
+            val pageRequest = PageRequest(page.coerceAtLeast(0), size.coerceIn(1, PageRequest.MAX_SIZE))
+            val result =
+                applicationRepository
+                    .findByApplicantId(callerId, pageRequest)
+                    .mapLeft { it.toDomainError() }
+                    .bind()
+
+            Page(
+                items = result.items.map { it.toDto() },
+                page = result.page,
+                size = result.size,
+                total = result.total,
+            )
+        }
+
+    suspend fun adminListApplications(
+        callIdString: String?,
+        status: ApplicationStatus?,
+        page: Int,
+        size: Int,
+    ): Either<DomainError, Page<ApplicationDto>> =
+        either {
+            val callObjectId = callIdString?.let { parseObjectId(it).bind() }
+            val pageRequest = PageRequest(page.coerceAtLeast(0), size.coerceIn(1, PageRequest.MAX_SIZE))
+            val result =
+                applicationRepository
+                    .findAll(callObjectId, status, pageRequest)
+                    .mapLeft { it.toDomainError() }
+                    .bind()
+
+            Page(
+                items = result.items.map { it.toDto() },
+                page = result.page,
+                size = result.size,
+                total = result.total,
+            )
+        }
+
+    suspend fun getDeclarations(
+        callIdString: String,
+        applicantTypeString: String?,
+    ): Either<DomainError, DeclarationsResponse> =
+        either {
+            val callObjectId = parseObjectId(callIdString).bind()
+            ensureNotNull(
+                callRepository
+                    .findById(callObjectId)
+                    .mapLeft { it.toDomainError() }
+                    .bind(),
+            ) {
+                DomainError.NotFound("Nie znaleziono naboru o id: $callIdString")
+            }
+
+            val applicantType =
+                applicantTypeString?.let {
+                    Either
+                        .catch { ApplicantType.valueOf(it.uppercase()) }
+                        .getOrNull()
+                }
+
+            RopsDeclarations.getDeclarations(applicantType)
         }
 
     private fun validateCallRequest(request: UpsertCallRequest): Either<DomainError.Validation, Unit> =
