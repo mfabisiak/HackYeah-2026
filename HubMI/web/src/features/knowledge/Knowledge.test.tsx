@@ -221,6 +221,29 @@ describe('Knowledge Base Feature (FE-04)', () => {
       expect(screen.getAllByText('Niepołomice').length).toBeGreaterThan(0)
       expect(screen.getByText('Zobacz pasujące innowacje dla tego wyzwania')).toBeInTheDocument()
     })
+
+    it('filters challenges by municipality without getting stuck in infinite loading', async () => {
+      vi.spyOn(hubApi.challenges, 'list').mockResolvedValue(
+        new ApiResult(mockChallengesPage, null),
+      )
+
+      renderWithProviders(<ChallengesListPage />)
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Transport na żądanie dla seniorów z sołectw podmiejskich'),
+        ).toBeInTheDocument()
+      })
+
+      // Select municipality from dropdown
+      const muniSelect = screen.getByRole('combobox', { name: /Filtruj wg gminy/i })
+      fireEvent.change(muniSelect, { target: { value: 'Wieliczka' } })
+
+      // Items should still be visible, no infinite loading
+      expect(
+        screen.getByText('Transport na żądanie dla seniorów z sołectw podmiejskich'),
+      ).toBeInTheDocument()
+    })
   })
 
   describe('MaterialsListPage', () => {

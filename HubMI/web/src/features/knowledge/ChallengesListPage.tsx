@@ -88,28 +88,39 @@ export function ChallengesListPage() {
 
   const updateFilters = (newParams: Record<string, string | null>) => {
     let hasChanged = false
+    let areaOrPageChanged = false
     const next = new URLSearchParams(searchParams)
 
     Object.entries(newParams).forEach(([key, val]) => {
       const prevVal = searchParams.get(key)
-      const trimmedVal = val && val.trim() !== '' ? val.trim() : null
+      const isDefaultPage = key === 'page' && (!val || val === '1')
+      const trimmedVal = val && val.trim() !== '' && !isDefaultPage ? val.trim() : null
+
       if (trimmedVal !== null) {
-        if (prevVal !== trimmedVal) hasChanged = true
+        if (prevVal !== trimmedVal) {
+          hasChanged = true
+          if (key === 'area' || key === 'page') areaOrPageChanged = true
+        }
         next.set(key, trimmedVal)
       } else {
-        if (prevVal !== null) hasChanged = true
+        if (prevVal !== null) {
+          hasChanged = true
+          if (key === 'area' || key === 'page') areaOrPageChanged = true
+        }
         next.delete(key)
       }
     })
 
-    setIsLoading(true)
-    setError(null)
+    if (areaOrPageChanged || !data) {
+      setIsLoading(true)
+      setError(null)
+    }
 
     if (hasChanged) {
       startTransition(() => {
         setSearchParams(next)
       })
-    } else {
+    } else if (areaOrPageChanged || !data) {
       setRefreshTrigger((c) => c + 1)
     }
   }
