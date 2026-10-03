@@ -3,7 +3,6 @@ package io.github.mfabisiak.hubmi.contract
 import io.github.mfabisiak.hubmi.api.AdminTrends
 import io.github.mfabisiak.hubmi.api.ErrorCode
 import io.github.mfabisiak.hubmi.api.ErrorResponse
-import io.github.mfabisiak.hubmi.api.Innovations
 import io.github.mfabisiak.hubmi.api.Notifications
 import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.Threads
@@ -35,8 +34,6 @@ private fun Route.publicStubs() {
 }
 
 private fun Route.authenticatedStubs() {
-    post<Innovations.ById.TestRequests> { notImplemented() }
-    post<Innovations.ById.Feedback> { notImplemented() }
     get<Threads> { notImplemented() }
     post<Threads> { notImplemented() }
     get<Threads.ById.Messages> { notImplemented() }
