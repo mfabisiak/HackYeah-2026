@@ -14,6 +14,8 @@ import io.github.mfabisiak.hubmi.innovations.innovationRoutes
 import io.github.mfabisiak.hubmi.matching.MatchingEngine
 import io.github.mfabisiak.hubmi.matching.matchRoutes
 import io.github.mfabisiak.hubmi.materials.materialRoutes
+import io.github.mfabisiak.hubmi.messaging.NotificationEventListener
+import io.github.mfabisiak.hubmi.messaging.messagingRoutes
 import io.github.mfabisiak.hubmi.plugins.MongoIndexes
 import io.github.mfabisiak.hubmi.plugins.configureKoin
 import io.github.mfabisiak.hubmi.plugins.configureSerialization
@@ -68,6 +70,9 @@ fun Application.module(
     // Outside the blocking block above: a slow or absent Ollama must not delay start-up, only the first match
     launch { get<MatchingEngine>().warmUp() }
 
+    val notificationEventListener = get<NotificationEventListener>()
+    notificationEventListener.start()
+
     routing {
         healthRoutes()
         authRoutes()
@@ -80,6 +85,7 @@ fun Application.module(
         testerRoutes()
         ideaRoutes()
         grantCallRoutes()
+        messagingRoutes()
     }
 }
 

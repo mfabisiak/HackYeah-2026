@@ -12,6 +12,9 @@ import io.github.mfabisiak.hubmi.api.UpsertCallRequest
 import io.github.mfabisiak.hubmi.common.DomainError
 import io.github.mfabisiak.hubmi.common.orValidationError
 import io.github.mfabisiak.hubmi.common.toDomainError
+import io.github.mfabisiak.hubmi.ideas.CallChanged
+import io.github.mfabisiak.hubmi.ideas.CallPublished
+import io.github.mfabisiak.hubmi.ideas.EventPublisher
 import org.bson.types.ObjectId
 import java.time.Clock
 
@@ -19,6 +22,7 @@ class GrantCallService(
     private val callRepository: GrantCallRepository,
     private val applicationRepository: ApplicationRepository,
     private val clock: Clock = Clock.systemUTC(),
+    private val eventPublisher: EventPublisher? = null,
 ) {
     suspend fun list(status: CallStatus?): Either<DomainError, List<GrantCallDto>> =
         either {
@@ -77,6 +81,14 @@ class GrantCallService(
                     .mapLeft { it.toDomainError() }
                     .bind()
 
+            eventPublisher?.publish(
+                CallPublished(
+                    callId = created.id.toHexString(),
+                    callTitle = created.title,
+                    occurredAt = now,
+                ),
+            )
+
             created.toDto(clock)
         }
 
@@ -127,6 +139,14 @@ class GrantCallService(
                 ) {
                     DomainError.NotFound("Nie znaleziono naboru o id: $idString")
                 }
+
+            eventPublisher?.publish(
+                CallChanged(
+                    callId = updated.id.toHexString(),
+                    callTitle = updated.title,
+                    occurredAt = updatedItem.updatedAt,
+                ),
+            )
 
             updated.toDto(clock)
         }

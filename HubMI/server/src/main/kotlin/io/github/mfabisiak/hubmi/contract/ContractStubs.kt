@@ -3,9 +3,7 @@ package io.github.mfabisiak.hubmi.contract
 import io.github.mfabisiak.hubmi.api.AdminTrends
 import io.github.mfabisiak.hubmi.api.ErrorCode
 import io.github.mfabisiak.hubmi.api.ErrorResponse
-import io.github.mfabisiak.hubmi.api.Notifications
 import io.github.mfabisiak.hubmi.api.Role
-import io.github.mfabisiak.hubmi.api.Threads
 import io.github.mfabisiak.hubmi.auth.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.auth.requireRole
 import io.ktor.http.*
@@ -34,12 +32,6 @@ private fun Route.publicStubs() {
 }
 
 private fun Route.authenticatedStubs() {
-    get<Threads> { notImplemented() }
-    post<Threads> { notImplemented() }
-    get<Threads.ById.Messages> { notImplemented() }
-    post<Threads.ById.Messages> { notImplemented() }
-    get<Notifications> { notImplemented() }
-    post<Notifications.Read> { notImplemented() }
 }
 
 private fun Route.adminStubs() {

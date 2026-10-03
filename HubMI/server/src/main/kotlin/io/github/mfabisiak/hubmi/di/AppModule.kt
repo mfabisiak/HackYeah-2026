@@ -34,6 +34,14 @@ import io.github.mfabisiak.hubmi.matching.TextAnalyzer
 import io.github.mfabisiak.hubmi.matching.VectorIndex
 import io.github.mfabisiak.hubmi.materials.MaterialRepository
 import io.github.mfabisiak.hubmi.materials.MaterialService
+import io.github.mfabisiak.hubmi.messaging.CoroutineEventBus
+import io.github.mfabisiak.hubmi.messaging.EventBus
+import io.github.mfabisiak.hubmi.messaging.MessageRepository
+import io.github.mfabisiak.hubmi.messaging.NotificationEventListener
+import io.github.mfabisiak.hubmi.messaging.NotificationRepository
+import io.github.mfabisiak.hubmi.messaging.NotificationService
+import io.github.mfabisiak.hubmi.messaging.ThreadRepository
+import io.github.mfabisiak.hubmi.messaging.ThreadService
 import io.github.mfabisiak.hubmi.samples.SampleRepository
 import io.github.mfabisiak.hubmi.samples.SampleService
 import io.github.mfabisiak.hubmi.seeding.DatabaseSeeder
@@ -68,7 +76,9 @@ fun appModule(config: AppConfig) =
         }
         single { GreetingService() }
         single<Clock> { Clock.systemUTC() }
-        single<EventPublisher> { NoOpEventPublisher() }
+        single<EventBus> { CoroutineEventBus() }
+        single<EventPublisher> { get<EventBus>() }
+        single { NotificationEventListener(get(), get()) }
         single { SampleRepository(get<MongoRepository>().database) }
         single { InnovationRepository(get<MongoRepository>().database) }
         single<Stemmer> { PrefixStemmer() }
@@ -112,17 +122,22 @@ fun appModule(config: AppConfig) =
         single { GrantCallRepository(get<MongoRepository>().database) }
         single { ApplicationRepository(get<MongoRepository>().database) }
         single { NeedRepository(get<MongoRepository>().database) }
+        single { ThreadRepository(get<MongoRepository>().database) }
+        single { MessageRepository(get<MongoRepository>().database) }
+        single { NotificationRepository(get<MongoRepository>().database) }
         single { SampleService(get()) }
         single { InnovationService(get(), get()) }
         single { ChallengeService(get()) }
         single { MaterialService(get()) }
         single { IdeaService(get(), get(), get()) }
-        single { GrantCallService(get(), get(), get()) }
+        single { GrantCallService(get(), get(), get(), get()) }
         single { ApplicationService(get(), get(), get(), get()) }
         single { MatchService(get(), get()) }
         single { FeedbackRepository(get<MongoRepository>().database) }
         single { FeedbackService(get(), get()) }
         single { TestRequestRepository(get<MongoRepository>().database) }
         single { TestRequestService(get(), get()) }
+        single { ThreadService(get(), get(), get(), get()) }
+        single { NotificationService(get()) }
         single { DatabaseSeeder(get<MongoRepository>().database, get()) }
     }
