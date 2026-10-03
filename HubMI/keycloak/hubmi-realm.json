@@ -24,7 +24,7 @@
         "http://localhost:*",
         "io.github.mfabisiak.hubmi:/oauth2redirect"
       ],
-      "webOrigins": ["+"],
+      "webOrigins": ["http://localhost:5173", "http://localhost:4173", "http://localhost:3000"],
       "attributes": { "pkce.code.challenge.method": "S256" }
     }
   ],

@@ -1,54 +1,47 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Server.
+# HubMI – Małopolski Hub Innowacji Społecznych
 
-* [/app/iosApp](./app/iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose
-  Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+Prototyp platformy dla wyzwania ROPS Kraków (HackYeah 2026). Opis zadania: [docs/TASK.md](docs/TASK.md),
+plan prac: [docs/ROADMAP.md](docs/ROADMAP.md), matchmaking: [docs/MATCHMAKING.md](docs/MATCHMAKING.md),
+zasady kodu: [CLAUDE.md](CLAUDE.md).
 
-* [/app/shared](./app/shared/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-    - [commonMain](./app/shared/src/commonMain/kotlin) is for code that’s common for all targets.
-    - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-      For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-      the [iosMain](./app/shared/src/iosMain/kotlin) folder would be the right place for such calls.
-      Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./app/shared/src/jvmMain/kotlin)
-      folder is the appropriate location.
+## Struktura
 
-* [/core](./core/src) is for the code that will be shared between all targets in the project.
-  The most important subfolder is [commonMain](./core/src/commonMain/kotlin). If preferred, you
-  can add code to the platform-specific folders here too.
+| Moduł                  | Co to jest                                                                              |
+|:-----------------------|:----------------------------------------------------------------------------------------|
+| [core](core)           | Kotlin Multiplatform (JVM + JS): kontrakt API – DTO i trasy Ktor Resources              |
+| [server](server)       | Backend: Ktor + Koin + MongoDB, uwierzytelnianie przez Keycloak                         |
+| [web-client](web-client) | Kotlin/JS: klient API używający kontraktu z `core`, eksportowany do TypeScripta (npm: `hubmi-client`) |
+| [web](web)             | Frontend: React + TypeScript (Vite), komponenty Mantine, dostępność WCAG 2.1 AA         |
+| [keycloak](keycloak)   | Import realmu deweloperskiego                                                           |
 
-* [/server](./server/src/main/kotlin) is for the Ktor server application.
+Kontrakt jest kodem Kotlina: `core` → serwer implementuje trasy, `web-client` je wywołuje, `web` używa wygenerowanych
+typów TypeScript. Zmiana w `core` psuje kompilację po obu stronach.
 
-### Running the apps
+## Uruchomienie lokalne
 
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and
-options:
-
-- Android app: `./gradlew :app:androidApp:assembleDebug`
-- Server: `./gradlew :server:run`
-- iOS app: open the [/app/iosApp](./app/iosApp) directory in Xcode and run it from there.
-
-### Running tests
-
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
-
-- Android tests: `./gradlew :app:shared:testAndroidHostTest`
-- Server tests: `./gradlew :server:test`
-- iOS tests: `./gradlew :app:shared:iosSimulatorArm64Test`
-
----
-
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
-
-## Backend + Keycloak (docker compose)
+Wymagane: JDK 21, Node 22+ (zalecane 24), Docker.
 
 ```bash
-docker compose up -d --build
+docker compose up -d --build          # Mongo + Keycloak + serwer (http://localhost:8080)
+./gradlew :web-client:jsBrowserProductionLibraryDistribution   # buduje klienta Kotlin/JS dla frontendu
+cd web && npm install && npm run dev  # http://localhost:5173 (proxy /api i /health -> :8080)
 ```
 
-- Server: http://localhost:8080 (`/`, `/health` public; `/api/me` needs a token; `/api/admin` needs role `admin`)
-- Keycloak: http://localhost:8081 (admin console: `admin` / `admin`), realm `hubmi`, public client `hubmi-app`
-- Test users (realm import in [keycloak/hubmi-realm.json](./keycloak/hubmi-realm.json)): `user`/`user`, `admin`/`admin`
+Po zmianie kodu w `core` lub `web-client` zbuduj klienta ponownie (druga komenda, albo `npm run client` w `web/`).
+
+- Serwer: http://localhost:8080 (`/`, `/health` publiczne; `/api/me` wymaga tokena; `/api/admin` wymaga roli `admin`)
+- Keycloak: http://localhost:8081 (konsola: `admin` / `admin`), realm `hubmi`, publiczny klient `hubmi-app`
+- Użytkownicy testowi ([keycloak/hubmi-realm.json](keycloak/hubmi-realm.json)): `user`/`user`, `admin`/`admin`
+- Mongo: replica set jednowęzłowy na porcie `27017` (gdy zajęty: `MONGO_PORT=27018 docker compose up -d`)
+
+Konfiguracja serwera przez zmienne środowiskowe: `KEYCLOAK_ISSUER` (musi równać się `iss` tokena),
+`KEYCLOAK_JWKS_URL`, `MONGO_URI`, `MONGO_DATABASE`, `PORT`. Frontend: `VITE_KEYCLOAK_URL`, `VITE_KEYCLOAK_REALM`,
+`VITE_KEYCLOAK_CLIENT_ID`, a w dev `HUBMI_BACKEND` (adres serwera dla proxy Vite).
+
+Realm Keycloaka importuje się tylko przy pierwszym starcie. Po zmianie [keycloak/hubmi-realm.json](keycloak/hubmi-realm.json)
+usuń wolumeny (`docker compose down -v`) albo zaktualizuj klienta w konsoli.
+
+Token z linii poleceń:
 
 ```bash
 TOKEN=$(curl -s -d client_id=hubmi-app -d grant_type=password -d username=admin -d password=admin \
@@ -56,5 +49,10 @@ TOKEN=$(curl -s -d client_id=hubmi-app -d grant_type=password -d username=admin 
 curl -H "Authorization: Bearer $TOKEN" localhost:8080/api/me
 ```
 
-Config via env: `KEYCLOAK_ISSUER` (must equal the token `iss`), `KEYCLOAK_JWKS_URL`, `MONGO_URI`, `MONGO_DATABASE`, `PORT`.
-Mongo runs as a single-node replica set on host port `27017` (override with `MONGO_PORT=27018 docker compose up -d` if taken).
+## Testy i styl
+
+```bash
+./gradlew backendCheck                 # ktlint + testy :server i :core (to samo robi CI)
+./gradlew ktlintFormat                 # formatowanie Kotlina
+cd web && npm run lint && npm run build  # ESLint (z regułami a11y) + typecheck + build
+```

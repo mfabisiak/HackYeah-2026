@@ -16,6 +16,7 @@ dependencies {
     implementation(libs.ktor.serverCore)
     implementation(libs.ktor.serverNetty)
     implementation(libs.ktor.serverAuth)
+    implementation(libs.ktor.serverResources)
     implementation(libs.ktor.serverAuthJwt)
     implementation(libs.ktor.serverContentNegotiation)
     implementation(libs.ktor.serverStatusPages)

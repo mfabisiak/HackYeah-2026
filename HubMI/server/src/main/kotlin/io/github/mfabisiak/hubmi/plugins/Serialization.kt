@@ -1,31 +1,28 @@
 package io.github.mfabisiak.hubmi.plugins
 
+import io.github.mfabisiak.hubmi.api.ErrorResponse
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.resources.Resources
 import io.ktor.server.response.*
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class ErrorResponse(
-    val error: String,
-)
 
 fun Application.configureSerialization() {
+    install(Resources)
     install(ContentNegotiation) { json() }
     install(StatusPages) {
         exception<Throwable> { call, cause ->
             call.application.environment.log
                 .error("Unhandled exception", cause)
-            call.respond(HttpStatusCode.InternalServerError, ErrorResponse("Internal server error"))
+            call.respond(HttpStatusCode.InternalServerError, ErrorResponse("internal_error", "Internal server error"))
         }
         status(HttpStatusCode.Unauthorized) { call, _ ->
-            call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Unauthorized"))
+            call.respond(HttpStatusCode.Unauthorized, ErrorResponse("unauthorized", "Unauthorized"))
         }
         status(HttpStatusCode.Forbidden) { call, _ ->
-            call.respond(HttpStatusCode.Forbidden, ErrorResponse("Forbidden"))
+            call.respond(HttpStatusCode.Forbidden, ErrorResponse("forbidden", "Forbidden"))
         }
     }
 }

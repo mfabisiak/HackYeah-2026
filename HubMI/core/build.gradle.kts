@@ -1,41 +1,21 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidMultiplatformLibrary)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
-    iosArm64()
-    iosSimulatorArm64()
-
     jvm()
 
-    android {
-        namespace = "io.github.mfabisiak.hubmi.core"
-        compileSdk =
-            libs.versions.android.compileSdk
-                .get()
-                .toInt()
-        minSdk =
-            libs.versions.android.minSdk
-                .get()
-                .toInt()
-
+    js {
+        browser()
         compilerOptions {
-            jvmTarget = JvmTarget.JVM_11
-        }
-        androidResources {
-            enable = true
-        }
-        withHostTest {
-            isIncludeAndroidResources = true
+            target = "es2015"
         }
     }
 
     sourceSets {
         commonMain.dependencies {
-            // put your Multiplatform dependencies here
+            api(libs.ktor.resources)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

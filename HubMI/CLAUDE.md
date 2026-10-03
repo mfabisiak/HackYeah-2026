@@ -1,11 +1,13 @@
 # CLAUDE.md – HubMI
 
 Backend platformy Małopolskiego Hubu Innowacji Społecznych (HackYeah 2026, wyzwanie ROPS Kraków).
-Opis zadania, moduły i kryteria oceny: [docs/TASK.md](docs/TASK.md). **Przeczytaj go przed większą zmianą.**
+Opis zadania, moduły i kryteria oceny: [docs/TASK.md](docs/TASK.md); plan prac: [docs/ROADMAP.md](docs/ROADMAP.md), matchmaking: [docs/MATCHMAKING.md](docs/MATCHMAKING.md). **Przeczytaj go przed większą zmianą.**
 
 ## Stack
 
-- Kotlin Multiplatform; `:core` (DTO, wspólne typy), `:server` (Ktor/Netty, JVM), `:app:*` (klienci)
+- Kotlin Multiplatform; `:core` (DTO, `@Resource`, wspólne typy; JVM + JS), `:server` (Ktor/Netty, JVM),
+  `:web-client` (Kotlin/JS: klient API eksportowany do TypeScripta jako npm `hubmi-client`),
+  `web/` (React + TypeScript + Vite + Mantine, prawdziwy DOM dla dostępności). Aplikacja mobilna: poza zakresem.
 - **REST API** (JSON, kotlinx.serialization) – bez RPC
 - **MongoDB** (`mongodb-driver-kotlin-coroutine`), baza dokumentowa
 - **Keycloak** (OIDC/JWT, role realmu `user`, `admin`), **Koin** (DI), **Arrow** (`Either`, `raise`)
@@ -17,6 +19,9 @@ Opis zadania, moduły i kryteria oceny: [docs/TASK.md](docs/TASK.md). **Przeczyt
 ./gradlew :server:test             # testy serwera
 ./gradlew ktlintCheck              # styl (ktlint_official); ./gradlew ktlintFormat naprawia
 ./gradlew backendCheck             # to samo co CI: ktlint + testy :server i :core
+./gradlew :web-client:jsBrowserProductionLibraryDistribution   # klient Kotlin/JS dla frontendu (po zmianach w :core/:web-client)
+(cd web && npm run dev)            # frontend na :5173, proxy do serwera :8080
+(cd web && npm run lint && npm run build)
 ./gradlew :server:run              # serwer lokalnie (wymaga Mongo i Keycloaka)
 docker compose up -d --build       # Mongo + Keycloak + serwer
 ```
@@ -65,6 +70,7 @@ Przepływ: `route → service → repository`. Warstwa nie woła warstwy nad sob
 
 ### REST
 
+- Trasy jako **Ktor Resources** (`@Resource` w `:core/commonMain`), współdzielone przez serwer i klienta mobile; bez OpenAPI.
 - Prefiks `/api`, zasoby w liczbie mnogiej, rzeczowniki: `GET /api/innovations`, `POST /api/ideas`.
 - Metody i statusy zgodnie z semantyką: 200/201 (z `Location`), 204, 400 (walidacja), 401, 403, 404, 409 (konflikt), 5xx.
 - Błąd zawsze jako `ErrorResponse(code, message)`; `code` to stabilny identyfikator maszynowy.
@@ -87,6 +93,22 @@ Przepływ: `route → service → repository`. Warstwa nie woła warstwy nad sob
 - Wszystkie zależności przez konstruktor; moduł w `di/`. Bez `inject()` w logice domenowej – tylko w routach/pluginach.
 - Testy podmieniają moduły przez `module(extraModules)`.
 
+## Frontend (`web/`) i klient (`:web-client`)
+
+- UI to **TypeScript + React** (Vite, Mantine, React Router). Kontrakt z backendem **nie jest pisany w TS**:
+  trasy (`@Resource`) i DTO żyją w `:core`, a `:web-client` opakowuje je w klienta Ktor i eksportuje do TS (`HubApi`).
+- **Granica Kotlin/JS ↔ TS:** w `:web-client` eksportujemy tylko typy przyjazne JS (`String`, `Int`, `Double`, `Boolean`,
+  `Array`, nullable) – bez `value class`, `Long`, `List`. Metody `suspend` zwracają `Promise`. Błędy nie są wyjątkami:
+  każdy wynik to `ApiResult<T>` (`value` albo `error`); w Kotlinie `Either` mapujemy na `ApiResult` w jednym miejscu (`toResult`).
+- Nowy endpoint: DTO + `@Resource` w `:core` → implementacja w `:server` → metoda w `HubApi` + typ `...Js` w `:web-client`
+  → użycie w React. Po zmianie w Kotlinie przebuduj klienta (komenda wyżej).
+- W kodzie TS: `const` zamiast `let`, brak `any`, ESLint z `jsx-a11y` musi przechodzić (`npm run lint`).
+- **WCAG 2.1 AA jest wymaganiem** (20% oceny): semantyczny HTML, obsługa klawiatury, widoczny focus, kontrast ≥ 4.5:1,
+  komunikaty błędów tekstem (nie samym kolorem), `aria-live` dla wyników, `lang="pl"`, skalowanie do 200%,
+  link „Przejdź do treści", `aria-label` dla przycisków-ikon. Preferuj komponenty Mantine, które mają wbudowaną obsługę a11y.
+- Zasoby (fonty, ikony) self-hosted; token dostępu tylko w pamięci aplikacji, nie w `localStorage`.
+- Żadnych zewnętrznych usług w przeglądarce (CDN, analityka, Web Speech API).
+
 ## Konwencje
 
 - Pakiet bazowy: `io.github.mfabisiak.hubmi`. Jeden publiczny typ główny na plik, nazwa pliku = nazwa typu.
@@ -107,5 +129,6 @@ Przepływ: `route → service → repository`. Warstwa nie woła warstwy nad sob
 - Nie dodawać `var`, `throw`, `!!`, `lateinit`, `runBlocking`, `GlobalScope`.
 - Nie zwracać encji Mongo z API ani nie logować danych osobowych / tokenów.
 - Nie używać prawdziwych danych osobowych z materiałów ROPS (wymóg wyzwania).
+- Nie wysyłać żadnych danych do zewnętrznych serwisów AI – modele (embeddingi, LLM) działają lokalnie.
 - Nie omijać Keycloaka własnymi tokenami/hasłami – tożsamość to wyłącznie Keycloak.
 - Nie rozbudowywać poza zakres: najpierw matchmaking (obligatoryjny, 10% + największy wpływ na trafność), potem moduły wg punktacji.
