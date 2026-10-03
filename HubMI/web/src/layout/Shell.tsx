@@ -6,6 +6,7 @@ import { useAuth } from '../auth/AuthContext'
 
 const baseLinks = [
   { to: '/', label: 'Start' },
+  { to: '/dopasuj', label: 'Opisz problem' },
   { to: '/status', label: 'Status systemu' },
   { to: '/konto', label: 'Moje konto' },
 ]

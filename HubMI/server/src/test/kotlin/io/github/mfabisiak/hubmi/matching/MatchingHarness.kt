@@ -73,7 +73,7 @@ object MatchingHarness {
 
     val knownSlugs: Set<String> = slugById.values.toSet()
 
-    /** An engine over the seed that shows every innovation with a positive score (the threshold is applied later). */
+    /** An engine over the seed that shows every innovation with a positive score (the cut-offs are applied later). */
     fun engine(
         stemmer: Stemmer,
         weights: FieldWeights = FieldWeights(),
@@ -82,7 +82,7 @@ object MatchingHarness {
         return KeywordMatchingEngine(
             index = InnovationIndex(analyzer, load = { seed.right() }, weights = weights),
             analyzer = analyzer,
-            config = KeywordMatchingEngine.Config(minScore = 0.0, maxResults = seed.size),
+            config = KeywordMatchingEngine.Config(minScore = 0.0, maxResults = seed.size, relativeCutoff = 0.0),
         )
     }
 
@@ -92,13 +92,18 @@ object MatchingHarness {
             CaseResult(case, result.matches.map { Hit(slugById.getValue(it.innovation.id), it.score, it.matchedTerms) })
         }
 
-    /** Applies the production cut-off (relevance threshold, at most five matches) to unfiltered results. */
+    /** Applies the production cut-off (relevance threshold, share of the best score, at most five matches) to unfiltered results. */
     fun metrics(
         results: List<CaseResult>,
         minScore: Double,
         maxResults: Int = KeywordMatchingEngine.DEFAULT_MAX_RESULTS,
+        relativeCutoff: Double = KeywordMatchingEngine.DEFAULT_RELATIVE_CUTOFF,
     ): Metrics {
-        val shown = results.map { it to it.hits.filter { hit -> hit.score >= minScore }.take(maxResults) }
+        val shown =
+            results.map { result ->
+                val cutoff = (result.hits.firstOrNull()?.score ?: 0.0) * relativeCutoff
+                result to result.hits.filter { it.score >= minScore && it.score >= cutoff }.take(maxResults)
+            }
         val positives = shown.filter { !it.first.case.negative }
         val negatives = shown.filter { it.first.case.negative }
         val ranks =

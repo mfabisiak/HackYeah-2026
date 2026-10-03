@@ -16,11 +16,14 @@ class KeywordMatchingEngine(
     /**
      * @property minScore relevance (`0..1`) below which an innovation is not shown; calibrated on the golden set
      * (see docs/matching-baseline.md).
+     * @property relativeCutoff share of the best score an innovation needs to be shown, so a weak tail next to a
+     * clear winner is dropped (the threshold alone lets queries full of generic words through).
      * @property regionBoost factor applied to innovations whose region contains the municipality given by the user.
      */
     data class Config(
         val minScore: Double = DEFAULT_MIN_SCORE,
         val maxResults: Int = DEFAULT_MAX_RESULTS,
+        val relativeCutoff: Double = DEFAULT_RELATIVE_CUTOFF,
         val regionBoost: Double = DEFAULT_REGION_BOOST,
     )
 
@@ -54,13 +57,14 @@ class KeywordMatchingEngine(
                     }
                 }.filter { it.score >= config.minScore }
                 .sortedByDescending { it.score }
-                .take(config.maxResults)
-        return EngineResult(matches)
+        val cutoff = (matches.firstOrNull()?.score ?: 0.0) * config.relativeCutoff
+        return EngineResult(matches.filter { it.score >= cutoff }.take(config.maxResults))
     }
 
     companion object {
         const val DEFAULT_MIN_SCORE = 0.18
         const val DEFAULT_MAX_RESULTS = 5
+        const val DEFAULT_RELATIVE_CUTOFF = 0.7
         const val DEFAULT_REGION_BOOST = 1.15
     }
 }

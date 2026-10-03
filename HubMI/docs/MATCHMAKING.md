@@ -109,6 +109,10 @@ innowacjami. Metryki: **hit@3** i **MRR** dla każdego trybu; test w CI dla `key
 - `score` w odpowiedzi to trafność 0–1: wynik BM25 podzielony przez najlepszy możliwy wynik dla tego zapytania, więc
   zapytania z obcymi słowami mają niższą trafność. Próg `noGoodMatch` to 0,18; frontend powinien pokazywać etykiety
   jakościowe, a nie procenty.
+- Ogólnikowe słowa opisu problemu („brak”, „osoby”, „ludzie”, „mały”, „problem”) są stop-słowami: w małej bibliotece
+  nie mają siły dyskryminującej, a dawały punkty przypadkowym innowacjom. Stop-słowa porównujemy po złożeniu
+  diakrytyków. Dodatkowo pokazujemy tylko innowacje z wynikiem ≥ 70% najlepszego (`relativeCutoff`), żeby słaby
+  ogon nie towarzyszył wyraźnemu zwycięzcy.
 - Zapytanie jest zapisywane jako `need` (oczyszczony tekst, gmina, obszar najlepszego dopasowania, identyfikatory
   dopasowań, `helpful`); oryginalny opis nie trafia do bazy ani logów. **Login jest opcjonalny**: anonimowe
   zgłoszenie działa jak dotąd, a zalogowany zgłaszający zostaje właścicielem (`ownerId` = `sub` z Keycloaka). Właściciel
