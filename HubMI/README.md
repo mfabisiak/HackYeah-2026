@@ -21,14 +21,23 @@ typów TypeScript. Zmiana w `core` psuje kompilację po obu stronach.
 
 Wymagane: JDK 21, Node 22+ (zalecane 24), Docker.
 
+Wszystko jednym poleceniem (Mongo, Keycloak, serwer i frontend za nginx):
+
 ```bash
-docker compose up -d --build          # Mongo + Keycloak + serwer (http://localhost:8080)
+docker compose up -d --build          # frontend: http://localhost:3000, serwer: http://localhost:8080
+```
+
+Praca nad frontendem z hot reloadem (backend nadal w Dockerze):
+
+```bash
+docker compose up -d --build server   # Mongo + Keycloak + serwer (http://localhost:8080)
 ./gradlew :web-client:jsBrowserProductionLibraryDistribution   # buduje klienta Kotlin/JS dla frontendu
 cd web && npm install && npm run dev  # http://localhost:5173 (proxy /api i /health -> :8080)
 ```
 
-Po zmianie kodu w `core` lub `web-client` zbuduj klienta ponownie (druga komenda, albo `npm run client` w `web/`).
+Po zmianie kodu w `core` lub `web-client` zbuduj klienta ponownie (komenda z `./gradlew`, albo `npm run client` w `web/`).
 
+- Frontend (nginx w Dockerze): http://localhost:3000 (`WEB_PORT` zmienia port; Keycloak zezwala na originy 3000, 4173 i 5173)
 - Serwer: http://localhost:8080 (`/`, `/health` publiczne; `/api/me` wymaga tokena; `/api/admin` wymaga roli `admin`)
 - Keycloak: http://localhost:8081 (konsola: `admin` / `admin`), realm `hubmi`, publiczny klient `hubmi-app`
 - Użytkownicy testowi ([keycloak/hubmi-realm.json](keycloak/hubmi-realm.json)): `user`/`user`, `admin`/`admin`

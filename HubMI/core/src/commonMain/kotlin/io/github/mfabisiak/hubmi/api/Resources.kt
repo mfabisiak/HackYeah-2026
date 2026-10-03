@@ -13,6 +13,7 @@ class Health {
     )
 }
 
+/** Root of the REST API (`/api`). Module resources hang off it, see the other files in this package. */
 @Serializable
 @Resource("/api")
 class Api {
@@ -22,6 +23,7 @@ class Api {
         val parent: Api = Api(),
     )
 
+    /** Administrator area (`/api/admin`); sub-resources: [AdminTrends], [AdminIdeas]. */
     @Serializable
     @Resource("admin")
     class Admin(

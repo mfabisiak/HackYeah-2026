@@ -84,6 +84,15 @@ services:
       mongo:
         condition: service_healthy
 
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    ports:
+      - "${WEB_PORT:-3000}:80"
+    depends_on:
+      - server
+
 volumes:
   postgres-data:
   mongo-data:

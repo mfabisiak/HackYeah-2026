@@ -23,7 +23,7 @@ Opis zadania, moduły i kryteria oceny: [docs/TASK.md](docs/TASK.md); plan prac:
 (cd web && npm run dev)            # frontend na :5173, proxy do serwera :8080
 (cd web && npm run lint && npm run build)
 ./gradlew :server:run              # serwer lokalnie (wymaga Mongo i Keycloaka)
-docker compose up -d --build       # Mongo + Keycloak + serwer
+docker compose up -d --build       # Mongo + Keycloak + serwer + frontend (:3000)
 ```
 
 Test users: `user`/`user`, `admin`/`admin` (realm [keycloak/hubmi-realm.json](keycloak/hubmi-realm.json)).
@@ -41,8 +41,9 @@ Test users: `user`/`user`, `admin`/`admin` (realm [keycloak/hubmi-realm.json](ke
 4. **Zero `null` w domenie tam, gdzie można uniknąć.** `T?` dozwolone dla „brak dokumentu" z repozytorium
    i opcjonalnych pól; wyciągamy przez `ensureNotNull` / `?:` → błąd domenowy. Nigdy `!!`.
 5. **Walidacja przez `either { ensure(...) { Error } }`** z `arrow.core.raise`; wynik łączymy `.bind()`.
-6. Dane niemutowalne: `data class` z samymi `val`. Silne typy dla ID (`@JvmInline value class InnovationId(val value: String)`),
-   `enum`/`sealed` zamiast stringów-magic.
+6. Dane niemutowalne: `data class` z samymi `val`. Silne typy dla ID w domenie (`@JvmInline value class InnovationId(val value: String)`),
+   `enum`/`sealed` zamiast stringów-magic. **Wyjątek: kontrakt API w `:core`** – ID to `String`, czas to ISO-8601 `String`,
+   żeby kontrakt dał się wyeksportować do JS.
 7. Funkcje małe i czyste; efekty uboczne (IO) tylko w repozytoriach i na brzegu routingu. Preferuj wyrażenia
    (`when`, `if` jako wyrażenie, expression body) nad instrukcjami.
 8. Brak `Any`, brak rzutowań (`as`), brak refleksji. `as?` tylko na granicy z biblioteką.
@@ -70,6 +71,7 @@ Przepływ: `route → service → repository`. Warstwa nie woła warstwy nad sob
 
 ### REST
 
+- Kontrakt API: [docs/API.md](docs/API.md) (zasoby i DTO w `:core/.../api`, atrapy `501` w `routes/ContractStubs.kt`).
 - Trasy jako **Ktor Resources** (`@Resource` w `:core/commonMain`), współdzielone przez serwer i klienta mobile; bez OpenAPI.
 - Prefiks `/api`, zasoby w liczbie mnogiej, rzeczowniki: `GET /api/innovations`, `POST /api/ideas`.
 - Metody i statusy zgodnie z semantyką: 200/201 (z `Location`), 204, 400 (walidacja), 401, 403, 404, 409 (konflikt), 5xx.

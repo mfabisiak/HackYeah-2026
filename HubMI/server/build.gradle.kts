@@ -28,5 +28,6 @@ dependencies {
     implementation(libs.koin.loggerSlf4j)
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.ktor.clientContentNegotiation)
+    testImplementation(libs.ktor.clientResources)
     testImplementation(libs.kotlin.testJunit)
 }

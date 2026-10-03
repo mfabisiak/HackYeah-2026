@@ -36,6 +36,8 @@ fun Route.appRoutes() {
         )
     }
 
+    contractStubs()
+
     // Requires a valid Keycloak access token
     authenticate(KEYCLOAK_AUTH) {
         get<Api.Me> {

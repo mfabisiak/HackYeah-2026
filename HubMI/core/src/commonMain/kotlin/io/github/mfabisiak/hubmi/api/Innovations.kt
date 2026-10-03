@@ -1,0 +1,107 @@
+package io.github.mfabisiak.hubmi.api
+
+import io.ktor.resources.Resource
+import kotlinx.serialization.Serializable
+
+// Module 2 (knowledge base) + module 4 (innovation tester).
+
+/** `GET /api/innovations` (public) lists, `POST` (admin) creates. */
+@Serializable
+@Resource("innovations")
+class Innovations(
+    val parent: Api = Api(),
+    val q: String? = null,
+    val area: SocialArea? = null,
+    val targetGroup: TargetGroup? = null,
+    val page: Int = 0,
+    val size: Int = 20,
+) {
+    /** `GET` (public), `PUT` / `DELETE` (admin). */
+    @Serializable
+    @Resource("{id}")
+    class ById(
+        val parent: Innovations = Innovations(),
+        val id: String,
+    ) {
+        /** `POST` (authenticated): declare willingness to test the innovation. */
+        @Serializable
+        @Resource("test-requests")
+        class TestRequests(
+            val parent: ById,
+        )
+
+        /** `POST` (authenticated): rate the innovation and leave feedback. */
+        @Serializable
+        @Resource("feedback")
+        class Feedback(
+            val parent: ById,
+        )
+    }
+}
+
+@Serializable
+data class InnovationSummary(
+    val id: String,
+    val title: String,
+    val summary: String,
+    val areas: List<SocialArea>,
+    val targetGroups: List<TargetGroup>,
+    val stage: InnovationStage,
+)
+
+@Serializable
+data class InnovationDto(
+    val id: String,
+    val title: String,
+    val summary: String,
+    val description: String,
+    val areas: List<SocialArea>,
+    val targetGroups: List<TargetGroup>,
+    val stage: InnovationStage,
+    val region: String?,
+    val mediaUrls: List<String>,
+    val averageRating: Double?,
+    val ratingsCount: Int,
+)
+
+@Serializable
+data class UpsertInnovationRequest(
+    val title: String,
+    val summary: String,
+    val description: String,
+    val areas: List<SocialArea>,
+    val targetGroups: List<TargetGroup>,
+    val stage: InnovationStage,
+    val region: String? = null,
+    val mediaUrls: List<String> = emptyList(),
+)
+
+@Serializable
+data class CreateTestRequest(
+    val note: String? = null,
+)
+
+@Serializable
+data class TestRequestDto(
+    val id: String,
+    val innovationId: String,
+    val note: String?,
+    val createdAt: String,
+)
+
+@Serializable
+data class CreateFeedbackRequest(
+    val rating: Int,
+    val comment: String? = null,
+    val suggestion: String? = null,
+)
+
+@Serializable
+data class FeedbackDto(
+    val id: String,
+    val innovationId: String,
+    val rating: Int,
+    val comment: String?,
+    val suggestion: String?,
+    val createdAt: String,
+)
