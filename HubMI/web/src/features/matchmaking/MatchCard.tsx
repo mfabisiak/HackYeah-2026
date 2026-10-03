@@ -69,6 +69,7 @@ export function MatchCard({ match }: MatchCardProps) {
             variant="filled"
             size="xl"
             radius="md"
+            autoContrast
             leftSection={<IconSparkles size={18} aria-hidden="true" />}
             style={{
               height: 38,
@@ -128,7 +129,7 @@ export function MatchCard({ match }: MatchCardProps) {
               size="md"
               spacing="xs"
               icon={
-                <ThemeIcon color={quality.color} size={24} radius="xl" variant="light">
+                <ThemeIcon color={quality.color} size={24} radius="xl" variant="light" autoContrast>
                   <IconCircleCheck size={16} aria-hidden="true" />
                 </ThemeIcon>
               }
@@ -145,7 +146,11 @@ export function MatchCard({ match }: MatchCardProps) {
 
         {matchedTerms && matchedTerms.length > 0 && (
           <Group gap={8} align="center" mt="xs" wrap="wrap">
-            <Text size="sm" fw={600} c="dimmed">
+            <Text
+              size="md"
+              fw={600}
+              c="light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0))"
+            >
               Dopasowane słowa z Twojego opisu:
             </Text>
             {matchedTerms.map((term, idx) => (

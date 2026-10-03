@@ -63,7 +63,13 @@ export function MatchFeedback({ needId }: MatchFeedbackProps) {
           <Title order={3} size="h3" ta="center">
             Czy te propozycje były dla Ciebie pomocne?
           </Title>
-          <Text size="md" c="dimmed" ta="center" maw={580}>
+          <Text
+            size="md"
+            c="light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0))"
+            ta="center"
+            maw={580}
+            style={{ fontSize: '1.05rem', lineHeight: 1.5 }}
+          >
             Twoja opinia jest dla nas bardzo cenna. Dzięki niej możemy jeszcze lepiej dobierać
             sprawdzone rozwiązania dla mieszkańców Małopolski.
           </Text>

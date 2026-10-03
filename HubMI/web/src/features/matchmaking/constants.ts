@@ -61,7 +61,7 @@ export const INNOVATION_STAGE_NAMES: Record<string, string> = {
 
 export function getMatchQualityLabel(score: number): {
   label: string
-  color: 'teal' | 'blue' | 'yellow'
+  color: 'teal' | 'blue' | 'yellow.7'
 } {
   if (score >= 0.75) {
     return { label: 'Bardzo wysoka zgodność z problemem', color: 'teal' }
@@ -69,5 +69,5 @@ export function getMatchQualityLabel(score: number): {
   if (score >= 0.45) {
     return { label: 'Dobra zgodność z problemem', color: 'blue' }
   }
-  return { label: 'Częściowa zgodność (warto sprawdzić)', color: 'yellow' }
+  return { label: 'Częściowa zgodność (warto sprawdzić)', color: 'yellow.7' }
 }

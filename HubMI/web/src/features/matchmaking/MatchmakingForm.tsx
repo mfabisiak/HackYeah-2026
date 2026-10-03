@@ -90,7 +90,11 @@ export function MatchmakingForm({ isLoading, onSubmit }: MatchmakingFormProps) {
             </Text>
           </Text>
 
-          <Text size="sm" c="dimmed" id="description-hint">
+          <Text
+            size="md"
+            c="light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0))"
+            id="description-hint"
+          >
             Napisz prostymi słowami, co sprawia trudność w codziennym życiu seniorom lub mieszkańcom Twojej okolicy.
           </Text>
 
@@ -116,13 +120,16 @@ export function MatchmakingForm({ isLoading, onSubmit }: MatchmakingFormProps) {
           />
 
           <Group justify="space-between" align="center">
-            <Text size="sm" c="dimmed">
+            <Text
+              size="md"
+              c="light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0))"
+            >
               Wymagane minimum {MIN_LENGTH} znaków.
             </Text>
             <Text
               id="description-counter"
-              size="sm"
-              c={isOverLimit ? 'red' : 'dimmed'}
+              size="md"
+              c={isOverLimit ? 'red' : 'light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0))'}
               fw={isOverLimit ? 700 : 500}
               aria-live="polite"
             >
@@ -132,7 +139,7 @@ export function MatchmakingForm({ isLoading, onSubmit }: MatchmakingFormProps) {
         </Stack>
 
         <Stack gap="xs">
-          <Text size="sm" fw={600}>
+          <Text size="md" fw={600}>
             Możesz też wybrać gotowy przykład problemu (kliknij, aby wstawić):
           </Text>
           <Group gap="sm" wrap="wrap">
@@ -168,11 +175,11 @@ export function MatchmakingForm({ isLoading, onSubmit }: MatchmakingFormProps) {
           searchable
           clearable
           disabled={isLoading}
-          size="md"
+          size="lg"
           radius="md"
           styles={{
-            label: { fontSize: '0.95rem', fontWeight: 600 },
-            description: { fontSize: '0.875rem' },
+            label: { fontSize: '1rem', fontWeight: 600 },
+            description: { fontSize: '0.95rem' },
           }}
         />
 

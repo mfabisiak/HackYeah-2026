@@ -27,7 +27,10 @@ export function SimilarNeedsList({ items }: SimilarNeedsListProps) {
           </Title>
         </Group>
 
-        <Text size="md" c="dimmed">
+        <Text
+          size="md"
+          c="light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0))"
+        >
           Zobacz, o jakich zbliżonych sytuacjach informowali nas inni mieszkańcy i samorządowcy z regionu:
         </Text>
 

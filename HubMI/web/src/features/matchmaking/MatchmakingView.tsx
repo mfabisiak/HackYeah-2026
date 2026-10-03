@@ -147,7 +147,10 @@ export function MatchmakingView() {
                   : `Znalezione rozwiązania (${result.matches.length})`}
               </Title>
               {result.matches.length > 0 && !result.noGoodMatch && (
-                <Text size="md" c="dimmed">
+                <Text
+                  size="md"
+                  c="light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0))"
+                >
                   Poniżej znajdują się projekty i pomysły, które najlepiej odpowiadają Twojemu opisowi:
                 </Text>
               )}
