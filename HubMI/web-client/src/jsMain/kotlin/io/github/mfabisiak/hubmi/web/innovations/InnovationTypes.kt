@@ -41,6 +41,12 @@ class InnovationJs(
     val mediaUrls: Array<String>,
     val averageRating: Double?,
     val ratingsCount: Int,
+    /** Narrative sections of the ROPS application form (items 4 to 8); absent in older entries. */
+    val innovativeness: String?,
+    val problemDiagnosis: String?,
+    val audienceDescription: String?,
+    val expectedChange: String?,
+    val futureVision: String?,
 )
 
 @JsExport
@@ -53,6 +59,11 @@ class UpsertInnovationJs(
     val stage: String,
     val region: String? = null,
     val mediaUrls: Array<String> = emptyArray(),
+    val innovativeness: String? = null,
+    val problemDiagnosis: String? = null,
+    val audienceDescription: String? = null,
+    val expectedChange: String? = null,
+    val futureVision: String? = null,
 )
 
 @JsExport
@@ -89,6 +100,11 @@ internal fun InnovationDto.toJs(): InnovationJs =
         mediaUrls.toTypedArray(),
         averageRating,
         ratingsCount,
+        innovativeness,
+        problemDiagnosis,
+        audienceDescription,
+        expectedChange,
+        futureVision,
     )
 
 internal fun TestRequestDto.toJs(): TestRequestJs = TestRequestJs(id, innovationId, note, createdAt)
@@ -106,5 +122,10 @@ internal fun UpsertInnovationJs.toDto(): Either<ApiErrorJs, UpsertInnovationRequ
             stage = enumOf<InnovationStage>(stage, "stage"),
             region = region,
             mediaUrls = mediaUrls.toList(),
+            innovativeness = innovativeness,
+            problemDiagnosis = problemDiagnosis,
+            audienceDescription = audienceDescription,
+            expectedChange = expectedChange,
+            futureVision = futureVision,
         )
     }

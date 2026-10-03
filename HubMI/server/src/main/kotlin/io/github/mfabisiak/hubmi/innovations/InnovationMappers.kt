@@ -27,6 +27,11 @@ fun InnovationItem.toDto(): InnovationDto =
         mediaUrls = mediaUrls,
         averageRating = if (ratingsCount > 0) ratingSum.toDouble() / ratingsCount else null,
         ratingsCount = ratingsCount,
+        innovativeness = innovativeness,
+        problemDiagnosis = problemDiagnosis,
+        audienceDescription = audienceDescription,
+        expectedChange = expectedChange,
+        futureVision = futureVision,
     )
 
 fun InnovationDraft.toItem(now: String): InnovationItem =
@@ -39,6 +44,11 @@ fun InnovationDraft.toItem(now: String): InnovationItem =
         stage = stage,
         region = region?.value,
         mediaUrls = mediaUrls.map(HttpUrl::value),
+        innovativeness = narrative.innovativeness?.value,
+        problemDiagnosis = narrative.problemDiagnosis?.value,
+        audienceDescription = narrative.audienceDescription?.value,
+        expectedChange = narrative.expectedChange?.value,
+        futureVision = narrative.futureVision?.value,
         createdAt = now,
         updatedAt = now,
     )

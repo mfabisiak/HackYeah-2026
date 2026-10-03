@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 class Matches(
     val parent: Api = Api(),
 ) {
-    /** `POST` (public): "did this help?" for the need created by a match request. */
+    /** `PUT` (public): "did this help?" for the need created by a match request; replaces the previous answer. */
     @Serializable
     @Resource("{needId}/feedback")
     class Feedback(

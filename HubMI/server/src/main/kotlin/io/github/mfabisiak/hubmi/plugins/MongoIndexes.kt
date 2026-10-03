@@ -10,6 +10,8 @@ import io.github.mfabisiak.hubmi.common.RepositoryError
 import io.github.mfabisiak.hubmi.common.mongo.mongoCatch
 import io.github.mfabisiak.hubmi.innovations.InnovationItem
 import io.github.mfabisiak.hubmi.innovations.innovations
+import io.github.mfabisiak.hubmi.matching.NeedItem
+import io.github.mfabisiak.hubmi.matching.needs
 import io.github.mfabisiak.hubmi.materials.MaterialItem
 import io.github.mfabisiak.hubmi.materials.materials
 import io.github.mfabisiak.hubmi.samples.SampleItem
@@ -27,5 +29,7 @@ object MongoIndexes {
 
             database.materials.createIndex(Indexes.ascending(MaterialItem::type))
             database.materials.createIndex(Indexes.ascending(MaterialItem::areas))
+
+            database.needs.createIndex(Indexes.ascending(NeedItem::matchedInnovationIds))
         }.map { }
 }

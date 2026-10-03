@@ -120,6 +120,17 @@ class DatabaseSeederTest {
                 assertTrue(stage in coveredStages, "InnovationStage $stage should be covered in seeded innovations")
             }
 
+            // Every seeded innovation carries the narrative sections of ROPS' application form
+            allInnovations.forEach { item ->
+                listOf(
+                    item.innovativeness,
+                    item.problemDiagnosis,
+                    item.audienceDescription,
+                    item.expectedChange,
+                    item.futureVision,
+                ).forEach { section -> assertTrue(!section.isNullOrBlank(), "Missing section in ${item.title}") }
+            }
+
             // Second run (idempotent upsert)
             val result2 = seeder.seedIfNeeded()
             assertTrue(result2 is Either.Right)

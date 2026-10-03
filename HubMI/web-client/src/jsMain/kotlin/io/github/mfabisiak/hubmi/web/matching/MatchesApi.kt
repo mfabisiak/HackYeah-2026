@@ -41,7 +41,7 @@ class MatchesApi internal constructor(
     ): Promise<ApiResult<EmptyJs>> =
         scope.promiseResult {
             client
-                .sendForUnit(HttpMethod.Post, Matches.Feedback(needId = needId), MatchFeedbackRequest(helpful))
+                .sendForUnit(HttpMethod.Put, Matches.Feedback(needId = needId), MatchFeedbackRequest(helpful))
                 .map { EmptyJs() }
         }
 }

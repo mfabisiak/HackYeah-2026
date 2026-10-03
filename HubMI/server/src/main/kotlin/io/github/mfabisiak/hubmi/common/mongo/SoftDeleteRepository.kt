@@ -69,6 +69,8 @@ abstract class SoftDeleteRepository<T : Any>(
             )
         }
 
+    suspend fun findAllActive(): Either<RepositoryError, List<T>> = mongoCatch { collection.find(active()).toList() }
+
     protected suspend fun archive(
         id: ObjectId,
         now: String,

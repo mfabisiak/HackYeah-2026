@@ -9,6 +9,7 @@ import io.github.mfabisiak.hubmi.contract.contractStubs
 import io.github.mfabisiak.hubmi.di.appModule
 import io.github.mfabisiak.hubmi.health.healthRoutes
 import io.github.mfabisiak.hubmi.innovations.innovationRoutes
+import io.github.mfabisiak.hubmi.matching.matchRoutes
 import io.github.mfabisiak.hubmi.materials.materialRoutes
 import io.github.mfabisiak.hubmi.plugins.MongoIndexes
 import io.github.mfabisiak.hubmi.plugins.configureKoin
@@ -60,6 +61,7 @@ fun Application.module(
         innovationRoutes()
         challengeRoutes()
         materialRoutes()
+        matchRoutes()
     }
 }
 
