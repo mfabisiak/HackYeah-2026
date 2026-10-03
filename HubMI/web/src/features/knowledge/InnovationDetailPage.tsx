@@ -125,17 +125,19 @@ export function InnovationDetailPage() {
           to="/innowacje"
           variant="subtle"
           color="gray"
-          size="md"
-          leftSection={<IconArrowLeft size={20} aria-hidden="true" />}
+          size="lg"
+          leftSection={<IconArrowLeft size={22} aria-hidden="true" />}
+          styles={{ root: { fontSize: '1.05rem' } }}
         >
           Wróć do bazy innowacji
         </Button>
 
         <Button
           onClick={() => setTestModalOpened(true)}
-          size="md"
+          size="lg"
           color="blue"
-          leftSection={<IconHeartHandshake size={20} aria-hidden="true" />}
+          leftSection={<IconHeartHandshake size={22} aria-hidden="true" />}
+          styles={{ root: { fontSize: '1.05rem', fontWeight: 600 } }}
         >
           Chcę przetestować to rozwiązanie
         </Button>

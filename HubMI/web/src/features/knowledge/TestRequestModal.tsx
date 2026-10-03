@@ -93,25 +93,36 @@ export function TestRequestModal({
       opened={opened}
       onClose={onClose}
       title="Zgłoszenie do testowania innowacji"
-      size="lg"
+      size="xl"
       radius="md"
       styles={{
-        title: { fontSize: '1.2rem', fontWeight: 700 },
+        title: { fontSize: '1.4rem', fontWeight: 700 },
+        header: { paddingBottom: 16 },
       }}
     >
-      <Stack gap="md">
-        <Text size="md" style={{ lineHeight: 1.5 }}>
-          Rozwiązanie: <strong>{innovationTitle}</strong>
+      <Stack gap="lg">
+        <Text style={{ fontSize: '1.2rem', lineHeight: 1.6 }}>
+          Rozwiązanie:{' '}
+          <strong style={{ color: 'var(--mantine-color-blue-filled)' }}>
+            {innovationTitle}
+          </strong>
         </Text>
 
         {!authenticated ? (
-          <Alert color="blue" title="Wymagane logowanie" radius="md">
-            <Stack gap="sm">
-              <Text size="md">
-                Aby zgłosić chęć udziału w testach innowacji społecznej, musisz być zalogowany.
+          <Alert
+            color="blue"
+            title="Wymagane logowanie"
+            radius="md"
+            styles={{
+              title: { fontSize: '1.2rem', fontWeight: 700 },
+            }}
+          >
+            <Stack gap="md">
+              <Text style={{ fontSize: '1.1rem', lineHeight: 1.6 }}>
+                Aby zgłosić chęć udziału w testach innowacji społecznej, musisz być zalogowany na platformie.
               </Text>
               <div>
-                <Button onClick={login} size="md">
+                <Button onClick={login} size="lg" styles={{ root: { fontSize: '1.05rem' } }}>
                   Zaloguj się
                 </Button>
               </div>
@@ -124,21 +135,43 @@ export function TestRequestModal({
                 color={getStatusLabel(existingRequest.status).color}
                 title="Twoje zgłoszenie zostało zarejestrowane"
                 radius="md"
+                styles={{
+                  title: { fontSize: '1.2rem', fontWeight: 700, marginBottom: 8 },
+                }}
               >
-                <Stack gap="xs">
-                  <Group gap="xs">
-                    <Text size="sm" fw={600}>
-                      Status:
+                <Stack gap="sm">
+                  <Group gap="sm" align="center" wrap="wrap">
+                    <Text style={{ fontSize: '1.15rem', fontWeight: 700 }}>
+                      Status wniosku:
                     </Text>
-                    <Badge color={getStatusLabel(existingRequest.status).color} variant="light">
+                    <Badge
+                      color={getStatusLabel(existingRequest.status).color}
+                      variant="light"
+                      size="xl"
+                      radius="md"
+                      style={{
+                        height: 38,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        border: '1.5px solid currentColor',
+                      }}
+                      styles={{
+                        label: { fontSize: '1.05rem', fontWeight: 600 },
+                      }}
+                    >
                       {getStatusLabel(existingRequest.status).label}
                     </Badge>
                   </Group>
                   {existingRequest.note && (
-                    <Text size="sm">Twoja notatka: „{existingRequest.note}”</Text>
+                    <Text style={{ fontSize: '1.1rem', lineHeight: 1.6 }}>
+                      Twoja przesłana notatka: <strong>„{existingRequest.note}”</strong>
+                    </Text>
                   )}
-                  <Text size="sm" c="dimmed">
-                    Możesz zaktualizować notatkę poniżej, dopóki administrator nie podejmie decyzji.
+                  <Text
+                    style={{ fontSize: '1.05rem', lineHeight: 1.5 }}
+                    c="light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-3))"
+                  >
+                    Możesz zaktualizować treść notatki poniżej, dopóki koordynator nie podejmie decyzji.
                   </Text>
                 </Stack>
               </Alert>
@@ -147,22 +180,34 @@ export function TestRequestModal({
             {isSuccess && (
               <Alert
                 color="teal"
-                title="Dziękujemy!"
-                icon={<IconCheck size={20} />}
+                title="Dziękujemy za zgłoszenie!"
+                icon={<IconCheck size={26} />}
                 radius="md"
+                styles={{
+                  title: { fontSize: '1.25rem', fontWeight: 700 },
+                  message: { fontSize: '1.15rem', lineHeight: 1.6 },
+                }}
               >
-                Twoje zgłoszenie do testów zostało pomyślnie zapisane.
+                Twoje zgłoszenie do testów zostało pomyślnie zapisane. Koordynator projektu skontaktuje się z Tobą.
               </Alert>
             )}
 
             {error && (
-              <Alert color="red" title="Wystąpił błąd" radius="md">
+              <Alert
+                color="red"
+                title="Wystąpił problem"
+                radius="md"
+                styles={{
+                  title: { fontSize: '1.2rem', fontWeight: 700 },
+                  message: { fontSize: '1.1rem', lineHeight: 1.5 },
+                }}
+              >
                 {error}
               </Alert>
             )}
 
             <form onSubmit={handleSubmit}>
-              <Stack gap="md">
+              <Stack gap="lg">
                 <Textarea
                   id="tester-note"
                   label="Dlaczego chcesz przetestować to rozwiązanie? (opcjonalnie)"
@@ -170,26 +215,38 @@ export function TestRequestModal({
                   placeholder="Np. Jestem sołtysem w małej wsi i chcielibyśmy sprawdzić ten model w naszym klubie seniora..."
                   value={note}
                   onChange={(e) => setNote(e.currentTarget.value)}
-                  minRows={3}
-                  maxRows={6}
+                  minRows={4}
+                  maxRows={8}
                   disabled={isSubmitting}
-                  size="md"
+                  size="lg"
                   radius="md"
                   styles={{
-                    label: { fontSize: '1rem', fontWeight: 600, marginBottom: 4 },
-                    description: { fontSize: '0.9rem', marginBottom: 8 },
+                    label: { fontSize: '1.15rem', fontWeight: 700, marginBottom: 6 },
+                    description: { fontSize: '1.05rem', lineHeight: 1.5, marginBottom: 10 },
+                    input: { fontSize: '1.1rem', lineHeight: 1.6 },
                   }}
                 />
 
-                <Group justify="flex-end" gap="sm">
-                  <Button variant="default" onClick={onClose} disabled={isSubmitting}>
+                <Group justify="flex-end" gap="md" mt="sm">
+                  <Button
+                    variant="default"
+                    onClick={onClose}
+                    disabled={isSubmitting}
+                    size="lg"
+                    styles={{
+                      root: { fontSize: '1.05rem' },
+                    }}
+                  >
                     Zamknij
                   </Button>
                   <Button
                     type="submit"
                     loading={isSubmitting}
-                    leftSection={<IconSend size={18} aria-hidden="true" />}
-                    size="md"
+                    leftSection={<IconSend size={22} aria-hidden="true" />}
+                    size="lg"
+                    styles={{
+                      root: { fontSize: '1.05rem', fontWeight: 600 },
+                    }}
                   >
                     {existingRequest ? 'Zaktualizuj zgłoszenie' : 'Wyślij zgłoszenie do testów'}
                   </Button>
