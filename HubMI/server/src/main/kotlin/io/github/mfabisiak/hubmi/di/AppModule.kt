@@ -23,6 +23,10 @@ import io.github.mfabisiak.hubmi.materials.MaterialService
 import io.github.mfabisiak.hubmi.samples.SampleRepository
 import io.github.mfabisiak.hubmi.samples.SampleService
 import io.github.mfabisiak.hubmi.seeding.DatabaseSeeder
+import io.github.mfabisiak.hubmi.tester.FeedbackRepository
+import io.github.mfabisiak.hubmi.tester.FeedbackService
+import io.github.mfabisiak.hubmi.tester.TestRequestRepository
+import io.github.mfabisiak.hubmi.tester.TestRequestService
 import org.koin.dsl.module
 import org.koin.dsl.onClose
 import java.net.URI
@@ -56,5 +60,9 @@ fun appModule(config: AppConfig) =
         single { MaterialService(get()) }
         single { NeedRepository(get<MongoRepository>().database) }
         single { MatchService(get(), get()) }
+        single { FeedbackRepository(get<MongoRepository>().database) }
+        single { FeedbackService(get(), get()) }
+        single { TestRequestRepository(get<MongoRepository>().database) }
+        single { TestRequestService(get(), get()) }
         single { DatabaseSeeder(get<MongoRepository>().database, get()) }
     }

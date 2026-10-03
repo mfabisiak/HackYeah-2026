@@ -29,8 +29,13 @@ błąd to zawsze `ErrorResponse(code, message)`. Dostęp: 🌐 publiczny · 🔑
 | 3 | `GET /api/calls?status`, `GET /api/calls/active` | 🌐 | → `List<GrantCallDto>` |
 | 3 | `POST /api/calls`, `PUT`/`DELETE /api/calls/{id}` | 🛡️ | `UpsertCallRequest` → `GrantCallDto` |
 | 3 | `POST /api/calls/{id}/applications` | 🔑 | `CreateApplicationRequest` → `ApplicationDto` |
-| 4 | `POST /api/innovations/{id}/test-requests` | 🔑 | `CreateTestRequest` → `TestRequestDto` |
-| 4 | `POST /api/innovations/{id}/feedback` | 🔑 | `CreateFeedbackRequest` → `FeedbackDto` |
+| 4 | `GET /api/innovations/{id}/test-request` | 🔑 | → `TestRequestDto` *(zaimplementowane; własne zgłoszenie ze statusem, `404` gdy brak)* |
+| 4 | `PUT /api/innovations/{id}/test-request` | 🔑 | `CreateTestRequest` → `TestRequestDto` *(zaimplementowane; `200`, idempotentne: jedno zgłoszenie na użytkownika, powtórzenie podmienia notatkę, dopóki admin nie rozpatrzy zgłoszenia – potem `409`)* |
+| 4 | `GET /api/innovations/{id}/feedback` | 🔑 | → `FeedbackDto` *(zaimplementowane; własna ocena, `404` gdy brak)* |
+| 4 | `PUT /api/innovations/{id}/feedback` | 🔑 | `CreateFeedbackRequest` → `FeedbackDto` *(zaimplementowane; `200`, jedna ocena na użytkownika – powtórzenie podmienia ocenę)* |
+| 4 | `GET /api/admin/feedback?innovationId&page&size` | 🛡️ | → `Page<AdminFeedbackDto>` *(zaimplementowane; oceny z komentarzami, najnowsze pierwsze)* |
+| 4 | `GET /api/admin/test-requests?innovationId&status&page&size` | 🛡️ | → `Page<AdminTestRequestDto>` *(zaimplementowane)* |
+| 4 | `PATCH /api/admin/test-requests/{id}/status` | 🛡️ | `UpdateTestRequestStatusRequest` → `AdminTestRequestDto` *(zaimplementowane; `NEW → ACCEPTED \| DECLINED`, inne przejścia `409`)* |
 | 5 | `GET`/`POST /api/threads` | 🔑 | → `Page<ThreadDto>`; `CreateThreadRequest` → `ThreadDto` |
 | 5 | `GET`/`POST /api/threads/{id}/messages` | 🔑 | → `List<MessageDto>`; `PostMessageRequest` → `MessageDto` |
 | 5 | `GET /api/notifications?unreadOnly&page&size` | 🔑 | → `Page<NotificationDto>` |

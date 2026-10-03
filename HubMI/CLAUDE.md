@@ -51,7 +51,9 @@ Test users: `user`/`user`, `admin`/`admin` (realm [keycloak/hubmi-realm.json](ke
 7. Funkcje małe i czyste; efekty uboczne (IO) tylko w repozytoriach i na brzegu routingu. Preferuj wyrażenia
    (`when`, `if` jako wyrażenie, expression body) nad instrukcjami.
 8. Brak `Any`, brak rzutowań (`as`), brak refleksji. `as?` tylko na granicy z biblioteką.
-9. `suspend` wszędzie gdzie IO; **nie blokujemy wątków**, żadnego `runBlocking` poza `main`/testami.
+9. `suspend` wszędzie gdzie IO; **nie blokujemy wątków**, żadnego `runBlocking` poza `main`/testami. Jedyny wyjątek to
+   jednorazowa inicjalizacja bazy przy starcie w `Application.module` (indeksy, seed): serwer nie przyjmuje żądań, dopóki
+   się nie skończy, bo unikalne indeksy są warunkiem poprawności upsertów.
 
 ## Idiomatyczny Kotlin – typy zamiast stringów
 
@@ -91,7 +93,7 @@ Układ wzorowany na projekcie `schlafzentrale` (`../../BazyDanychProjekt/schlafz
 
 ```
 innovations/  pakiety domenowe: wszystko o jednym agregacie w jednym pakiecie
-challenges/     (`Innovation*`, `Challenge*`, `Material*`, `Sample*`):
+challenges/     (`Innovation*`, `Challenge*`, `Material*`, `Sample*`, `Feedback*`/`TestRequest*` w `tester/`):
 materials/      `XxxId`/`XxxDraft`/value classes (`parse(request)` → `Either`; bez Ktora i Mongo), `XxxItem` (dokument Mongo
 samples/        + `const val ..._COLLECTION` i `MongoDatabase.xxx` w repozytorium), `XxxMappers` (model → DTO),
                 `XxxRepository` (Either<RepositoryError, T>; bez logiki), `XxxService` (Either<DomainError, T>; bez HTTP i Mongo),
