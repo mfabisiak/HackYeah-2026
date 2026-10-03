@@ -43,7 +43,21 @@ export function SimilarNeedsList({ items }: SimilarNeedsListProps) {
                     „{item.excerpt}”
                   </Text>
                   {item.area && (
-                    <Badge variant="light" color="blue" size="md" radius="sm">
+                    <Badge
+                      variant="light"
+                      color="blue"
+                      size="lg"
+                      radius="md"
+                      style={{
+                        height: 34,
+                        border: '1.5px solid var(--mantine-color-blue-light-color)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                      }}
+                      styles={{
+                        label: { fontSize: '0.95rem', fontWeight: 600 },
+                      }}
+                    >
                       {SOCIAL_AREA_NAMES[item.area] ?? item.area}
                     </Badge>
                   )}

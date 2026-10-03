@@ -194,15 +194,16 @@ export function MatchCard({ match }: MatchCardProps) {
                 key={area}
                 variant="light"
                 color="blue"
-                size="lg"
+                size="xl"
                 radius="md"
                 style={{
-                  height: 34,
+                  height: 38,
+                  border: '1.5px solid var(--mantine-color-blue-light-color)',
                   display: 'inline-flex',
                   alignItems: 'center',
                 }}
                 styles={{
-                  label: { fontSize: '0.95rem', fontWeight: 600 },
+                  label: { fontSize: '1.05rem', fontWeight: 600 },
                 }}
               >
                 {SOCIAL_AREA_NAMES[area] ?? area}
