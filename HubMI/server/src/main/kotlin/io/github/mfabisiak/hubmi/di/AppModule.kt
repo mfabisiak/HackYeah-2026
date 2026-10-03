@@ -2,12 +2,20 @@ package io.github.mfabisiak.hubmi.di
 
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
+import io.github.mfabisiak.hubmi.calls.ApplicationRepository
+import io.github.mfabisiak.hubmi.calls.ApplicationService
+import io.github.mfabisiak.hubmi.calls.GrantCallRepository
+import io.github.mfabisiak.hubmi.calls.GrantCallService
 import io.github.mfabisiak.hubmi.challenges.ChallengeRepository
 import io.github.mfabisiak.hubmi.challenges.ChallengeService
 import io.github.mfabisiak.hubmi.common.mongo.MongoRepository
 import io.github.mfabisiak.hubmi.common.toDomainError
 import io.github.mfabisiak.hubmi.config.AppConfig
 import io.github.mfabisiak.hubmi.health.GreetingService
+import io.github.mfabisiak.hubmi.ideas.EventPublisher
+import io.github.mfabisiak.hubmi.ideas.IdeaRepository
+import io.github.mfabisiak.hubmi.ideas.IdeaService
+import io.github.mfabisiak.hubmi.ideas.NoOpEventPublisher
 import io.github.mfabisiak.hubmi.innovations.InnovationRepository
 import io.github.mfabisiak.hubmi.innovations.InnovationService
 import io.github.mfabisiak.hubmi.matching.InnovationIndex
@@ -30,6 +38,7 @@ import io.github.mfabisiak.hubmi.tester.TestRequestService
 import org.koin.dsl.module
 import org.koin.dsl.onClose
 import java.net.URI
+import java.time.Clock
 import java.util.concurrent.TimeUnit
 
 fun appModule(config: AppConfig) =
@@ -43,8 +52,9 @@ fun appModule(config: AppConfig) =
                 .build()
         }
         single { GreetingService() }
+        single<Clock> { Clock.systemUTC() }
+        single<EventPublisher> { NoOpEventPublisher() }
         single { SampleRepository(get<MongoRepository>().database) }
-        single { SampleService(get()) }
         single { InnovationRepository(get<MongoRepository>().database) }
         single<Stemmer> { PrefixStemmer() }
         single { TextAnalyzer(get()) }
@@ -53,12 +63,19 @@ fun appModule(config: AppConfig) =
             InnovationIndex(get(), load = { innovations.findAllActive().mapLeft { it.toDomainError() } })
         }
         single<MatchingEngine> { KeywordMatchingEngine(get(), get()) }
-        single { InnovationService(get(), get()) }
         single { ChallengeRepository(get<MongoRepository>().database) }
-        single { ChallengeService(get()) }
         single { MaterialRepository(get<MongoRepository>().database) }
-        single { MaterialService(get()) }
+        single { IdeaRepository(get<MongoRepository>().database) }
+        single { GrantCallRepository(get<MongoRepository>().database) }
+        single { ApplicationRepository(get<MongoRepository>().database) }
         single { NeedRepository(get<MongoRepository>().database) }
+        single { SampleService(get()) }
+        single { InnovationService(get(), get()) }
+        single { ChallengeService(get()) }
+        single { MaterialService(get()) }
+        single { IdeaService(get(), get(), get()) }
+        single { GrantCallService(get(), get(), get()) }
+        single { ApplicationService(get(), get(), get(), get()) }
         single { MatchService(get(), get()) }
         single { FeedbackRepository(get<MongoRepository>().database) }
         single { FeedbackService(get(), get()) }

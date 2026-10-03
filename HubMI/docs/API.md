@@ -24,11 +24,16 @@ błąd to zawsze `ErrorResponse(code, message)`. Dostęp: 🌐 publiczny · 🔑
 | 2 | `POST /api/materials`, `PUT`/`DELETE /api/materials/{id}` | 🛡️ | `UpsertMaterialRequest` → `MaterialDto` *(zaimplementowane)* |
 | 1 | `POST /api/matches` | 🌐/🔑 | `MatchRequest` → `MatchResult` *(zaimplementowane; `200`; login opcjonalny – zalogowany zgłaszający zostaje właścicielem potrzeby, nieprawidłowy token → `401`)* |
 | 1 | `PUT /api/matches/{needId}/feedback` | 🌐/🔑 | `MatchFeedbackRequest` → `204` *(zaimplementowane; idempotentne – zastępuje poprzednią odpowiedź; potrzebę z właścicielem może ocenić tylko on: bez tokena `401`, ktoś inny `403`)* |
-| 3 | `POST /api/ideas` | 🔑 | `CreateIdeaRequest` → `IdeaDto` |
-| 3 | `GET /api/ideas/mine?page&size`, `GET /api/ideas/{id}` | 🔑 | → `Page<IdeaDto>`, `IdeaDto` |
-| 3 | `GET /api/calls?status`, `GET /api/calls/active` | 🌐 | → `List<GrantCallDto>` |
-| 3 | `POST /api/calls`, `PUT`/`DELETE /api/calls/{id}` | 🛡️ | `UpsertCallRequest` → `GrantCallDto` |
-| 3 | `POST /api/calls/{id}/applications` | 🔑 | `CreateApplicationRequest` → `ApplicationDto` |
+| 3 | `POST /api/ideas` | 🔑 | `CreateIdeaRequest` → `IdeaDto` *(zaimplementowane)* |
+| 3 | `GET /api/ideas/mine?page&size`, `GET /api/ideas/{id}` | 🔑 | → `Page<IdeaDto>`, `IdeaDto` *(zaimplementowane)* |
+| 3 | `GET /api/calls?status`, `GET /api/calls/active`, `GET /api/calls/{id}` | 🌐 | → `List<GrantCallDto>`, `GrantCallDto` *(zaimplementowane)* |
+| 3 | `POST /api/calls`, `PUT`/`DELETE /api/calls/{id}` | 🛡️ | `UpsertCallRequest` → `GrantCallDto` *(zaimplementowane)* |
+| 3 | `GET /api/calls/{id}/declarations?applicantType` | 🌐 | → `DeclarationsResponse` *(zaimplementowane)* |
+| 3 | `POST /api/calls/{id}/applications` | 🔑 | `CreateApplicationDraftRequest?` → `ApplicationDto` *(zaimplementowane)* |
+| 3 | `GET /api/applications/mine?page&size` | 🔑 | → `Page<ApplicationDto>` *(zaimplementowane)* |
+| 3 | `GET /api/applications/{id}` | 🔑 | → `ApplicationDto` *(autor lub admin, zaimplementowane)* |
+| 3 | `PUT /api/applications/{id}` | 🔑 | `SaveApplicationDraftRequest` → `ApplicationDto` *(tylko autor, draft, zaimplementowane)* |
+| 3 | `POST /api/applications/{id}/submit` | 🔑 | → `ApplicationDto` *(tylko autor, zaimplementowane)* |
 | 4 | `GET /api/innovations/{id}/test-request` | 🔑 | → `TestRequestDto` *(zaimplementowane; własne zgłoszenie ze statusem, `404` gdy brak)* |
 | 4 | `PUT /api/innovations/{id}/test-request` | 🔑 | `CreateTestRequest` → `TestRequestDto` *(zaimplementowane; `200`, idempotentne: jedno zgłoszenie na użytkownika, powtórzenie podmienia notatkę, dopóki admin nie rozpatrzy zgłoszenia – potem `409`)* |
 | 4 | `GET /api/innovations/{id}/feedback` | 🔑 | → `FeedbackDto` *(zaimplementowane; własna ocena, `404` gdy brak)* |
@@ -41,8 +46,9 @@ błąd to zawsze `ErrorResponse(code, message)`. Dostęp: 🌐 publiczny · 🔑
 | 5 | `GET /api/notifications?unreadOnly&page&size` | 🔑 | → `Page<NotificationDto>` |
 | 5 | `POST /api/notifications/{id}/read` | 🔑 | → `204` |
 | 6 | `GET /api/admin/trends?months` | 🛡️ | → `TrendsDto` |
-| 6 | `GET /api/admin/ideas?status&page&size` | 🛡️ | → `Page<IdeaDto>` |
-| 6 | `PATCH /api/admin/ideas/{id}/status` | 🛡️ | `UpdateIdeaStatusRequest` → `IdeaDto` |
+| 6 | `GET /api/admin/ideas?status&page&size` | 🛡️ | → `Page<IdeaDto>` *(zaimplementowane)* |
+| 6 | `PATCH /api/admin/ideas/{id}/status` | 🛡️ | `UpdateIdeaStatusRequest` → `IdeaDto` *(zaimplementowane)* |
+| 6 | `GET /api/admin/applications?callId&status&page&size` | 🛡️ | → `Page<ApplicationDto>` *(zaimplementowane)* |
 
 `InnovationDto` i `UpsertInnovationRequest` mają opcjonalne sekcje narracyjne zgodne z formularzem aplikacyjnym ROPS
 (`innovativeness` – pkt 4, `problemDiagnosis` – pkt 5, `audienceDescription` – pkt 6, `expectedChange` – pkt 7,

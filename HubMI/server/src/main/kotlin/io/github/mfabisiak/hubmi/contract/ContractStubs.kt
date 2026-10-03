@@ -1,11 +1,8 @@
 package io.github.mfabisiak.hubmi.contract
 
-import io.github.mfabisiak.hubmi.api.AdminIdeas
 import io.github.mfabisiak.hubmi.api.AdminTrends
-import io.github.mfabisiak.hubmi.api.Calls
 import io.github.mfabisiak.hubmi.api.ErrorCode
 import io.github.mfabisiak.hubmi.api.ErrorResponse
-import io.github.mfabisiak.hubmi.api.Ideas
 import io.github.mfabisiak.hubmi.api.Notifications
 import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.Threads
@@ -13,11 +10,8 @@ import io.github.mfabisiak.hubmi.auth.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.auth.requireRole
 import io.ktor.http.*
 import io.ktor.server.auth.*
-import io.ktor.server.resources.delete
 import io.ktor.server.resources.get
-import io.ktor.server.resources.patch
 import io.ktor.server.resources.post
-import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
@@ -37,15 +31,9 @@ fun Route.contractStubs() {
 }
 
 private fun Route.publicStubs() {
-    get<Calls> { notImplemented() }
-    get<Calls.Active> { notImplemented() }
 }
 
 private fun Route.authenticatedStubs() {
-    post<Ideas> { notImplemented() }
-    get<Ideas.Mine> { notImplemented() }
-    get<Ideas.ById> { notImplemented() }
-    post<Calls.ById.Applications> { notImplemented() }
     get<Threads> { notImplemented() }
     post<Threads> { notImplemented() }
     get<Threads.ById.Messages> { notImplemented() }
@@ -55,10 +43,5 @@ private fun Route.authenticatedStubs() {
 }
 
 private fun Route.adminStubs() {
-    post<Calls> { notImplemented() }
-    put<Calls.ById> { notImplemented() }
-    delete<Calls.ById> { notImplemented() }
     get<AdminTrends> { notImplemented() }
-    get<AdminIdeas> { notImplemented() }
-    patch<AdminIdeas.Status> { notImplemented() }
 }

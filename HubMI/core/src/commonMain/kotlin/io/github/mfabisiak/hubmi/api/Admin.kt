@@ -32,6 +32,17 @@ class AdminIdeas(
     )
 }
 
+/** `GET`: grant applications list for admin. */
+@Serializable
+@Resource("applications")
+class AdminApplications(
+    val parent: Api.Admin = Api.Admin(),
+    val callId: String? = null,
+    val status: ApplicationStatus? = null,
+    val page: Int = 0,
+    val size: Int = 20,
+)
+
 /** `GET`: ratings and comments left by testers, newest first; the texts may contain personal data. */
 @Serializable
 @Resource("feedback")

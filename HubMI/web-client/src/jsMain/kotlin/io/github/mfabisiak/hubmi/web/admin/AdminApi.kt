@@ -1,12 +1,15 @@
 package io.github.mfabisiak.hubmi.web.admin
 
 import arrow.core.raise.either
+import io.github.mfabisiak.hubmi.api.AdminApplications
 import io.github.mfabisiak.hubmi.api.AdminFeedback
 import io.github.mfabisiak.hubmi.api.AdminFeedbackDto
 import io.github.mfabisiak.hubmi.api.AdminIdeas
 import io.github.mfabisiak.hubmi.api.AdminTestRequestDto
 import io.github.mfabisiak.hubmi.api.AdminTestRequests
 import io.github.mfabisiak.hubmi.api.AdminTrends
+import io.github.mfabisiak.hubmi.api.ApplicationDto
+import io.github.mfabisiak.hubmi.api.ApplicationStatus
 import io.github.mfabisiak.hubmi.api.IdeaDto
 import io.github.mfabisiak.hubmi.api.IdeaStatus
 import io.github.mfabisiak.hubmi.api.Page
@@ -23,6 +26,7 @@ import io.github.mfabisiak.hubmi.web.enumOf
 import io.github.mfabisiak.hubmi.web.enumOrNull
 import io.github.mfabisiak.hubmi.web.enumsOf
 import io.github.mfabisiak.hubmi.web.fetch
+import io.github.mfabisiak.hubmi.web.ideas.ApplicationJs
 import io.github.mfabisiak.hubmi.web.ideas.IdeaJs
 import io.github.mfabisiak.hubmi.web.ideas.toJs
 import io.github.mfabisiak.hubmi.web.promiseResult
@@ -77,6 +81,28 @@ class AdminApi internal constructor(
                         UpdateIdeaStatusRequest(enumOf<IdeaStatus>(status, "status"), comment),
                     ).bind()
                     .toJs()
+            }
+        }
+
+    /** Grant applications list for admin. */
+    fun applications(
+        callId: String? = null,
+        status: String? = null,
+        page: Int = PageRequest.DEFAULT_PAGE,
+        size: Int = PageRequest.DEFAULT_SIZE,
+    ): Promise<ApiResult<PageJs<ApplicationJs>>> =
+        scope.promiseResult {
+            either {
+                client
+                    .fetch<AdminApplications, Page<ApplicationDto>>(
+                        AdminApplications(
+                            callId = callId,
+                            status = enumOrNull<ApplicationStatus>(status, "status"),
+                            page = page,
+                            size = size,
+                        ),
+                    ).bind()
+                    .toPageJs { it.toJs() }
             }
         }
 

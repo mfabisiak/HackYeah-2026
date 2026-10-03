@@ -55,6 +55,14 @@ class Calls(
         class Applications(
             val parent: ById,
         )
+
+        /** `GET`: declarations and RODO clauses for this call. */
+        @Serializable
+        @Resource("declarations")
+        class Declarations(
+            val parent: ById,
+            val applicantType: ApplicantType? = null,
+        )
     }
 }
 
@@ -121,18 +129,4 @@ data class UpsertCallRequest(
     val opensAt: String,
     val closesAt: String,
     val fields: List<CallField>,
-)
-
-@Serializable
-data class CreateApplicationRequest(
-    val ideaId: String? = null,
-    val answers: Map<String, String>,
-)
-
-@Serializable
-data class ApplicationDto(
-    val id: String,
-    val callId: String,
-    val ideaId: String?,
-    val createdAt: String,
 )

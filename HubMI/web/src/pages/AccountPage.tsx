@@ -1,8 +1,10 @@
-import { Alert, Badge, Button, Group, Loader, Stack, Text, Title } from '@mantine/core'
-import { IconAlertTriangle } from '@tabler/icons-react'
+import { Badge, Button, Group, Paper, Stack, Text } from '@mantine/core'
 import { useEffect, useState } from 'react'
 import { hubApi } from '../api/hubApi'
 import { useAuth } from '../auth/AuthContext'
+import { PageHeader } from '../components/PageHeader'
+import { LoadingState } from '../components/LoadingState'
+import { ErrorAlert } from '../components/ErrorAlert'
 
 interface Me {
   username: string | undefined
@@ -36,12 +38,12 @@ export function AccountPage() {
     }
   }, [authenticated])
 
-  if (!ready) return <Loader aria-label="Ładowanie" />
+  if (!ready) return <LoadingState message="Ładowanie informacji o profilu..." />
 
   if (!authenticated) {
     return (
       <Stack gap="md" maw={640}>
-        <Title order={2}>Moje konto</Title>
+        <PageHeader title="Moje konto" subtitle="Zaloguj się, aby zarządzać swoim profilem i uprawnieniami." />
         <Text>Zaloguj się, aby zobaczyć dane konta.</Text>
         <div>
           <Button onClick={login}>Zaloguj się</Button>
@@ -52,16 +54,20 @@ export function AccountPage() {
 
   return (
     <Stack gap="md" maw={640}>
-      <Title order={2}>Moje konto</Title>
-      <div role="status" aria-live="polite">
-        {state.kind === 'loading' && <Loader aria-label="Ładowanie danych konta" />}
-        {state.kind === 'error' && (
-          <Alert color="red" icon={<IconAlertTriangle aria-hidden />} title="Błąd">
-            {state.message}
-          </Alert>
-        )}
-      </div>
+      <PageHeader
+        title="Moje konto"
+        subtitle="Szczegóły profilu użytkownika i przypisane role w systemie."
+        breadcrumbs={[
+          { title: 'Strona główna', href: '/' },
+          { title: 'Moje konto' },
+        ]}
+      />
+      {state.kind === 'loading' && <LoadingState message="Pobieranie danych konta..." />}
+      {state.kind === 'error' && (
+        <ErrorAlert message={state.message} />
+      )}
       {state.kind === 'ok' && (
+        <Paper withBorder p="lg" radius="md">
         <Stack gap="xs" component="dl" m={0}>
           <Text component="dt" fw={600}>
             Nazwa użytkownika
@@ -86,6 +92,7 @@ export function AccountPage() {
             ))}
           </Group>
         </Stack>
+        </Paper>
       )}
     </Stack>
   )
