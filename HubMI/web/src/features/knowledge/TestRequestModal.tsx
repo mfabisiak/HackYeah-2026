@@ -63,6 +63,10 @@ export function TestRequestModal({
     try {
       const res = await hubApi.innovations.requestTest(innovationId, note.trim() || undefined)
       if (res.error) {
+        if (res.error.status === 401) {
+          login()
+          return
+        }
         setError(res.error.message || 'Nie udało się przesłać zgłoszenia. Spróbuj ponownie.')
       } else if (res.value) {
         setExistingRequest(res.value)
@@ -95,6 +99,9 @@ export function TestRequestModal({
       title="Zgłoszenie do testowania innowacji"
       size="xl"
       radius="md"
+      trapFocus
+      returnFocus
+      closeOnEscape
       styles={{
         title: { fontSize: '1.4rem', fontWeight: 700 },
         header: { paddingBottom: 16 },
@@ -214,7 +221,10 @@ export function TestRequestModal({
                   description="Napisz krótko, kim jesteś (np. senior, opiekun, pracownik gminy) i w czym to rozwiązanie mogłoby pomóc."
                   placeholder="Np. Jestem sołtysem w małej wsi i chcielibyśmy sprawdzić ten model w naszym klubie seniora..."
                   value={note}
-                  onChange={(e) => setNote(e.currentTarget.value)}
+                  onChange={(e) => {
+                    setNote(e.currentTarget.value)
+                    setIsSuccess(false)
+                  }}
                   minRows={4}
                   maxRows={8}
                   disabled={isSubmitting}
@@ -242,6 +252,7 @@ export function TestRequestModal({
                   <Button
                     type="submit"
                     loading={isSubmitting}
+                    disabled={isSubmitting || isSuccess}
                     leftSection={<IconSend size={22} aria-hidden="true" />}
                     size="lg"
                     styles={{

@@ -22,6 +22,16 @@ export interface InnovationFeedbackSectionProps {
   ratingsCount: number
 }
 
+function formatRatingCount(count: number): string {
+  if (count === 1) return '1 ocena'
+  const mod10 = count % 10
+  const mod100 = count % 100
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+    return `${count} oceny`
+  }
+  return `${count} ocen`
+}
+
 const RATING_OPTIONS = [
   { value: '1', label: '1 – Słabo' },
   { value: '2', label: '2 – Przeciętnie' },
@@ -78,6 +88,10 @@ export function InnovationFeedbackSection({
       )
 
       if (res.error) {
+        if (res.error.status === 401) {
+          login()
+          return
+        }
         setError(res.error.message || 'Nie udało się zapisać oceny. Spróbuj ponownie.')
       } else if (res.value) {
         setExistingFeedback(res.value)
@@ -100,6 +114,7 @@ export function InnovationFeedbackSection({
             </Title>
             <Text
               size="md"
+              style={{ fontSize: '1.05rem' }}
               c="light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0))"
             >
               Dowiedz się, jak to rozwiązanie oceniają inni mieszkańcy i podziel się swoim zdaniem.
@@ -108,28 +123,29 @@ export function InnovationFeedbackSection({
 
           <Group gap="xs" align="center">
             <IconStarFilled size={24} color="#f59f00" aria-hidden="true" />
-            <Text size="xl" fw={700}>
+            <Text size="xl" fw={700} style={{ fontSize: '1.25rem' }}>
               {typeof averageRating === 'number' && averageRating > 0
-                ? `${averageRating.toFixed(1)} / 5`
+                ? `${averageRating.toFixed(1).replace('.', ',')} na 5 (${formatRatingCount(ratingsCount)})`
                 : 'Brak ocen'}
-            </Text>
-            <Text
-              size="sm"
-              c="light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0))"
-            >
-              ({ratingsCount} {ratingsCount === 1 ? 'opinia' : 'opinii'})
             </Text>
           </Group>
         </Group>
 
         {!authenticated ? (
-          <Alert color="blue" title="Chcesz ocenić to rozwiązanie?" radius="md">
-            <Stack gap="sm">
-              <Text size="md">
+          <Alert
+            color="blue"
+            title="Chcesz ocenić to rozwiązanie?"
+            radius="md"
+            styles={{
+              title: { fontSize: '1.2rem', fontWeight: 700 },
+            }}
+          >
+            <Stack gap="md">
+              <Text size="md" style={{ fontSize: '1.1rem', lineHeight: 1.6 }}>
                 Zaloguj się do systemu HubMI, aby móc wystawić ocenę i podzielić się swoją opinią o tej innowacji.
               </Text>
               <div>
-                <Button size="md" onClick={login}>
+                <Button size="lg" onClick={login} styles={{ root: { fontSize: '1.05rem' } }}>
                   Zaloguj się, aby ocenić
                 </Button>
               </div>
@@ -137,26 +153,38 @@ export function InnovationFeedbackSection({
           </Alert>
         ) : (
           <Box component="form" onSubmit={handleSubmit}>
-            <Stack gap="md">
+            <Stack gap="lg">
               {isSuccess && (
                 <Alert
                   color="teal"
                   title="Dziękujemy za opinię!"
-                  icon={<IconCheck size={20} />}
+                  icon={<IconCheck size={26} aria-hidden="true" />}
                   radius="md"
+                  styles={{
+                    title: { fontSize: '1.25rem', fontWeight: 700 },
+                    message: { fontSize: '1.1rem', lineHeight: 1.6 },
+                  }}
                 >
-                  Twoja ocena została pomyślnie zapisana. Pomaga nam to promować najlepsze innowacje.
+                  Twoja ocena została pomyślnie zapisana. Pomaga nam to promować najlepsze innowacje w Małopolsce.
                 </Alert>
               )}
 
               {error && (
-                <Alert color="red" title="Wystąpił błąd" radius="md">
+                <Alert
+                  color="red"
+                  title="Wystąpił problem"
+                  radius="md"
+                  styles={{
+                    title: { fontSize: '1.2rem', fontWeight: 700 },
+                    message: { fontSize: '1.1rem', lineHeight: 1.5 },
+                  }}
+                >
                   {error}
                 </Alert>
               )}
 
               <Stack gap="xs">
-                <Text component="label" id="rating-label" fw={600} size="md">
+                <Text component="label" id="rating-label" fw={700} style={{ fontSize: '1.15rem' }}>
                   Twoja ocena rozwiązania:
                 </Text>
                 <Radio.Group
@@ -172,7 +200,7 @@ export function InnovationFeedbackSection({
                         label={opt.label}
                         size="md"
                         styles={{
-                          label: { fontSize: '1rem', fontWeight: 500 },
+                          label: { fontSize: '1.05rem', fontWeight: 600 },
                         }}
                       />
                     ))}
@@ -189,10 +217,11 @@ export function InnovationFeedbackSection({
                 minRows={3}
                 maxRows={6}
                 disabled={isSubmitting}
-                size="md"
+                size="lg"
                 radius="md"
                 styles={{
-                  label: { fontSize: '1rem', fontWeight: 600, marginBottom: 4 },
+                  label: { fontSize: '1.15rem', fontWeight: 700, marginBottom: 6 },
+                  input: { fontSize: '1.1rem', lineHeight: 1.6 },
                 }}
               />
 
@@ -202,22 +231,26 @@ export function InnovationFeedbackSection({
                 placeholder="Twoje sugestie dotyczące poprawy lub rozszerzenia tego rozwiązania..."
                 value={suggestion}
                 onChange={(e) => setSuggestion(e.currentTarget.value)}
-                minRows={2}
-                maxRows={5}
+                minRows={3}
+                maxRows={6}
                 disabled={isSubmitting}
-                size="md"
+                size="lg"
                 radius="md"
                 styles={{
-                  label: { fontSize: '1rem', fontWeight: 600, marginBottom: 4 },
+                  label: { fontSize: '1.15rem', fontWeight: 700, marginBottom: 6 },
+                  input: { fontSize: '1.1rem', lineHeight: 1.6 },
                 }}
               />
 
-              <Group justify="flex-start">
+              <Group justify="flex-start" mt="sm">
                 <Button
                   type="submit"
-                  size="md"
+                  size="lg"
                   loading={isSubmitting}
-                  leftSection={<IconStar size={18} aria-hidden="true" />}
+                  leftSection={<IconStar size={22} aria-hidden="true" />}
+                  styles={{
+                    root: { fontSize: '1.05rem', fontWeight: 600 },
+                  }}
                 >
                   {existingFeedback ? 'Zaktualizuj ocenę' : 'Zapisz ocenę'}
                 </Button>

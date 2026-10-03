@@ -22,6 +22,8 @@ import {
   IconPlayerPlay,
   IconRocket,
   IconSparkles,
+  IconStar,
+  IconStarFilled,
   IconTarget,
 } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
@@ -38,6 +40,16 @@ import {
 import { InnovationFeedbackSection } from './InnovationFeedbackSection'
 import { TestRequestModal } from './TestRequestModal'
 import type { InnovationJs } from 'hubmi-client'
+
+function formatRatingCount(count: number): string {
+  if (count === 1) return '1 ocena'
+  const mod10 = count % 10
+  const mod100 = count % 100
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+    return `${count} oceny`
+  }
+  return `${count} ocen`
+}
 
 export function InnovationDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -132,15 +144,29 @@ export function InnovationDetailPage() {
           Wróć do bazy innowacji
         </Button>
 
-        <Button
-          onClick={() => setTestModalOpened(true)}
-          size="lg"
-          color="blue"
-          leftSection={<IconHeartHandshake size={22} aria-hidden="true" />}
-          styles={{ root: { fontSize: '1.05rem', fontWeight: 600 } }}
-        >
-          Chcę przetestować to rozwiązanie
-        </Button>
+        <Group gap="sm" wrap="wrap">
+          <Button
+            component="a"
+            href="#feedback-heading"
+            variant="outline"
+            color="blue"
+            size="lg"
+            leftSection={<IconStar size={22} aria-hidden="true" />}
+            styles={{ root: { fontSize: '1.05rem', fontWeight: 600 } }}
+          >
+            Oceń rozwiązanie
+          </Button>
+
+          <Button
+            onClick={() => setTestModalOpened(true)}
+            size="lg"
+            color="blue"
+            leftSection={<IconHeartHandshake size={22} aria-hidden="true" />}
+            styles={{ root: { fontSize: '1.05rem', fontWeight: 600 } }}
+          >
+            Chcę przetestować to rozwiązanie
+          </Button>
+        </Group>
       </Group>
 
       {/* Main Overview Card */}
@@ -186,8 +212,22 @@ export function InnovationDetailPage() {
             </Group>
 
             {innovation.averageRating && innovation.averageRating > 0 && (
-              <Badge color="yellow" variant="light" size="lg">
-                ★ {innovation.averageRating.toFixed(1)} / 5 ({innovation.ratingsCount} opinii)
+              <Badge
+                color="yellow"
+                variant="light"
+                size="xl"
+                radius="md"
+                style={{
+                  height: 38,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                }}
+                styles={{
+                  label: { fontSize: '1.05rem', fontWeight: 600 },
+                }}
+              >
+                <IconStarFilled size={18} aria-hidden="true" style={{ marginRight: 6 }} />
+                {innovation.averageRating.toFixed(1).replace('.', ',')} na 5 ({formatRatingCount(innovation.ratingsCount)})
               </Badge>
             )}
           </Group>
