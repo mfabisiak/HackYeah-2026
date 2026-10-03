@@ -2,12 +2,14 @@ package io.github.mfabisiak.hubmi
 
 import io.github.mfabisiak.hubmi.auth.authRoutes
 import io.github.mfabisiak.hubmi.auth.configureSecurity
+import io.github.mfabisiak.hubmi.calls.grantCallRoutes
 import io.github.mfabisiak.hubmi.challenges.challengeRoutes
 import io.github.mfabisiak.hubmi.common.mongo.MongoRepository
 import io.github.mfabisiak.hubmi.config.AppConfig
 import io.github.mfabisiak.hubmi.contract.contractStubs
 import io.github.mfabisiak.hubmi.di.appModule
 import io.github.mfabisiak.hubmi.health.healthRoutes
+import io.github.mfabisiak.hubmi.ideas.ideaRoutes
 import io.github.mfabisiak.hubmi.innovations.innovationRoutes
 import io.github.mfabisiak.hubmi.matching.matchRoutes
 import io.github.mfabisiak.hubmi.materials.materialRoutes
@@ -16,12 +18,13 @@ import io.github.mfabisiak.hubmi.plugins.configureKoin
 import io.github.mfabisiak.hubmi.plugins.configureSerialization
 import io.github.mfabisiak.hubmi.samples.sampleRoutes
 import io.github.mfabisiak.hubmi.seeding.DatabaseSeeder
+import io.github.mfabisiak.hubmi.tester.testerRoutes
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.routing.*
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.koin.core.module.Module
 import org.koin.ktor.ext.get
 import kotlin.system.exitProcess
@@ -50,9 +53,14 @@ fun Application.module(
 
     val mongo = get<MongoRepository>()
     val seeder = get<DatabaseSeeder>()
-    launch {
-        MongoIndexes.configure(mongo.database)
-        seeder.seedIfNeeded()
+    // Blocking on purpose: the unique indexes are what keeps the upserts safe and the seed fills the catalogue, so
+    // neither may race the first request. The server starts accepting connections only after the modules are loaded.
+    runBlocking {
+        MongoIndexes
+            .configure(
+                mongo.database,
+            ).onLeft { environment.log.error("Creating Mongo indexes failed", it.cause) }
+        seeder.seedIfNeeded().onLeft { environment.log.error("Seeding the database failed", it.cause) }
     }
 
     routing {
@@ -64,6 +72,9 @@ fun Application.module(
         challengeRoutes()
         materialRoutes()
         matchRoutes()
+        testerRoutes()
+        ideaRoutes()
+        grantCallRoutes()
     }
 }
 

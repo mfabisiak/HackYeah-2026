@@ -71,6 +71,8 @@ class TestRequestJs(
     val id: String,
     val innovationId: String,
     val note: String?,
+    /** `TestRequestStatus` name. */
+    val status: String,
     val createdAt: String,
 )
 
@@ -107,7 +109,7 @@ internal fun InnovationDto.toJs(): InnovationJs =
         futureVision,
     )
 
-internal fun TestRequestDto.toJs(): TestRequestJs = TestRequestJs(id, innovationId, note, createdAt)
+internal fun TestRequestDto.toJs(): TestRequestJs = TestRequestJs(id, innovationId, note, status.name, createdAt)
 
 internal fun FeedbackDto.toJs(): FeedbackJs = FeedbackJs(id, innovationId, rating, comment, suggestion, createdAt)
 

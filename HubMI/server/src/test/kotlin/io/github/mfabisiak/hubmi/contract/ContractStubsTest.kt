@@ -1,39 +1,49 @@
 package io.github.mfabisiak.hubmi.contract
 
+import io.github.mfabisiak.hubmi.MongoTestEnvironment
+import io.github.mfabisiak.hubmi.TestSecurityHelper
 import io.github.mfabisiak.hubmi.api.AdminTrends
-import io.github.mfabisiak.hubmi.api.Api
-import io.github.mfabisiak.hubmi.api.CallStatus
-import io.github.mfabisiak.hubmi.api.Calls
 import io.github.mfabisiak.hubmi.api.ErrorCode
-import io.github.mfabisiak.hubmi.api.Ideas
+import io.github.mfabisiak.hubmi.api.Notifications
+import io.github.mfabisiak.hubmi.api.Role
+import io.github.mfabisiak.hubmi.api.Threads
+import io.github.mfabisiak.hubmi.config.AppConfig
 import io.github.mfabisiak.hubmi.module
+import io.github.mfabisiak.hubmi.offlineConfig
 import io.ktor.client.plugins.resources.Resources
-import io.ktor.client.plugins.resources.delete
 import io.ktor.client.plugins.resources.get
 import io.ktor.client.plugins.resources.post
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
+import org.koin.dsl.module
 import kotlin.test.*
 
 class ContractStubsTest {
     @Test
-    fun publicStubsAnswerNotImplemented() =
+    fun stubAnswersWithNotImplementedErrorCode() =
         testApplication {
-            application { module() }
+            application {
+                module(
+                    AppConfig(
+                        port = 8080,
+                        keycloakIssuer = TestSecurityHelper.ISSUER,
+                        keycloakJwksUrl = "http://localhost:8081/realms/hubmi/protocol/openid-connect/certs",
+                        mongoUri = MongoTestEnvironment.connectionString,
+                        mongoDatabase = "test-hubmi-stubs-${System.nanoTime()}",
+                        seed = false,
+                    ),
+                    module { single { TestSecurityHelper.testJwkProvider } },
+                )
+            }
             val client = createClient { install(Resources) }
+            val adminToken = TestSecurityHelper.generateToken(roles = setOf(Role.ADMIN))
 
-            assertEquals(HttpStatusCode.NotImplemented, client.get(Calls()).status)
-            assertEquals(HttpStatusCode.NotImplemented, client.get(Calls.Active()).status)
-        }
-
-    @Test
-    fun queryParametersAreParsedFromTheContract() =
-        testApplication {
-            application { module() }
-            val client = createClient { install(Resources) }
-
-            val response = client.get(Calls(status = CallStatus.OPEN))
+            val response =
+                client.get(AdminTrends()) {
+                    bearerAuth(adminToken)
+                }
 
             assertEquals(HttpStatusCode.NotImplemented, response.status)
             assertTrue(response.bodyAsText().contains(ErrorCode.NOT_IMPLEMENTED.name))
@@ -42,22 +52,20 @@ class ContractStubsTest {
     @Test
     fun authenticatedStubsRequireToken() =
         testApplication {
-            application { module() }
+            application { module(offlineConfig) }
             val client = createClient { install(Resources) }
 
-            assertEquals(HttpStatusCode.Unauthorized, client.post(Ideas()).status)
-            assertEquals(HttpStatusCode.Unauthorized, client.get(Ideas.Mine()).status)
+            assertEquals(HttpStatusCode.Unauthorized, client.get(Threads()).status)
+            assertEquals(HttpStatusCode.Unauthorized, client.get(Notifications()).status)
+            assertEquals(HttpStatusCode.Unauthorized, client.post(Notifications.Read(id = "abc")).status)
         }
 
     @Test
     fun adminStubsRequireToken() =
         testApplication {
-            application { module() }
+            application { module(offlineConfig) }
             val client = createClient { install(Resources) }
 
             assertEquals(HttpStatusCode.Unauthorized, client.get(AdminTrends()).status)
-            assertEquals(HttpStatusCode.Unauthorized, client.post(Calls()).status)
-            assertEquals(HttpStatusCode.Unauthorized, client.delete(Calls.ById(id = "abc")).status)
-            assertEquals(HttpStatusCode.Unauthorized, client.get(Api.Me()).status)
         }
 }

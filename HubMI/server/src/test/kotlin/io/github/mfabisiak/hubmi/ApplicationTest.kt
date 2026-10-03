@@ -10,7 +10,7 @@ class ApplicationTest {
     @Test
     fun testRoot() =
         testApplication {
-            application { module() }
+            application { module(offlineConfig) }
             val response = client.get("/")
             assertEquals(HttpStatusCode.OK, response.status)
             assertEquals("Hello, Ktor!", response.bodyAsText())
@@ -19,7 +19,7 @@ class ApplicationTest {
     @Test
     fun testHealth() =
         testApplication {
-            application { module() }
+            application { module(offlineConfig) }
             val response = client.get("/health")
             assertEquals(HttpStatusCode.OK, response.status)
             assertTrue(response.bodyAsText().contains("UP"))
@@ -28,7 +28,7 @@ class ApplicationTest {
     @Test
     fun protectedRouteRequiresToken() =
         testApplication {
-            application { module() }
+            application { module(offlineConfig) }
             assertEquals(HttpStatusCode.Unauthorized, client.get("/api/me").status)
             assertEquals(HttpStatusCode.Unauthorized, client.get("/api/admin").status)
         }
@@ -36,7 +36,7 @@ class ApplicationTest {
     @Test
     fun invalidTokenIsRejected() =
         testApplication {
-            application { module() }
+            application { module(offlineConfig) }
             val response = client.get("/api/me") { bearerAuth("not-a-jwt") }
             assertEquals(HttpStatusCode.Unauthorized, response.status)
         }

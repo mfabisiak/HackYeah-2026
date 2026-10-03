@@ -49,8 +49,15 @@ i, jeśli zmienia kontrakt, aktualizacją [API.md](API.md). Zrobione: szkielet s
 
 ## BE-05 Pomysły i nabory (moduł 3)
 - Fiszki (`POST`, `mine`, `{id}` dla autora lub admina), kolejka i zmiana statusu przez admina (niedozwolone przejścia → `409`).
-- Nabory z szablonem pól i składanie wniosku z walidacją.
-- **AC:** testy własności zasobu i maszyny stanów.
+- Nabory (`GET`, `active`, CRUD admina) z blokadą edycji dat/usuwania przy istniejących wnioskach.
+- Generator i walidator wniosków grantowych wg oficjalnego wzoru ROPS (Załącznik nr 3):
+  - 3 typy wnioskodawców (osoba fizyczna, podmiot, grupa nieformalna 1..5 partnerów).
+  - Walidacja sum kontrolnych NIP, REGON, KRS, kodów pocztowych, telefonów, e-maili (value classes w domenie).
+  - Walidacja harmonogramu i budżetu: max 3 mies. przygotowania, max 9 mies. testowania, kolejność etapów, limity kosztów bez ryzyka overflow (`toLong()`).
+  - Idempotentny zapis wersji roboczej (`PUT`), optymistyczne blokowanie na `updatedAt`, atomowy limit max 2 złożonych wniosków na nabór na wnioskodawcę.
+  - Oświadczenia i klauzule RODO z wersjonowaniem formularza i weryfikacją kompletności.
+  - Zabezpieczenie uprawnień: tylko autor może modyfikować i składać swój wniosek (admin nie może edytować ani złożyć za autora).
+- **AC:** testy własności zasobu, maszyny stanów, walidacji ROPS i uprawnień.
 
 ## BE-06 Tester (moduł 4)
 - `test-requests` i `feedback` (ocena 1–5, jedna na użytkownika), agregacja `averageRating` w innowacji.

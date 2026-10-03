@@ -86,6 +86,12 @@ internal suspend inline fun <reified R : Any> HttpClient.sendForUnit(
     resource: R,
 ): Either<ApiErrorJs, Unit> = execute { request(resource) { this.method = method } }.map { }
 
+/** Typed request without a body and with a JSON response. */
+internal suspend inline fun <reified R : Any, reified T> HttpClient.sendWithoutBody(
+    method: HttpMethod,
+    resource: R,
+): Either<ApiErrorJs, T> = execute { request(resource) { this.method = method } }.decode()
+
 internal fun <A, B> Either<ApiErrorJs, A>.toResult(transform: (A) -> B): ApiResult<B> =
     fold(
         ifLeft = { ApiResult(null, it) },
