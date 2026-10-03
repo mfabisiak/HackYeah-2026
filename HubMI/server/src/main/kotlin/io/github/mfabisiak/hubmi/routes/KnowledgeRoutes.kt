@@ -5,10 +5,17 @@ import io.github.mfabisiak.hubmi.api.Materials
 import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.UpsertChallengeRequest
 import io.github.mfabisiak.hubmi.api.UpsertMaterialRequest
+import io.github.mfabisiak.hubmi.domain.ChallengeDraft
+import io.github.mfabisiak.hubmi.domain.ChallengeId
+import io.github.mfabisiak.hubmi.domain.MaterialDraft
+import io.github.mfabisiak.hubmi.domain.MaterialId
+import io.github.mfabisiak.hubmi.domain.SearchQuery
 import io.github.mfabisiak.hubmi.plugins.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.plugins.requireRole
 import io.github.mfabisiak.hubmi.service.ChallengeService
 import io.github.mfabisiak.hubmi.service.MaterialService
+import io.github.mfabisiak.hubmi.service.orValidationError
+import io.github.mfabisiak.hubmi.service.validatePageRequest
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -19,26 +26,44 @@ import io.ktor.server.resources.put
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
 
+private const val INVALID_CHALLENGE_ID = "Nieprawidłowy identyfikator wyzwania"
+private const val INVALID_CHALLENGE = "Błąd walidacji danych wyzwania"
+private const val INVALID_MATERIAL_ID = "Nieprawidłowy identyfikator materiału"
+private const val INVALID_MATERIAL = "Błąd walidacji danych materiału"
+
 fun Route.knowledgeRoutes() {
     val challengeService by inject<ChallengeService>()
     val materialService by inject<MaterialService>()
 
     // Challenges - Public
     get<Challenges> { resource ->
-        respondEither(challengeService.list(resource.area, resource.page, resource.size))
+        respondEither {
+            val pageRequest = validatePageRequest(resource.page, resource.size).bind()
+            challengeService.list(resource.area, pageRequest).bind()
+        }
     }
 
     get<Challenges.ById> { resource ->
-        respondEither(challengeService.getById(resource.id))
+        respondEither {
+            val id = ChallengeId.parse(resource.id).orValidationError(INVALID_CHALLENGE_ID).bind()
+            challengeService.getById(id).bind()
+        }
     }
 
     // Materials - Public
     get<Materials> { resource ->
-        respondEither(materialService.list(resource.q, resource.area, resource.type, resource.page, resource.size))
+        respondEither {
+            val pageRequest = validatePageRequest(resource.page, resource.size).bind()
+            val q = SearchQuery.parse(resource.q).orValidationError("Nieprawidłowe zapytanie").bind()
+            materialService.list(q, resource.area, resource.type, pageRequest).bind()
+        }
     }
 
     get<Materials.ById> { resource ->
-        respondEither(materialService.getById(resource.id))
+        respondEither {
+            val id = MaterialId.parse(resource.id).orValidationError(INVALID_MATERIAL_ID).bind()
+            materialService.getById(id).bind()
+        }
     }
 
     // Admin only
@@ -47,31 +72,51 @@ fun Route.knowledgeRoutes() {
             // Challenges - Admin CRUD
             post<Challenges> {
                 val request = call.receive<UpsertChallengeRequest>()
-                respondEither(challengeService.create(request), successStatus = HttpStatusCode.Created)
+                respondEither(successStatus = HttpStatusCode.Created) {
+                    val draft = ChallengeDraft.parse(request).orValidationError(INVALID_CHALLENGE).bind()
+                    challengeService.create(draft).bind()
+                }
             }
 
             put<Challenges.ById> { resource ->
                 val request = call.receive<UpsertChallengeRequest>()
-                respondEither(challengeService.update(resource.id, request))
+                respondEither {
+                    val id = ChallengeId.parse(resource.id).orValidationError(INVALID_CHALLENGE_ID).bind()
+                    val draft = ChallengeDraft.parse(request).orValidationError(INVALID_CHALLENGE).bind()
+                    challengeService.update(id, draft).bind()
+                }
             }
 
             delete<Challenges.ById> { resource ->
-                respondEitherUnit(challengeService.delete(resource.id))
+                respondEitherUnit {
+                    val id = ChallengeId.parse(resource.id).orValidationError(INVALID_CHALLENGE_ID).bind()
+                    challengeService.delete(id).bind()
+                }
             }
 
             // Materials - Admin CRUD
             post<Materials> {
                 val request = call.receive<UpsertMaterialRequest>()
-                respondEither(materialService.create(request), successStatus = HttpStatusCode.Created)
+                respondEither(successStatus = HttpStatusCode.Created) {
+                    val draft = MaterialDraft.parse(request).orValidationError(INVALID_MATERIAL).bind()
+                    materialService.create(draft).bind()
+                }
             }
 
             put<Materials.ById> { resource ->
                 val request = call.receive<UpsertMaterialRequest>()
-                respondEither(materialService.update(resource.id, request))
+                respondEither {
+                    val id = MaterialId.parse(resource.id).orValidationError(INVALID_MATERIAL_ID).bind()
+                    val draft = MaterialDraft.parse(request).orValidationError(INVALID_MATERIAL).bind()
+                    materialService.update(id, draft).bind()
+                }
             }
 
             delete<Materials.ById> { resource ->
-                respondEitherUnit(materialService.delete(resource.id))
+                respondEitherUnit {
+                    val id = MaterialId.parse(resource.id).orValidationError(INVALID_MATERIAL_ID).bind()
+                    materialService.delete(id).bind()
+                }
             }
         }
     }

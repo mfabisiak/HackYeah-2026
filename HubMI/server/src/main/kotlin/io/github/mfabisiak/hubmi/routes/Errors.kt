@@ -1,6 +1,8 @@
 package io.github.mfabisiak.hubmi.routes
 
 import arrow.core.Either
+import arrow.core.raise.Raise
+import arrow.core.raise.either
 import io.github.mfabisiak.hubmi.api.ErrorResponse
 import io.github.mfabisiak.hubmi.service.DomainError
 import io.ktor.http.*
@@ -93,3 +95,12 @@ suspend fun RoutingContext.respondEitherUnit(
     either: Either<DomainError, Unit>,
     successStatus: HttpStatusCode = HttpStatusCode.NoContent,
 ) = call.respondResultUnit(either, successStatus)
+
+/** Runs [block] (parse the request, call the service) and responds with its result or the first domain error. */
+suspend inline fun <reified T : Any> RoutingContext.respondEither(
+    successStatus: HttpStatusCode = HttpStatusCode.OK,
+    block: Raise<DomainError>.() -> T,
+) = respondEither(either(block), successStatus)
+
+suspend inline fun RoutingContext.respondEitherUnit(block: Raise<DomainError>.() -> Unit) =
+    respondEitherUnit(either(block))

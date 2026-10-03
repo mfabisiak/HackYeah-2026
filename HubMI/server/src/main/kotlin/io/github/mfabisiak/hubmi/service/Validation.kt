@@ -1,19 +1,9 @@
 package io.github.mfabisiak.hubmi.service
 
 import arrow.core.Either
-import arrow.core.raise.either
-import arrow.core.raise.ensure
+import arrow.core.EitherNel
 import io.github.mfabisiak.hubmi.api.FieldError
-import io.github.mfabisiak.hubmi.api.FieldErrorCode
-import org.bson.types.ObjectId
 
-fun parseObjectId(idString: String): Either<DomainError.Validation, ObjectId> =
-    either {
-        ensure(ObjectId.isValid(idString)) {
-            DomainError.Validation(
-                message = "Nieprawidłowy format ID: $idString",
-                details = listOf(FieldError("id", FieldErrorCode.InvalidFormat, "Nieprawidłowy format ObjectId")),
-            )
-        }
-        ObjectId(idString)
-    }
+/** Turns the field errors of a parsed request into the single validation error reported to the client. */
+fun <T> EitherNel<FieldError, T>.orValidationError(message: String): Either<DomainError.Validation, T> =
+    mapLeft { DomainError.Validation(message = message, details = it) }

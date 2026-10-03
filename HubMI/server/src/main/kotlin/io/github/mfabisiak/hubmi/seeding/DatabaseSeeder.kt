@@ -22,8 +22,12 @@ import io.github.mfabisiak.hubmi.repository.materials
 import io.github.mfabisiak.hubmi.repository.samples
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.bson.types.ObjectId
 import org.slf4j.LoggerFactory
+import java.security.MessageDigest
 import java.time.Instant
+
+private const val OBJECT_ID_BYTES = 12
 
 @Serializable
 data class SeedSampleItem(
@@ -108,23 +112,22 @@ class DatabaseSeeder(
         val seedItems = loadFromResource<SeedInnovationItem>("seed/innovations.json")
         seedItems.forEach { item ->
             database.innovations.updateOne(
-                Filters.eq(InnovationItem::slug, item.slug),
+                Filters.eq(InnovationItem::id, seedId(item.slug)),
                 Updates.combine(
-                    Updates.set(InnovationItem::slug, item.slug),
-                    Updates.set(InnovationItem::title, item.title),
-                    Updates.set(InnovationItem::summary, item.summary),
-                    Updates.set(InnovationItem::description, item.description),
-                    Updates.set(InnovationItem::areas, item.areas),
-                    Updates.set(InnovationItem::targetGroups, item.targetGroups),
-                    Updates.set(InnovationItem::stage, item.stage),
-                    Updates.set(InnovationItem::region, item.region),
-                    Updates.set(InnovationItem::keywords, item.keywords),
-                    Updates.set(InnovationItem::mediaUrls, item.mediaUrls),
+                    Updates.setOnInsert(InnovationItem::title, item.title),
+                    Updates.setOnInsert(InnovationItem::summary, item.summary),
+                    Updates.setOnInsert(InnovationItem::description, item.description),
+                    Updates.setOnInsert(InnovationItem::areas, item.areas),
+                    Updates.setOnInsert(InnovationItem::targetGroups, item.targetGroups),
+                    Updates.setOnInsert(InnovationItem::stage, item.stage),
+                    Updates.setOnInsert(InnovationItem::region, item.region),
+                    Updates.setOnInsert(InnovationItem::keywords, item.keywords),
+                    Updates.setOnInsert(InnovationItem::mediaUrls, item.mediaUrls),
                     Updates.setOnInsert(InnovationItem::ratingSum, 0),
                     Updates.setOnInsert(InnovationItem::ratingsCount, 0),
                     Updates.setOnInsert(InnovationItem::archived, false),
                     Updates.setOnInsert(InnovationItem::createdAt, now),
-                    Updates.set(InnovationItem::updatedAt, now),
+                    Updates.setOnInsert(InnovationItem::updatedAt, now),
                 ),
                 UpdateOptions().upsert(true),
             )
@@ -136,16 +139,15 @@ class DatabaseSeeder(
         val seedItems = loadFromResource<SeedChallengeItem>("seed/challenges.json")
         seedItems.forEach { item ->
             database.challenges.updateOne(
-                Filters.eq(ChallengeItem::slug, item.slug),
+                Filters.eq(ChallengeItem::id, seedId(item.slug)),
                 Updates.combine(
-                    Updates.set(ChallengeItem::slug, item.slug),
-                    Updates.set(ChallengeItem::title, item.title),
-                    Updates.set(ChallengeItem::description, item.description),
-                    Updates.set(ChallengeItem::area, item.area),
-                    Updates.set(ChallengeItem::municipalities, item.municipalities),
+                    Updates.setOnInsert(ChallengeItem::title, item.title),
+                    Updates.setOnInsert(ChallengeItem::description, item.description),
+                    Updates.setOnInsert(ChallengeItem::area, item.area),
+                    Updates.setOnInsert(ChallengeItem::municipalities, item.municipalities),
                     Updates.setOnInsert(ChallengeItem::archived, false),
                     Updates.setOnInsert(ChallengeItem::createdAt, now),
-                    Updates.set(ChallengeItem::updatedAt, now),
+                    Updates.setOnInsert(ChallengeItem::updatedAt, now),
                 ),
                 UpdateOptions().upsert(true),
             )
@@ -157,23 +159,29 @@ class DatabaseSeeder(
         val seedItems = loadFromResource<SeedMaterialItem>("seed/materials.json")
         seedItems.forEach { item ->
             database.materials.updateOne(
-                Filters.eq(MaterialItem::slug, item.slug),
+                Filters.eq(MaterialItem::id, seedId(item.slug)),
                 Updates.combine(
-                    Updates.set(MaterialItem::slug, item.slug),
-                    Updates.set(MaterialItem::title, item.title),
-                    Updates.set(MaterialItem::description, item.description),
-                    Updates.set(MaterialItem::type, item.type),
-                    Updates.set(MaterialItem::url, item.url),
-                    Updates.set(MaterialItem::areas, item.areas),
+                    Updates.setOnInsert(MaterialItem::title, item.title),
+                    Updates.setOnInsert(MaterialItem::description, item.description),
+                    Updates.setOnInsert(MaterialItem::type, item.type),
+                    Updates.setOnInsert(MaterialItem::url, item.url),
+                    Updates.setOnInsert(MaterialItem::areas, item.areas),
                     Updates.setOnInsert(MaterialItem::archived, false),
                     Updates.setOnInsert(MaterialItem::createdAt, now),
-                    Updates.set(MaterialItem::updatedAt, now),
+                    Updates.setOnInsert(MaterialItem::updatedAt, now),
                 ),
                 UpdateOptions().upsert(true),
             )
         }
         logger.info("Seeded ${seedItems.size} material items.")
     }
+
+    /**
+     * The slug lives only in the seed files: it is hashed into a stable `_id`, so re-running the seeder upserts the same
+     * documents without a technical key in the model. `$setOnInsert` keeps edits and deletions made by admins.
+     */
+    private fun seedId(slug: String): ObjectId =
+        ObjectId(MessageDigest.getInstance("SHA-1").digest(slug.toByteArray()).copyOf(OBJECT_ID_BYTES))
 
     private inline fun <reified T> loadFromResource(resourcePath: String): List<T> {
         val stream = javaClass.classLoader.getResourceAsStream(resourcePath)

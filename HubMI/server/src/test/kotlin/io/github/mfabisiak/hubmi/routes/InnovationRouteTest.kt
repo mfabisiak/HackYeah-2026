@@ -264,4 +264,55 @@ class InnovationRouteTest {
             val afterDeleteGet = client.get(Innovations.ById(id = created.id))
             assertEquals(HttpStatusCode.NotFound, afterDeleteGet.status)
         }
+
+    @Test
+    fun malformedInputYieldsBadRequestInsteadOfServerError() =
+        testApplication {
+            application { module(testModule) }
+            val client = createJsonClient()
+            val adminToken = TestSecurityHelper.generateToken(roles = setOf(Role.ADMIN))
+
+            assertEquals(HttpStatusCode.BadRequest, client.get("/api/innovations?area=NIE_ISTNIEJE").status)
+            assertEquals(HttpStatusCode.BadRequest, client.get("/api/innovations?page=abc").status)
+            assertEquals(HttpStatusCode.BadRequest, client.get(Innovations.ById(id = "nie-object-id")).status)
+
+            val brokenBody =
+                client.post(Innovations()) {
+                    contentType(ContentType.Application.Json)
+                    bearerAuth(adminToken)
+                    setBody("{ \"title\": ")
+                }
+            assertEquals(HttpStatusCode.BadRequest, brokenBody.status)
+            assertEquals(ErrorCode.VALIDATION_FAILED, brokenBody.body<ErrorResponse>().code)
+        }
+
+    @Test
+    fun putNormalisesInputTheSameWayAsPost() =
+        testApplication {
+            application { module(testModule) }
+            val client = createJsonClient()
+            val adminToken = TestSecurityHelper.generateToken(roles = setOf(Role.ADMIN))
+            val created =
+                client
+                    .post(Innovations()) {
+                        contentType(ContentType.Application.Json)
+                        bearerAuth(adminToken)
+                        setBody(sampleRequest(title = "Normalizacja ${System.nanoTime()}"))
+                    }.body<InnovationDto>()
+
+            val updated =
+                client
+                    .put(Innovations.ById(id = created.id)) {
+                        contentType(ContentType.Application.Json)
+                        bearerAuth(adminToken)
+                        setBody(
+                            sampleRequest(title = "  Po normalizacji ${System.nanoTime()}  ")
+                                .copy(mediaUrls = listOf("  https://example.com/x  "), region = "  Kraków "),
+                        )
+                    }.body<InnovationDto>()
+
+            assertEquals(listOf("https://example.com/x"), updated.mediaUrls)
+            assertEquals("Kraków", updated.region)
+            assertFalse(updated.title.startsWith(" "))
+        }
 }

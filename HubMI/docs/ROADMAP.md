@@ -42,7 +42,7 @@ zamiast jednego perfekcyjnego. Pozostałe 60% to wdrażalność (20%), dostępno
 ## Backend
 
 ### B1. Dane i katalog (moduł 2) – start po Fazie 0
-- Kolekcje: `innovations`, `challenges`, `materials` + indeksy tekstowe i JSON Schema (`plugins/Indexes.kt`, `Schemas.kt`).
+- Kolekcje: `innovations`, `challenges`, `materials` + indeksy filtrów (`plugins/MongoIndexes.kt`); indeks tekstowy dopiero w BE-03.
 - `GET /api/innovations` (+ filtry: obszar, grupa docelowa, `q`, paginacja), `GET /api/innovations/{id}`,
   analogicznie `challenges`, `materials`.
 - Zapis/edycja/archiwizacja: `POST|PUT|DELETE` – rola `admin`.

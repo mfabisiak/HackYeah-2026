@@ -11,7 +11,6 @@ data class ChallengeItem(
     @SerialName("_id")
     @Contextual
     val id: ObjectId = ObjectId(),
-    val slug: String? = null,
     val title: String,
     val description: String,
     val area: SocialArea,

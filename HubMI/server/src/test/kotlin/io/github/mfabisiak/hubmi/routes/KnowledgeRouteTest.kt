@@ -4,6 +4,7 @@ import io.github.mfabisiak.hubmi.MongoTestEnvironment
 import io.github.mfabisiak.hubmi.TestSecurityHelper
 import io.github.mfabisiak.hubmi.api.ChallengeDto
 import io.github.mfabisiak.hubmi.api.Challenges
+import io.github.mfabisiak.hubmi.api.ErrorResponse
 import io.github.mfabisiak.hubmi.api.MaterialDto
 import io.github.mfabisiak.hubmi.api.MaterialType
 import io.github.mfabisiak.hubmi.api.Materials
@@ -204,5 +205,92 @@ class KnowledgeRouteTest {
             // 8. Subsequent GET -> 404
             val afterDeleteResponse = client.get(Materials.ById(id = created.id))
             assertEquals(HttpStatusCode.NotFound, afterDeleteResponse.status)
+        }
+
+    @Test
+    fun challengeValidationAndInvalidIdYieldBadRequest() =
+        testApplication {
+            application { module(testModule) }
+            val client = createJsonClient()
+            val adminToken = TestSecurityHelper.generateToken(roles = setOf(Role.ADMIN))
+
+            val response =
+                client.post(Challenges()) {
+                    contentType(ContentType.Application.Json)
+                    bearerAuth(adminToken)
+                    setBody(
+                        UpsertChallengeRequest(
+                            title = " ",
+                            description = "Opis",
+                            area = SocialArea.LONELINESS,
+                            municipalities = listOf("Kraków", ""),
+                        ),
+                    )
+                }
+
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+            val fields = response.body<ErrorResponse>().details.map { it.field }
+            assertEquals(setOf("title", "municipalities[1]"), fields.toSet())
+            assertEquals(HttpStatusCode.BadRequest, client.get(Challenges.ById(id = "xyz")).status)
+            assertEquals(HttpStatusCode.BadRequest, client.get("/api/challenges?area=NIE_ISTNIEJE").status)
+        }
+
+    @Test
+    fun materialValidationAndFilters() =
+        testApplication {
+            application { module(testModule) }
+            val client = createJsonClient()
+            val adminToken = TestSecurityHelper.generateToken(roles = setOf(Role.ADMIN))
+
+            val invalid =
+                client.post(Materials()) {
+                    contentType(ContentType.Application.Json)
+                    bearerAuth(adminToken)
+                    setBody(
+                        UpsertMaterialRequest(
+                            title = "Poradnik",
+                            description = "Opis",
+                            type = MaterialType.GUIDE,
+                            url = "ftp://example.com",
+                            areas = emptyList(),
+                        ),
+                    )
+                }
+            assertEquals(HttpStatusCode.BadRequest, invalid.status)
+            assertEquals(
+                setOf("url", "areas"),
+                invalid
+                    .body<ErrorResponse>()
+                    .details
+                    .map { it.field }
+                    .toSet(),
+            )
+
+            val marker = "Znacznik${System.nanoTime()}"
+            val created =
+                client
+                    .post(Materials()) {
+                        contentType(ContentType.Application.Json)
+                        bearerAuth(adminToken)
+                        setBody(
+                            UpsertMaterialRequest(
+                                title = "  $marker.*  ",
+                                description = "Opis materiału",
+                                type = MaterialType.VIDEO,
+                                url = " https://example.com/film ",
+                                areas = listOf(SocialArea.DIGITAL_EXCLUSION),
+                            ),
+                        )
+                    }.body<MaterialDto>()
+            assertEquals("https://example.com/film", created.url)
+
+            // `q` is a literal substring (regex metacharacters are not interpreted), case-insensitive
+            val found = client.get(Materials(q = marker.lowercase() + ".*")).body<Page<MaterialDto>>()
+            assertEquals(listOf(created.id), found.items.map { it.id })
+            val notFound = client.get(Materials(q = marker.lowercase() + "x", area = SocialArea.DIGITAL_EXCLUSION))
+            assertEquals(0, notFound.body<Page<MaterialDto>>().total)
+            val byType = client.get(Materials(q = marker, type = MaterialType.REPORT)).body<Page<MaterialDto>>()
+            assertEquals(0, byType.total)
+            assertEquals(HttpStatusCode.BadRequest, client.get(Materials(q = "x".repeat(101))).status)
         }
 }

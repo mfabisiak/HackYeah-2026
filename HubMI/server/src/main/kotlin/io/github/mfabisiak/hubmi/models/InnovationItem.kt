@@ -13,7 +13,6 @@ data class InnovationItem(
     @SerialName("_id")
     @Contextual
     val id: ObjectId = ObjectId(),
-    val slug: String? = null,
     val title: String,
     val summary: String,
     val description: String,

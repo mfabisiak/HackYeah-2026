@@ -3,11 +3,13 @@ package io.github.mfabisiak.hubmi.seeding
 import arrow.core.Either
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import com.mongodb.kotlin.client.model.Filters
+import com.mongodb.kotlin.client.model.Updates
 import io.github.mfabisiak.hubmi.MongoTestEnvironment
 import io.github.mfabisiak.hubmi.api.InnovationStage
 import io.github.mfabisiak.hubmi.api.SocialArea
 import io.github.mfabisiak.hubmi.api.TargetGroup
 import io.github.mfabisiak.hubmi.config.AppConfig
+import io.github.mfabisiak.hubmi.models.InnovationItem
 import io.github.mfabisiak.hubmi.models.SampleItem
 import io.github.mfabisiak.hubmi.repository.challenges
 import io.github.mfabisiak.hubmi.repository.innovations
@@ -133,5 +135,48 @@ class DatabaseSeederTest {
                     .firstOrNull()
             assertNotNull(sample)
             assertEquals("Wzorcowa Innowacja Społeczna", sample.name)
+        }
+
+    @Test
+    fun reseedingKeepsAdminEditsAndArchivedItems() =
+        runBlocking {
+            val database = client.getDatabase("test-seeder-keeps-edits")
+            database.drop()
+            val config =
+                AppConfig(
+                    port = 8080,
+                    keycloakIssuer = "issuer",
+                    keycloakJwksUrl = "jwks",
+                    mongoUri = MongoTestEnvironment.connectionString,
+                    mongoDatabase = "test-seeder-keeps-edits",
+                    seed = true,
+                )
+            val seeder = DatabaseSeeder(database, config)
+            seeder.seedIfNeeded()
+
+            val (edited, archived) =
+                database.innovations
+                    .find()
+                    .toList()
+                    .take(2)
+            database.innovations.updateOne(
+                Filters.eq(InnovationItem::id, edited.id),
+                Updates.set(InnovationItem::title, "Zmieniony przez admina"),
+            )
+            database.innovations.updateOne(
+                Filters.eq(InnovationItem::id, archived.id),
+                Updates.set(InnovationItem::archived, true),
+            )
+
+            assertTrue(seeder.seedIfNeeded() is Either.Right)
+
+            val after =
+                database.innovations
+                    .find()
+                    .toList()
+                    .associateBy(InnovationItem::id)
+            assertEquals("Zmieniony przez admina", after.getValue(edited.id).title)
+            assertTrue(after.getValue(archived.id).archived)
+            assertEquals(edited.createdAt, after.getValue(edited.id).createdAt)
         }
 }

@@ -1,132 +1,79 @@
 package io.github.mfabisiak.hubmi.repository
 
 import arrow.core.Either
-import com.mongodb.client.model.FindOneAndUpdateOptions
-import com.mongodb.client.model.ReturnDocument
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import com.mongodb.kotlin.client.model.Filters
-import com.mongodb.kotlin.client.model.Sorts
 import com.mongodb.kotlin.client.model.Updates
 import io.github.mfabisiak.hubmi.api.Page
 import io.github.mfabisiak.hubmi.api.PageRequest
 import io.github.mfabisiak.hubmi.api.SocialArea
 import io.github.mfabisiak.hubmi.api.TargetGroup
-import io.github.mfabisiak.hubmi.api.UpsertInnovationRequest
+import io.github.mfabisiak.hubmi.domain.HttpUrl
+import io.github.mfabisiak.hubmi.domain.InnovationDraft
+import io.github.mfabisiak.hubmi.domain.InnovationId
+import io.github.mfabisiak.hubmi.domain.SearchQuery
 import io.github.mfabisiak.hubmi.models.InnovationItem
-import kotlinx.coroutines.flow.toList
-import org.bson.types.ObjectId
-import java.util.regex.Pattern
+import org.bson.conversions.Bson
 
 class InnovationRepository(
     database: MongoDatabase,
-) {
-    private val collection = database.innovations
-
+) : SoftDeleteRepository<InnovationItem>(
+        collection = database.innovations,
+        idField = InnovationItem::id,
+        archivedField = InnovationItem::archived,
+        updatedAtField = InnovationItem::updatedAt,
+    ) {
     suspend fun findAll(
-        q: String?,
+        q: SearchQuery?,
         area: SocialArea?,
         targetGroup: TargetGroup?,
         pageRequest: PageRequest,
     ): Either<RepositoryError, Page<InnovationItem>> =
-        mongoCatch {
-            val filters =
-                buildList {
-                    add(Filters.eq(InnovationItem::archived, false))
+        findPage(
+            filters =
+                buildList<Bson> {
                     if (area != null) {
-                        add(Filters.eq(InnovationItem::areas, area))
+                        add(InnovationItem::areas.hasElement(area))
                     }
                     if (targetGroup != null) {
-                        add(Filters.eq(InnovationItem::targetGroups, targetGroup))
+                        add(InnovationItem::targetGroups.hasElement(targetGroup))
                     }
-                    if (!q.isNullOrBlank()) {
-                        val pattern = Pattern.compile(Pattern.quote(q.trim()), Pattern.CASE_INSENSITIVE)
+                    if (q != null) {
                         add(
                             Filters.or(
-                                Filters.regex(InnovationItem::title, pattern),
-                                Filters.regex(InnovationItem::summary, pattern),
-                                Filters.regex(InnovationItem::description, pattern),
-                                Filters.regex(InnovationItem::keywords, pattern),
+                                q.matches(InnovationItem::title),
+                                q.matches(InnovationItem::summary),
+                                q.matches(InnovationItem::description),
+                                q.matchesAny(InnovationItem::keywords),
                             ),
                         )
                     }
-                }
-            val filter = Filters.and(filters)
-            val total = collection.countDocuments(filter).toInt()
-            val items =
-                collection
-                    .find(filter)
-                    .sort(Sorts.descending(InnovationItem::id))
-                    .skip(pageRequest.skip)
-                    .limit(pageRequest.limit)
-                    .toList()
-            Page(
-                items = items,
-                page = pageRequest.page,
-                size = pageRequest.size,
-                total = total,
-            )
-        }
+                },
+            pageRequest = pageRequest,
+        )
 
-    suspend fun findById(id: ObjectId): Either<RepositoryError, InnovationItem?> =
-        mongoCatch {
-            collection
-                .find(
-                    Filters.and(
-                        Filters.eq(InnovationItem::id, id),
-                        Filters.eq(InnovationItem::archived, false),
-                    ),
-                ).toList()
-                .firstOrNull()
-        }
-
-    suspend fun create(item: InnovationItem): Either<RepositoryError, InnovationItem> =
-        mongoCatch {
-            collection.insertOne(item)
-            item
-        }
+    suspend fun findById(id: InnovationId): Either<RepositoryError, InnovationItem?> = findActive(id.value)
 
     suspend fun update(
-        id: ObjectId,
-        request: UpsertInnovationRequest,
+        id: InnovationId,
+        draft: InnovationDraft,
         now: String,
     ): Either<RepositoryError, InnovationItem?> =
-        mongoCatch {
-            collection.findOneAndUpdate(
-                Filters.and(
-                    Filters.eq(InnovationItem::id, id),
-                    Filters.eq(InnovationItem::archived, false),
-                ),
-                Updates.combine(
-                    Updates.set(InnovationItem::title, request.title.trim()),
-                    Updates.set(InnovationItem::summary, request.summary.trim()),
-                    Updates.set(InnovationItem::description, request.description.trim()),
-                    Updates.set(InnovationItem::areas, request.areas),
-                    Updates.set(InnovationItem::targetGroups, request.targetGroups),
-                    Updates.set(InnovationItem::stage, request.stage),
-                    Updates.set(InnovationItem::region, request.region?.trim()),
-                    Updates.set(InnovationItem::mediaUrls, request.mediaUrls),
-                    Updates.set(InnovationItem::updatedAt, now),
-                ),
-                FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER),
-            )
-        }
+        updateActive(
+            id.value,
+            now,
+            Updates.set(InnovationItem::title, draft.title.value),
+            Updates.set(InnovationItem::summary, draft.summary.value),
+            Updates.set(InnovationItem::description, draft.description.value),
+            Updates.set(InnovationItem::areas, draft.areas.toList()),
+            Updates.set(InnovationItem::targetGroups, draft.targetGroups.toList()),
+            Updates.set(InnovationItem::stage, draft.stage),
+            Updates.set(InnovationItem::region, draft.region?.value),
+            Updates.set(InnovationItem::mediaUrls, draft.mediaUrls.map(HttpUrl::value)),
+        )
 
     suspend fun softDelete(
-        id: ObjectId,
+        id: InnovationId,
         now: String,
-    ): Either<RepositoryError, Boolean> =
-        mongoCatch {
-            val result =
-                collection.updateOne(
-                    Filters.and(
-                        Filters.eq(InnovationItem::id, id),
-                        Filters.eq(InnovationItem::archived, false),
-                    ),
-                    Updates.combine(
-                        Updates.set(InnovationItem::archived, true),
-                        Updates.set(InnovationItem::updatedAt, now),
-                    ),
-                )
-            result.matchedCount > 0
-        }
+    ): Either<RepositoryError, Boolean> = archive(id.value, now)
 }

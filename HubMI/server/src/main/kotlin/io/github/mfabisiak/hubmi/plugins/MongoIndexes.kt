@@ -20,27 +20,11 @@ object MongoIndexes {
         mongoCatch {
             database.samples.createIndex(Indexes.ascending(SampleItem::slug), IndexOptions().unique(true))
 
-            database.innovations.createIndex(Indexes.ascending(InnovationItem::slug), IndexOptions().sparse(true))
-            database.innovations.createIndex(Indexes.ascending(InnovationItem::archived))
             database.innovations.createIndex(Indexes.ascending(InnovationItem::areas))
             database.innovations.createIndex(Indexes.ascending(InnovationItem::targetGroups))
-            database.innovations.createIndex(Indexes.ascending(InnovationItem::stage))
-            database.innovations.createIndex(
-                com.mongodb.client.model.Indexes.compoundIndex(
-                    Indexes.text(InnovationItem::title),
-                    Indexes.text(InnovationItem::summary),
-                    Indexes.text(InnovationItem::description),
-                    Indexes.text(InnovationItem::keywords),
-                ),
-                IndexOptions().defaultLanguage("none"),
-            )
 
-            database.challenges.createIndex(Indexes.ascending(ChallengeItem::slug), IndexOptions().sparse(true))
-            database.challenges.createIndex(Indexes.ascending(ChallengeItem::archived))
             database.challenges.createIndex(Indexes.ascending(ChallengeItem::area))
 
-            database.materials.createIndex(Indexes.ascending(MaterialItem::slug), IndexOptions().sparse(true))
-            database.materials.createIndex(Indexes.ascending(MaterialItem::archived))
             database.materials.createIndex(Indexes.ascending(MaterialItem::type))
             database.materials.createIndex(Indexes.ascending(MaterialItem::areas))
         }.map { }

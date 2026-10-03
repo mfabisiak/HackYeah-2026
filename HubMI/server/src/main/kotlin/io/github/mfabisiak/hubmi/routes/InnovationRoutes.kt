@@ -3,9 +3,14 @@ package io.github.mfabisiak.hubmi.routes
 import io.github.mfabisiak.hubmi.api.Innovations
 import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.UpsertInnovationRequest
+import io.github.mfabisiak.hubmi.domain.InnovationDraft
+import io.github.mfabisiak.hubmi.domain.InnovationId
+import io.github.mfabisiak.hubmi.domain.SearchQuery
 import io.github.mfabisiak.hubmi.plugins.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.plugins.requireRole
 import io.github.mfabisiak.hubmi.service.InnovationService
+import io.github.mfabisiak.hubmi.service.orValidationError
+import io.github.mfabisiak.hubmi.service.validatePageRequest
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -16,16 +21,26 @@ import io.ktor.server.resources.put
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
 
+private const val INVALID_ID = "Nieprawidłowy identyfikator innowacji"
+private const val INVALID_INNOVATION = "Błąd walidacji danych innowacji"
+
 fun Route.innovationRoutes() {
     val service by inject<InnovationService>()
 
     // Public
     get<Innovations> { resource ->
-        respondEither(service.list(resource.q, resource.area, resource.targetGroup, resource.page, resource.size))
+        respondEither {
+            val pageRequest = validatePageRequest(resource.page, resource.size).bind()
+            val q = SearchQuery.parse(resource.q).orValidationError("Nieprawidłowe zapytanie").bind()
+            service.list(q, resource.area, resource.targetGroup, pageRequest).bind()
+        }
     }
 
     get<Innovations.ById> { resource ->
-        respondEither(service.getById(resource.id))
+        respondEither {
+            val id = InnovationId.parse(resource.id).orValidationError(INVALID_ID).bind()
+            service.getById(id).bind()
+        }
     }
 
     // Admin only
@@ -33,16 +48,26 @@ fun Route.innovationRoutes() {
         requireRole(Role.ADMIN) {
             post<Innovations> {
                 val request = call.receive<UpsertInnovationRequest>()
-                respondEither(service.create(request), successStatus = HttpStatusCode.Created)
+                respondEither(successStatus = HttpStatusCode.Created) {
+                    val draft = InnovationDraft.parse(request).orValidationError(INVALID_INNOVATION).bind()
+                    service.create(draft).bind()
+                }
             }
 
             put<Innovations.ById> { resource ->
                 val request = call.receive<UpsertInnovationRequest>()
-                respondEither(service.update(resource.id, request))
+                respondEither {
+                    val id = InnovationId.parse(resource.id).orValidationError(INVALID_ID).bind()
+                    val draft = InnovationDraft.parse(request).orValidationError(INVALID_INNOVATION).bind()
+                    service.update(id, draft).bind()
+                }
             }
 
             delete<Innovations.ById> { resource ->
-                respondEitherUnit(service.delete(resource.id))
+                respondEitherUnit {
+                    val id = InnovationId.parse(resource.id).orValidationError(INVALID_ID).bind()
+                    service.delete(id).bind()
+                }
             }
         }
     }

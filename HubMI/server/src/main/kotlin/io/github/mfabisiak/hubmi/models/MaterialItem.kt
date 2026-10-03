@@ -12,7 +12,6 @@ data class MaterialItem(
     @SerialName("_id")
     @Contextual
     val id: ObjectId = ObjectId(),
-    val slug: String? = null,
     val title: String,
     val description: String,
     val type: MaterialType,
