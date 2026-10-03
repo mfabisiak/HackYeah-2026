@@ -23,21 +23,14 @@ class Innovations(
         val parent: Innovations = Innovations(),
         val id: String,
     ) {
-        /**
-         * `PUT` (authenticated): declare willingness to test the innovation. The caller has one such request per
-         * innovation; repeating the call replaces its note until an admin decides on it. `GET` returns it (with its
-         * status), `404` when there is none.
-         */
+        /** `POST` (authenticated): declare willingness to test the innovation. */
         @Serializable
-        @Resource("test-request")
-        class TestRequest(
+        @Resource("test-requests")
+        class TestRequests(
             val parent: ById,
         )
 
-        /**
-         * `PUT` (authenticated): rate the innovation and leave feedback; the caller's previous rating is replaced.
-         * `GET` returns the caller's own rating, `404` when there is none.
-         */
+        /** `POST` (authenticated): rate the innovation and leave feedback. */
         @Serializable
         @Resource("feedback")
         class Feedback(
@@ -109,20 +102,11 @@ data class CreateTestRequest(
     val note: String? = null,
 )
 
-/** Outcome of a test request; only `NEW` ones can be decided, and a decision is final. */
-@Serializable
-enum class TestRequestStatus {
-    NEW,
-    ACCEPTED,
-    DECLINED,
-}
-
 @Serializable
 data class TestRequestDto(
     val id: String,
     val innovationId: String,
     val note: String?,
-    val status: TestRequestStatus,
     val createdAt: String,
 )
 

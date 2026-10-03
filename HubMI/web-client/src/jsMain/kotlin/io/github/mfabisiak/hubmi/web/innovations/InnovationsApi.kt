@@ -97,39 +97,20 @@ class InnovationsApi internal constructor(
     fun delete(id: String): Promise<ApiResult<EmptyJs>> =
         scope.promiseResult { client.sendForUnit(HttpMethod.Delete, Innovations.ById(id = id)).map { EmptyJs() } }
 
-    /** Declares willingness to test the innovation; repeating it replaces the note until an admin decides. */
+    /** Declares willingness to test the innovation. */
     fun requestTest(
         id: String,
         note: String? = null,
     ): Promise<ApiResult<TestRequestJs>> =
         scope.promiseResult {
             client
-                .send<Innovations.ById.TestRequest, CreateTestRequest, TestRequestDto>(
-                    HttpMethod.Put,
-                    Innovations.ById.TestRequest(parent = Innovations.ById(id = id)),
+                .send<Innovations.ById.TestRequests, CreateTestRequest, TestRequestDto>(
+                    HttpMethod.Post,
+                    Innovations.ById.TestRequests(parent = Innovations.ById(id = id)),
                     CreateTestRequest(note),
                 ).map { it.toJs() }
         }
 
-    /** The caller's own test request for the innovation, with its status; an error with status 404 when there is none. */
-    fun myTestRequest(id: String): Promise<ApiResult<TestRequestJs>> =
-        scope.promiseResult {
-            client
-                .fetch<Innovations.ById.TestRequest, TestRequestDto>(
-                    Innovations.ById.TestRequest(parent = Innovations.ById(id = id)),
-                ).map { it.toJs() }
-        }
-
-    /** The caller's own rating of the innovation; an error with status 404 when there is none. */
-    fun myFeedback(id: String): Promise<ApiResult<FeedbackJs>> =
-        scope.promiseResult {
-            client
-                .fetch<Innovations.ById.Feedback, FeedbackDto>(
-                    Innovations.ById.Feedback(parent = Innovations.ById(id = id)),
-                ).map { it.toJs() }
-        }
-
-    /** Rates the innovation; the caller's previous rating is replaced. */
     fun sendFeedback(
         id: String,
         rating: Int,
@@ -139,7 +120,7 @@ class InnovationsApi internal constructor(
         scope.promiseResult {
             client
                 .send<Innovations.ById.Feedback, CreateFeedbackRequest, FeedbackDto>(
-                    HttpMethod.Put,
+                    HttpMethod.Post,
                     Innovations.ById.Feedback(parent = Innovations.ById(id = id)),
                     CreateFeedbackRequest(rating, comment, suggestion),
                 ).map { it.toJs() }

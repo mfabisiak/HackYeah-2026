@@ -71,19 +71,6 @@ abstract class SoftDeleteRepository<T : Any>(
 
     suspend fun findAllActive(): Either<RepositoryError, List<T>> = mongoCatch { collection.find(active()).toList() }
 
-    /** Changes derived data without touching `updatedAt`; returns whether an active document matched. */
-    protected suspend fun patchActive(
-        id: ObjectId,
-        vararg changes: Bson,
-    ): Either<RepositoryError, Boolean> =
-        mongoCatch {
-            collection.updateOne(active(Filters.eq(idField, id)), MongoUpdates.combine(*changes)).matchedCount > 0
-        }
-
-    /** Looks documents up regardless of the archived flag, e.g. to label feedback left on a since removed innovation. */
-    protected suspend fun findAnyByIds(ids: Collection<ObjectId>): Either<RepositoryError, List<T>> =
-        mongoCatch { collection.find(Filters.`in`(idField, ids)).toList() }
-
     protected suspend fun archive(
         id: ObjectId,
         now: String,

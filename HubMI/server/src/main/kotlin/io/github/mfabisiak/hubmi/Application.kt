@@ -16,12 +16,11 @@ import io.github.mfabisiak.hubmi.plugins.configureKoin
 import io.github.mfabisiak.hubmi.plugins.configureSerialization
 import io.github.mfabisiak.hubmi.samples.sampleRoutes
 import io.github.mfabisiak.hubmi.seeding.DatabaseSeeder
-import io.github.mfabisiak.hubmi.tester.testerRoutes
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.koin.core.module.Module
 import org.koin.ktor.ext.get
 import kotlin.system.exitProcess
@@ -49,14 +48,9 @@ fun Application.module(
 
     val mongo = get<MongoRepository>()
     val seeder = get<DatabaseSeeder>()
-    // Blocking on purpose: the unique indexes are what keeps the upserts safe and the seed fills the catalogue, so
-    // neither may race the first request. The server starts accepting connections only after the modules are loaded.
-    runBlocking {
-        MongoIndexes
-            .configure(
-                mongo.database,
-            ).onLeft { environment.log.error("Creating Mongo indexes failed", it.cause) }
-        seeder.seedIfNeeded().onLeft { environment.log.error("Seeding the database failed", it.cause) }
+    launch {
+        MongoIndexes.configure(mongo.database)
+        seeder.seedIfNeeded()
     }
 
     routing {
@@ -68,7 +62,6 @@ fun Application.module(
         challengeRoutes()
         materialRoutes()
         matchRoutes()
-        testerRoutes()
     }
 }
 

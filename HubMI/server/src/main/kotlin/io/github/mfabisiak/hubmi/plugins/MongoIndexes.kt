@@ -16,10 +16,6 @@ import io.github.mfabisiak.hubmi.materials.MaterialItem
 import io.github.mfabisiak.hubmi.materials.materials
 import io.github.mfabisiak.hubmi.samples.SampleItem
 import io.github.mfabisiak.hubmi.samples.samples
-import io.github.mfabisiak.hubmi.tester.FeedbackItem
-import io.github.mfabisiak.hubmi.tester.TestRequestItem
-import io.github.mfabisiak.hubmi.tester.feedbacks
-import io.github.mfabisiak.hubmi.tester.testRequests
 
 object MongoIndexes {
     suspend fun configure(database: MongoDatabase): Either<RepositoryError, Unit> =
@@ -35,14 +31,5 @@ object MongoIndexes {
             database.materials.createIndex(Indexes.ascending(MaterialItem::areas))
 
             database.needs.createIndex(Indexes.ascending(NeedItem::matchedInnovationIds))
-            database.feedbacks.createIndex(
-                Indexes.ascending(FeedbackItem::innovationId, FeedbackItem::userId),
-                IndexOptions().unique(true),
-            )
-
-            database.testRequests.createIndex(
-                Indexes.ascending(TestRequestItem::innovationId, TestRequestItem::userId),
-                IndexOptions().unique(true),
-            )
         }.map { }
 }

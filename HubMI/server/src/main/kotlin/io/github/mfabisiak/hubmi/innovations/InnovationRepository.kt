@@ -17,7 +17,6 @@ import io.github.mfabisiak.hubmi.common.mongo.hasElement
 import io.github.mfabisiak.hubmi.common.mongo.matches
 import io.github.mfabisiak.hubmi.common.mongo.matchesAny
 import org.bson.conversions.Bson
-import org.bson.types.ObjectId
 
 const val INNOVATIONS_COLLECTION = "innovations"
 
@@ -59,21 +58,6 @@ class InnovationRepository(
                     }
                 },
             pageRequest = pageRequest,
-        )
-
-    suspend fun titlesOf(ids: Collection<ObjectId>): Either<RepositoryError, Map<ObjectId, String>> =
-        findAnyByIds(ids).map { items -> items.associate { it.id to it.title } }
-
-    /** Stores the rating aggregate recomputed from the feedback documents; returns whether the innovation exists. */
-    suspend fun setRating(
-        id: InnovationId,
-        sum: Int,
-        count: Int,
-    ): Either<RepositoryError, Boolean> =
-        patchActive(
-            id.value,
-            Updates.set(InnovationItem::ratingSum, sum),
-            Updates.set(InnovationItem::ratingsCount, count),
         )
 
     suspend fun findById(id: InnovationId): Either<RepositoryError, InnovationItem?> = findActive(id.value)
