@@ -2,6 +2,9 @@ package io.github.mfabisiak.hubmi.repository
 
 import com.mongodb.kotlin.client.coroutine.MongoCollection
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
+import io.github.mfabisiak.hubmi.models.ApplicationItem
+import io.github.mfabisiak.hubmi.models.GrantCallItem
+import io.github.mfabisiak.hubmi.models.IdeaItem
 import io.github.mfabisiak.hubmi.models.SampleItem
 
 /**
@@ -9,6 +12,18 @@ import io.github.mfabisiak.hubmi.models.SampleItem
  * bson-kotlinx (enums by name, `ObjectId` via `@Contextual`), so repositories never touch untyped `Document`s.
  */
 const val SAMPLES_COLLECTION = "samples"
+const val IDEAS_COLLECTION = "ideas"
+const val GRANT_CALLS_COLLECTION = "grant_calls"
+const val APPLICATIONS_COLLECTION = "applications"
 
 val MongoDatabase.samples: MongoCollection<SampleItem>
     get() = getCollection<SampleItem>(SAMPLES_COLLECTION)
+
+val MongoDatabase.ideas: MongoCollection<IdeaItem>
+    get() = getCollection<IdeaItem>(IDEAS_COLLECTION)
+
+val MongoDatabase.grantCalls: MongoCollection<GrantCallItem>
+    get() = getCollection<GrantCallItem>(GRANT_CALLS_COLLECTION)
+
+val MongoDatabase.applications: MongoCollection<ApplicationItem>
+    get() = getCollection<ApplicationItem>(APPLICATIONS_COLLECTION)

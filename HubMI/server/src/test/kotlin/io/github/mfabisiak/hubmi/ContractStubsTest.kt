@@ -27,7 +27,6 @@ class ContractStubsTest {
 
             assertEquals(HttpStatusCode.NotImplemented, client.get(Innovations()).status)
             assertEquals(HttpStatusCode.NotImplemented, client.get(Innovations.ById(id = "abc")).status)
-            assertEquals(HttpStatusCode.NotImplemented, client.get(Calls.Active()).status)
             assertEquals(HttpStatusCode.NotImplemented, client.post(Matches()).status)
         }
 

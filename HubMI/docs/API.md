@@ -24,11 +24,11 @@ błąd to zawsze `ErrorResponse(code, message)`. Dostęp: 🌐 publiczny · 🔑
 | 2 | `POST /api/materials`, `PUT`/`DELETE /api/materials/{id}` | 🛡️ | `UpsertMaterialRequest` → `MaterialDto` |
 | 1 | `POST /api/matches` | 🌐 | `MatchRequest` → `MatchResult` |
 | 1 | `POST /api/matches/{needId}/feedback` | 🌐 | `MatchFeedbackRequest` → `204` |
-| 3 | `POST /api/ideas` | 🔑 | `CreateIdeaRequest` → `IdeaDto` |
-| 3 | `GET /api/ideas/mine?page&size`, `GET /api/ideas/{id}` | 🔑 | → `Page<IdeaDto>`, `IdeaDto` |
-| 3 | `GET /api/calls?status`, `GET /api/calls/active` | 🌐 | → `List<GrantCallDto>` |
-| 3 | `POST /api/calls`, `PUT`/`DELETE /api/calls/{id}` | 🛡️ | `UpsertCallRequest` → `GrantCallDto` |
-| 3 | `POST /api/calls/{id}/applications` | 🔑 | `CreateApplicationRequest` → `ApplicationDto` |
+| 3 | `POST /api/ideas` | 🔑 | `CreateIdeaRequest` → `IdeaDto` *(zaimplementowane)* |
+| 3 | `GET /api/ideas/mine?page&size`, `GET /api/ideas/{id}` | 🔑 | → `Page<IdeaDto>`, `IdeaDto` *(zaimplementowane)* |
+| 3 | `GET /api/calls?status`, `GET /api/calls/active` | 🌐 | → `List<GrantCallDto>` *(zaimplementowane)* |
+| 3 | `POST /api/calls`, `PUT`/`DELETE /api/calls/{id}` | 🛡️ | `UpsertCallRequest` → `GrantCallDto` *(zaimplementowane)* |
+| 3 | `POST /api/calls/{id}/applications` | 🔑 | `CreateApplicationRequest` → `ApplicationDto` *(zaimplementowane)* |
 | 4 | `POST /api/innovations/{id}/test-requests` | 🔑 | `CreateTestRequest` → `TestRequestDto` |
 | 4 | `POST /api/innovations/{id}/feedback` | 🔑 | `CreateFeedbackRequest` → `FeedbackDto` |
 | 5 | `GET`/`POST /api/threads` | 🔑 | → `Page<ThreadDto>`; `CreateThreadRequest` → `ThreadDto` |
@@ -36,8 +36,8 @@ błąd to zawsze `ErrorResponse(code, message)`. Dostęp: 🌐 publiczny · 🔑
 | 5 | `GET /api/notifications?unreadOnly&page&size` | 🔑 | → `Page<NotificationDto>` |
 | 5 | `POST /api/notifications/{id}/read` | 🔑 | → `204` |
 | 6 | `GET /api/admin/trends?months` | 🛡️ | → `TrendsDto` |
-| 6 | `GET /api/admin/ideas?status&page&size` | 🛡️ | → `Page<IdeaDto>` |
-| 6 | `PATCH /api/admin/ideas/{id}/status` | 🛡️ | `UpdateIdeaStatusRequest` → `IdeaDto` |
+| 6 | `GET /api/admin/ideas?status&page&size` | 🛡️ | → `Page<IdeaDto>` *(zaimplementowane)* |
+| 6 | `PATCH /api/admin/ideas/{id}/status` | 🛡️ | `UpdateIdeaStatusRequest` → `IdeaDto` *(zaimplementowane)* |
 
 Do ustalenia przy implementacji: autoryzacja „autor lub admin" dla `GET /api/ideas/{id}` i wątków (wymaga sprawdzenia
 właściciela, nie tylko roli), rola `expert` w Keycloaku dla modułu 5, limity (rate limiting) dla `POST /api/matches`.

@@ -36,6 +36,8 @@ fun Route.appRoutes() {
         )
     }
 
+    ideaRoutes()
+    grantCallRoutes()
     contractStubs()
 
     // Requires a valid Keycloak access token

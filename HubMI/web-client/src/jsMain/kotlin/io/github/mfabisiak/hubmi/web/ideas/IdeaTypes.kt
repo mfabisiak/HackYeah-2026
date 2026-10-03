@@ -44,6 +44,11 @@ class CallFieldJs(
     val key: String,
     val label: String,
     val required: Boolean,
+    val type: String = "TEXT",
+    val maxLength: Int? = null,
+    val helpText: String? = null,
+    val prefillFromIdea: String? = null,
+    val options: Array<String> = emptyArray(),
 )
 
 @JsExport
@@ -106,6 +111,28 @@ internal fun UpsertCallJs.toDto(): UpsertCallRequest =
 
 internal fun List<AnswerJs>.toAnswers(): Map<String, String> = associate { it.key to it.value }
 
-private fun CallField.toJs(): CallFieldJs = CallFieldJs(key, label, required)
+private fun CallField.toJs(): CallFieldJs =
+    CallFieldJs(
+        key = key,
+        label = label,
+        required = required,
+        type = type.name,
+        maxLength = maxLength,
+        helpText = helpText,
+        prefillFromIdea = prefillFromIdea,
+        options = options.toTypedArray(),
+    )
 
-private fun CallFieldJs.toDto(): CallField = CallField(key, label, required)
+private fun CallFieldJs.toDto(): CallField =
+    CallField(
+        key = key,
+        label = label,
+        required = required,
+        type =
+            io.github.mfabisiak.hubmi.api.CallFieldType.entries.firstOrNull { it.name == type }
+                ?: io.github.mfabisiak.hubmi.api.CallFieldType.TEXT,
+        maxLength = maxLength,
+        helpText = helpText,
+        prefillFromIdea = prefillFromIdea,
+        options = options.toList(),
+    )
