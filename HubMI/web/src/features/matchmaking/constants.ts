@@ -42,21 +42,21 @@ export const SAMPLE_QUERIES = [
 ] as const
 
 export const SOCIAL_AREA_NAMES: Record<string, string> = {
-  AGING: 'Starzenie się społeczeństwa',
-  MENTAL_HEALTH: 'Zdrowie psychiczne',
-  LONELINESS: 'Samotność i relacje',
-  DIGITAL_EXCLUSION: 'Wykluczenie cyfrowe',
-  SERVICE_ACCESS: 'Dostęp do usług publicznych',
-  COORDINATION: 'Koordynacja wsparcia społecznego',
-  DEPOPULATION: 'Depopulacja i migracje',
-  OTHER: 'Inne wyzwania społeczne',
+  AGING: 'Wsparcie seniorów i osób starszych',
+  MENTAL_HEALTH: 'Zdrowie psychiczne i samopoczucie',
+  LONELINESS: 'Przeciwdziałanie samotności i integracja',
+  DIGITAL_EXCLUSION: 'Pomoc w korzystaniu z internetu i technologii',
+  SERVICE_ACCESS: 'Łatwiejszy dojazd do lekarza i urzędu',
+  COORDINATION: 'Współpraca lokalna i pomoc sąsiedzka',
+  DEPOPULATION: 'Wsparcie małych miejscowości i wsi',
+  OTHER: 'Inne potrzeby społeczne',
 }
 
 export const INNOVATION_STAGE_NAMES: Record<string, string> = {
-  IDEA: 'Pomysł',
-  PILOT: 'W trakcie pilotażu',
-  TESTED: 'Sprawdzony prototyp',
-  IMPLEMENTED: 'Wdrożone rozwiązanie',
+  IDEA: 'Nowy pomysł (w przygotowaniu)',
+  PILOT: 'Sprawdzane w praktyce (pilotaż)',
+  TESTED: 'Przetestowane z mieszkańcami',
+  IMPLEMENTED: 'Gotowe i działające rozwiązanie',
 }
 
 export function getMatchQualityLabel(score: number): {
@@ -64,10 +64,10 @@ export function getMatchQualityLabel(score: number): {
   color: 'teal' | 'blue' | 'yellow'
 } {
   if (score >= 0.75) {
-    return { label: 'Bardzo wysokie dopasowanie', color: 'teal' }
+    return { label: 'Bardzo wysoka zgodność z problemem', color: 'teal' }
   }
   if (score >= 0.45) {
-    return { label: 'Dobre dopasowanie', color: 'blue' }
+    return { label: 'Dobra zgodność z problemem', color: 'blue' }
   }
-  return { label: 'Możliwe dopasowanie', color: 'yellow' }
+  return { label: 'Częściowa zgodność (warto sprawdzić)', color: 'yellow' }
 }

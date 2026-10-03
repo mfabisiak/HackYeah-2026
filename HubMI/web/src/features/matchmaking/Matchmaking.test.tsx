@@ -53,7 +53,7 @@ describe('Matchmaking Feature', () => {
       renderWithProviders(<MatchmakingForm isLoading={false} onSubmit={vi.fn()} />)
 
       expect(screen.getByLabelText(/Opisz problem swoimi słowami/)).toBeInTheDocument()
-      expect(screen.getByText(/Nie wpisuj imion i nazwisk/)).toBeInTheDocument()
+      expect(screen.getByText(/Nie musisz podawać swoich danych osobowych/)).toBeInTheDocument()
       expect(screen.getByText(/0 \/ 2000 znaków/)).toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'Transport seniorów' })).toBeInTheDocument()
     })
@@ -76,7 +76,7 @@ describe('Matchmaking Feature', () => {
       const textarea = screen.getByLabelText(/Opisz problem swoimi słowami/)
       fireEvent.change(textarea, { target: { value: 'test' } })
 
-      const submitBtn = screen.getByRole('button', { name: /Znajdź rozwiązania/ })
+      const submitBtn = screen.getByRole('button', { name: /Wyszukaj sprawdzone rozwiązania/ })
       fireEvent.click(submitBtn)
 
       expect(screen.getByText(/Opis problemu jest zbyt krótki/)).toBeInTheDocument()
@@ -92,7 +92,7 @@ describe('Matchmaking Feature', () => {
         target: { value: 'Seniorzy w naszej wsi nie mają jak dojechać do ośrodka zdrowia.' },
       })
 
-      const submitBtn = screen.getByRole('button', { name: /Znajdź rozwiązania/ })
+      const submitBtn = screen.getByRole('button', { name: /Wyszukaj sprawdzone rozwiązania/ })
       fireEvent.click(submitBtn)
 
       expect(handleSubmit).toHaveBeenCalledWith(
@@ -107,8 +107,8 @@ describe('Matchmaking Feature', () => {
       renderWithProviders(<MatchCard match={mockMatchItem} />)
 
       expect(screen.getByRole('heading', { level: 3, name: 'Mobilny Asystent Seniora' })).toBeInTheDocument()
-      expect(screen.getByText('Bardzo wysokie dopasowanie')).toBeInTheDocument()
-      expect(screen.getByText('Sprawdzony prototyp')).toBeInTheDocument()
+      expect(screen.getByText('Bardzo wysoka zgodność z problemem')).toBeInTheDocument()
+      expect(screen.getByText('Przetestowane z mieszkańcami')).toBeInTheDocument()
       expect(screen.getByText('Innowacja bezpośrednio rozwiązuje problem komunikacji.')).toBeInTheDocument()
 
       const marks = screen.getAllByText(/senior|komunikacja/)
@@ -144,8 +144,8 @@ describe('Matchmaking Feature', () => {
 
       expect(screen.getByText(/Podobne wyzwania zgłoszone w Małopolsce/)).toBeInTheDocument()
       expect(screen.getByText(/Brak autobusu dla seniora/)).toBeInTheDocument()
-      expect(screen.getByText('Starzenie się społeczeństwa')).toBeInTheDocument()
-      expect(screen.getByText('Wykluczenie cyfrowe')).toBeInTheDocument()
+      expect(screen.getByText('Wsparcie seniorów i osób starszych')).toBeInTheDocument()
+      expect(screen.getByText('Pomoc w korzystaniu z internetu i technologii')).toBeInTheDocument()
     })
   })
 
@@ -171,7 +171,7 @@ describe('Matchmaking Feature', () => {
       const sampleBtn = screen.getByRole('button', { name: 'Transport seniorów' })
       fireEvent.click(sampleBtn)
 
-      const submitBtn = screen.getByRole('button', { name: /Znajdź rozwiązania/ })
+      const submitBtn = screen.getByRole('button', { name: /Wyszukaj sprawdzone rozwiązania/ })
       fireEvent.click(submitBtn)
 
       await waitFor(() => {
@@ -192,12 +192,12 @@ describe('Matchmaking Feature', () => {
       const sampleBtn = screen.getByRole('button', { name: 'Dostępność urzędu' })
       fireEvent.click(sampleBtn)
 
-      const submitBtn = screen.getByRole('button', { name: /Znajdź rozwiązania/ })
+      const submitBtn = screen.getByRole('button', { name: /Wyszukaj sprawdzone rozwiązania/ })
       fireEvent.click(submitBtn)
 
       await waitFor(() => {
         expect(
-          screen.getByText('Nie znaleźliśmy jeszcze idealnie dopasowanego rozwiązania'),
+          screen.getByText('Nie znaleźliśmy jeszcze bezpośrednio pasującego rozwiązania'),
         ).toBeInTheDocument()
       })
       expect(
@@ -216,7 +216,7 @@ describe('Matchmaking Feature', () => {
       const sampleBtn = screen.getByRole('button', { name: 'Dostępność urzędu' })
       fireEvent.click(sampleBtn)
 
-      const submitBtn = screen.getByRole('button', { name: /Znajdź rozwiązania/ })
+      const submitBtn = screen.getByRole('button', { name: /Wyszukaj sprawdzone rozwiązania/ })
       fireEvent.click(submitBtn)
 
       await waitFor(() => {
