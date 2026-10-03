@@ -33,7 +33,7 @@ describe('Shared Accessible Components', () => {
 
       expect(screen.getByRole('heading', { level: 1, name: 'Katalog wyzwań' })).toBeInTheDocument()
       expect(screen.getByText('Przeglądaj zgłoszone wyzwania')).toBeInTheDocument()
-      expect(screen.getByRole('navigation', { name: 'Okruszki chleba' })).toBeInTheDocument()
+      expect(screen.getByRole('navigation', { name: 'Ścieżka nawigacyjna' })).toBeInTheDocument()
       expect(screen.getByText('Start')).toBeInTheDocument()
     })
   })

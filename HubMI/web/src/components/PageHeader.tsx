@@ -23,7 +23,7 @@ export function PageHeader({
   return (
     <Box mb="xl" component="header">
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <Box component="nav" aria-label="Okruszki chleba" mb="xs">
+        <Box component="nav" aria-label="Ścieżka nawigacyjna" mb="xs">
           <Breadcrumbs separator="/" separatorMargin="xs">
             {breadcrumbs.map((item, index) => {
               const isLast = index === breadcrumbs.length - 1
