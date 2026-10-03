@@ -1,8 +1,9 @@
-# Backlog frontendu (propozycja)
+# Backlog frontendu
 
 Powiązane: [ROADMAP.md](ROADMAP.md) (sekcja Web) · [API.md](API.md) · [BACKEND_TICKETS.md](BACKEND_TICKETS.md) · [CLAUDE.md](../CLAUDE.md).
 Rozmiary: **S** ≤ 2 h, **M** ≤ pół dnia, **L** ≈ dzień. Numery `#N` w „Zależy od" to issues backendowe z GitHuba.
-Frontend nie czeka na backend: pracuje na mockach HTTP (FE-02), a po gotowości endpointu przełącza się na prawdziwy.
+Założone na GitHubie jako issues [#12–#21](https://github.com/mfabisiak/HackYeah-2026/issues) (FE-01 → #12 … FE-10 → #21);
+źródłem prawdy o zakresie są issues, ten plik to skrót. Frontend nie czeka na backend: pracuje na mockach HTTP (FE-02), a po gotowości endpointu przełącza się na prawdziwy.
 
 **Stan obecny `web/`:** React 19 + TypeScript + Vite 8, Mantine 9, React Router 7, `keycloak-js` (PKCE, `check-sso`),
 klient `HubApi` z `:web-client` (tylko `health()` i `me()`). Strony: Start, Status systemu, Moje konto. Powłoka z linkiem
