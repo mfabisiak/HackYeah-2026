@@ -19,6 +19,8 @@ export interface TestRequestModalProps {
   onClose: () => void
   innovationId: string
   innovationTitle: string
+  existingRequest?: TestRequestJs | null
+  onRequestUpdated?: (request: TestRequestJs) => void
 }
 
 export function TestRequestModal({
@@ -26,13 +28,16 @@ export function TestRequestModal({
   onClose,
   innovationId,
   innovationTitle,
+  existingRequest: initialExistingRequest,
+  onRequestUpdated,
 }: TestRequestModalProps) {
   const { authenticated, login } = useAuth()
-  const [existingRequest, setExistingRequest] = useState<TestRequestJs | null>(null)
-  const [note, setNote] = useState('')
+  const [existingRequest, setExistingRequest] = useState<TestRequestJs | null>(initialExistingRequest ?? null)
+  const [note, setNote] = useState(initialExistingRequest?.note ?? '')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
 
   useEffect(() => {
     if (!opened || !authenticated) return
@@ -45,6 +50,7 @@ export function TestRequestModal({
       if (res.value) {
         setExistingRequest(res.value)
         setNote(res.value.note ?? '')
+        onRequestUpdated?.(res.value)
       } else {
         setExistingRequest(null)
       }
@@ -53,7 +59,7 @@ export function TestRequestModal({
     return () => {
       cancelled = true
     }
-  }, [opened, authenticated, innovationId])
+  }, [opened, authenticated, innovationId, onRequestUpdated])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -71,6 +77,7 @@ export function TestRequestModal({
       } else if (res.value) {
         setExistingRequest(res.value)
         setIsSuccess(true)
+        onRequestUpdated?.(res.value)
       }
     } catch {
       setError('Wystąpił błąd sieci. Spróbuj ponownie.')

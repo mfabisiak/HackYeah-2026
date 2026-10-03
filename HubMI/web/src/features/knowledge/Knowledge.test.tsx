@@ -205,6 +205,29 @@ describe('Knowledge Base Feature (FE-04)', () => {
       // Aggregate Rating presentation per FE-06
       expect(screen.getAllByText(/4,8 na 5 \(12 ocen\)/i).length).toBeGreaterThan(0)
     })
+
+    it('changes test button label to "Zgłoszono do testów (edytuj zgłoszenie)" when user has already submitted a test request', async () => {
+      vi.spyOn(hubApi.innovations, 'get').mockResolvedValue(
+        new ApiResult(mockInnovationDetail, null),
+      )
+      vi.spyOn(hubApi.innovations, 'myTestRequest').mockResolvedValue(
+        new ApiResult(
+          new TestRequestJs('req-001', 'inno-001', 'Mój powód testowania', 'NEW', '2026-10-04T00:00:00Z'),
+          null,
+        ),
+      )
+
+      renderWithProviders(
+        <Routes>
+          <Route path="/innowacje/:id" element={<InnovationDetailPage />} />
+        </Routes>,
+        ['/innowacje/inno-001'],
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Zgłoszono do testów (edytuj zgłoszenie)')).toBeInTheDocument()
+      })
+    })
   })
 
   describe('Tester innowacji i oceny (FE-06)', () => {

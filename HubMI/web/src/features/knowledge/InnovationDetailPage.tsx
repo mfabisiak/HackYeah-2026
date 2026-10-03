@@ -29,6 +29,7 @@ import {
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { hubApi } from '../../api/hubApi'
+import { useAuth } from '../../auth/AuthContext'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
 import { PageHeader } from '../../components/PageHeader'
@@ -39,7 +40,7 @@ import {
 } from './constants'
 import { InnovationFeedbackSection } from './InnovationFeedbackSection'
 import { TestRequestModal } from './TestRequestModal'
-import type { InnovationJs } from 'hubmi-client'
+import type { InnovationJs, TestRequestJs } from 'hubmi-client'
 
 function formatRatingCount(count: number): string {
   if (count === 1) return '1 ocena'
@@ -53,10 +54,34 @@ function formatRatingCount(count: number): string {
 
 export function InnovationDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const { authenticated } = useAuth()
   const [innovation, setInnovation] = useState<InnovationJs | null>(null)
+  const [existingRequest, setExistingRequest] = useState<TestRequestJs | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [testModalOpened, setTestModalOpened] = useState(false)
+
+  useEffect(() => {
+    if (!id || !authenticated) return
+    let cancelled = false
+
+    void hubApi.innovations.myTestRequest(id).then((res) => {
+      if (cancelled) return
+      if (res.value) {
+        setExistingRequest(res.value)
+      } else {
+        setExistingRequest(null)
+      }
+    }).catch(() => {
+      if (!cancelled) {
+        setExistingRequest(null)
+      }
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [id, authenticated])
 
   useEffect(() => {
     if (!id) return
@@ -160,11 +185,19 @@ export function InnovationDetailPage() {
           <Button
             onClick={() => setTestModalOpened(true)}
             size="lg"
-            color="blue"
-            leftSection={<IconHeartHandshake size={22} aria-hidden="true" />}
+            color={existingRequest ? 'teal' : 'blue'}
+            leftSection={
+              existingRequest ? (
+                <IconCheck size={22} aria-hidden="true" />
+              ) : (
+                <IconHeartHandshake size={22} aria-hidden="true" />
+              )
+            }
             styles={{ root: { fontSize: '1.05rem', fontWeight: 600 } }}
           >
-            Chcę przetestować to rozwiązanie
+            {existingRequest
+              ? 'Zgłoszono do testów (edytuj zgłoszenie)'
+              : 'Chcę przetestować to rozwiązanie'}
           </Button>
         </Group>
       </Group>
@@ -501,6 +534,8 @@ export function InnovationDetailPage() {
         onClose={() => setTestModalOpened(false)}
         innovationId={innovation.id}
         innovationTitle={innovation.title}
+        existingRequest={existingRequest}
+        onRequestUpdated={setExistingRequest}
       />
     </Stack>
   )
