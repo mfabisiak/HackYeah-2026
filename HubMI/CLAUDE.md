@@ -56,28 +56,32 @@ Test users: `user`/`user`, `admin`/`admin` (realm [keycloak/hubmi-realm.json](ke
 Typ ma wyrażać znaczenie. Zanim napiszesz literał `"..."`, zapytaj: czy to zamknięty zbiór wartości? Jeśli tak – `enum`.
 
 1. **Zamknięty zbiór = `enum class` (lub `sealed interface`), nigdy `String`.** Dotyczy: ról (`Role`), kodów błędów
-   (`ErrorCode`, `FieldErrorCode`), statusów, etapów, obszarów, typów. Porównania `"admin" in roles`, `code = "not_found"`,
+   (`ErrorCode`, `FieldErrorCode`, `Role`), statusów, etapów, obszarów, typów. Porównania `"admin" in roles`, `code = "not_found"`,
    `status == "OPEN"` są zakazane. Wartości zewnętrzne (nazwa roli w Keycloaku) mapujemy na enum **na granicy**
    (`Role.fromKeycloakName`); nieznane wartości odrzucamy tam, nie w domenie.
-2. **Enum w kontrakcie API** leci jako nazwa wpisu (`NOT_FOUND`) – tak jak `SocialArea`. Nie dorabiamy równoległych
+2. **Wariant z danymi = `sealed interface`, nie enum + osobne pola.** Gdy wartość niesie parametry (limit, zakres),
+   robimy `data class`, a warianty bez danych to `data object`: `FieldErrorCode.MinValue(min)`, `FieldErrorCode.Range(min, max)`,
+   `FieldErrorCode.Blank`. Nie wciskamy parametrów w komunikat tekstowy ani w osobne `String`-pola.
+   Enum zostaje tylko dla wartości bez danych (`ErrorCode`, `Role`). W `:core` każdy wariant ma `@Serializable` i `@SerialName`.
+3. **Enum w kontrakcie API** leci jako nazwa wpisu (`NOT_FOUND`) – tak jak `SocialArea`. Nie dorabiamy równoległych
    stringów `snake_case`; frontend dostaje `enum.name`.
-3. **Parametry funkcji to typy domenowe**, nie `String`/`Int` „z umowy”: `requireRole(Role.ADMIN)`, nie `requireRole("admin")`.
-4. **Stałe zamiast powtarzanych literałów.** Nazwa używana w ≥ 2 miejscach (kolekcja, claim JWT, klucz konfiguracji)
+4. **Parametry funkcji to typy domenowe**, nie `String`/`Int` „z umowy”: `requireRole(Role.ADMIN)`, nie `requireRole("admin")`.
+5. **Stałe zamiast powtarzanych literałów.** Nazwa używana w ≥ 2 miejscach (kolekcja, claim JWT, klucz konfiguracji)
    to `const val` w jednym miejscu. Literał tekstowy w kodzie dopuszczamy tylko dla komunikatów użytkownika.
-5. **`when` na enumie/sealed bez `else`** – kompilator ma wymusić obsłużenie nowego przypadku.
-6. **Preferuj `value class` i `data class` nad `Pair`/`Triple`/`Map<String, Any>`.** Wynik z więcej niż jedną wartością
+6. **`when` na enumie/sealed bez `else`** – kompilator ma wymusić obsłużenie nowego przypadku.
+7. **Preferuj `value class` i `data class` nad `Pair`/`Triple`/`Map<String, Any>`.** Wynik z więcej niż jedną wartością
    dostaje nazwany typ.
-7. **Kolekcje: `map`/`filter`/`mapNotNull`/`associateBy`/`groupBy`/`fold`**, nie pętle z akumulatorem. `buildList` zamiast
+8. **Kolekcje: `map`/`filter`/`mapNotNull`/`associateBy`/`groupBy`/`fold`**, nie pętle z akumulatorem. `buildList` zamiast
    `MutableList` w zmiennej. Sekwencje (`asSequence()`) dla łańcuchów na dużych listach.
-8. **Referencje do funkcji i właściwości** (`Role::fromKeycloakName`, `SampleItem::slug`) zamiast lambd-wrapperów i stringów.
-9. **Scope functions oszczędnie:** `let` do nullable (`?.let`), `apply`/`also` tylko przy konfiguracji obiektu; zero
+9. **Referencje do funkcji i właściwości** (`Role::fromKeycloakName`, `SampleItem::slug`) zamiast lambd-wrapperów i stringów.
+10. **Scope functions oszczędnie:** `let` do nullable (`?.let`), `apply`/`also` tylko przy konfiguracji obiektu; zero
    zagnieżdżonych scope functions. Kolejność: guard clause / `ensure` na górze, brak głębokiego zagnieżdżania.
-10. **Nullable:** `?.`, `?:`, `ensureNotNull`; domyślne wartości parametrów zamiast przeciążeń; named arguments przy
+11. **Nullable:** `?.`, `?:`, `ensureNotNull`; domyślne wartości parametrów zamiast przeciążeń; named arguments przy
     ≥ 3 parametrach lub parametrach tego samego typu (`FieldError(field = ..., code = ..., message = ...)`).
-11. **Nie używaj `Document`/`Map<String, Any?>`/`JsonObject` jako modelu domeny.** Dane mają mieć klasę.
-12. **Nieużywany kod usuwamy** (nieużywane importy, typy, parametry, aliasy `typealias` „na zapas”, duplikaty funkcji
+12. **Nie używaj `Document`/`Map<String, Any?>`/`JsonObject` jako modelu domeny.** Dane mają mieć klasę.
+13. **Nieużywany kod usuwamy** (nieużywane importy, typy, parametry, aliasy `typealias` „na zapas”, duplikaty funkcji
     o tej samej roli). Nie dodajemy abstrakcji i pól „na przyszłość” – także indeksów i kolekcji bez modelu.
-13. Własności wyliczane (`val isAdmin get() = ...`) tylko gdy trywialne; w innym wypadku zwykła funkcja.
+14. Własności wyliczane (`val isAdmin get() = ...`) tylko gdy trywialne; w innym wypadku zwykła funkcja.
 
 ## Architektura serwera (`server/src/main/kotlin/io/github/mfabisiak/hubmi/`)
 
@@ -105,7 +109,7 @@ Przepływ: `route → service → repository`. Warstwa nie woła warstwy nad sob
 - Trasy jako **Ktor Resources** (`@Resource` w `:core/commonMain`), współdzielone przez serwer i klienta mobile; bez OpenAPI.
 - Prefiks `/api`, zasoby w liczbie mnogiej, rzeczowniki: `GET /api/innovations`, `POST /api/ideas`.
 - Metody i statusy zgodnie z semantyką: 200/201 (z `Location`), 204, 400 (walidacja), 401, 403, 404, 409 (konflikt), 5xx.
-- Błąd zawsze jako `ErrorResponse(code, message)`; `code` to enum `ErrorCode` z `:core` (a `FieldError.code` to `FieldErrorCode`) –
+- Błąd zawsze jako `ErrorResponse(code, message)`; `code` to enum `ErrorCode` z `:core` (a `FieldError.code` to sealed `FieldErrorCode`) –
   nigdy wolny string. Nowy rodzaj błędu = nowy wpis w enumie.
 - Listy paginowane (`?page=&size=`), filtry w query. Odpowiedzi nigdy nie zwracają modeli Mongo – tylko DTO.
 - Autoryzacja: `authenticate(KEYCLOAK_AUTH)` + `requireRole(Role.ADMIN)`. Role to enum `Role` z `:core`, mapowany z

@@ -56,21 +56,21 @@ class SampleService(
             val fieldErrors =
                 buildList {
                     if (request.slug.isBlank()) {
-                        add(FieldError("slug", FieldErrorCode.BLANK, "Pole 'slug' nie może być puste"))
+                        add(FieldError("slug", FieldErrorCode.Blank, "Pole 'slug' nie może być puste"))
                     } else if (!request.slug.matches(Regex("^[a-z0-9-]+$"))) {
                         add(
                             FieldError(
                                 field = "slug",
-                                code = FieldErrorCode.INVALID_FORMAT,
+                                code = FieldErrorCode.InvalidFormat,
                                 message = "Pole 'slug' może zawierać tylko małe litery, cyfry i myślniki",
                             ),
                         )
                     }
                     if (request.name.isBlank()) {
-                        add(FieldError("name", FieldErrorCode.BLANK, "Pole 'name' nie może być puste"))
+                        add(FieldError("name", FieldErrorCode.Blank, "Pole 'name' nie może być puste"))
                     }
                     if (request.description.isBlank()) {
-                        add(FieldError("description", FieldErrorCode.BLANK, "Pole 'description' nie może być puste"))
+                        add(FieldError("description", FieldErrorCode.Blank, "Pole 'description' nie może być puste"))
                     }
                 }
 
@@ -112,7 +112,7 @@ class SampleService(
             ensure(ObjectId.isValid(idString)) {
                 DomainError.Validation(
                     message = "Nieprawidłowy format ID: $idString",
-                    details = listOf(FieldError("id", FieldErrorCode.INVALID_FORMAT, "Nieprawidłowy format ObjectId")),
+                    details = listOf(FieldError("id", FieldErrorCode.InvalidFormat, "Nieprawidłowy format ObjectId")),
                 )
             }
             ObjectId(idString)

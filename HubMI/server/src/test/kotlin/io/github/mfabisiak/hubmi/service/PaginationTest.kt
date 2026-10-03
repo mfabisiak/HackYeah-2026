@@ -2,6 +2,7 @@ package io.github.mfabisiak.hubmi.service
 
 import arrow.core.Either
 import io.github.mfabisiak.hubmi.api.ErrorCode
+import io.github.mfabisiak.hubmi.api.FieldErrorCode
 import io.github.mfabisiak.hubmi.api.PageRequest
 import kotlin.test.*
 
@@ -31,6 +32,7 @@ class PaginationTest {
         val result = validatePageRequest(-1, 10)
         assertTrue(result is Either.Left)
         assertEquals(ErrorCode.VALIDATION_FAILED, result.value.code)
+        assertEquals(listOf(FieldErrorCode.MinValue(0)), result.value.details.map { it.code })
     }
 
     @Test
@@ -48,5 +50,6 @@ class PaginationTest {
         val result = validatePageRequest(0, 101)
         assertTrue(result is Either.Left)
         assertEquals(ErrorCode.VALIDATION_FAILED, result.value.code)
+        assertEquals(listOf(FieldErrorCode.Range(1, PageRequest.MAX_SIZE)), result.value.details.map { it.code })
     }
 }

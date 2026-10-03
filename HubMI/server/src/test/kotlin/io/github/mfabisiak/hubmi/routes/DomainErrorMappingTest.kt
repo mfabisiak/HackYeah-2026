@@ -32,7 +32,7 @@ class DomainErrorMappingTest {
                         respondError(
                             DomainError.Validation(
                                 message = "Validation test",
-                                details = listOf(FieldError("name", FieldErrorCode.REQUIRED, "Pole wymagane")),
+                                details = listOf(FieldError("name", FieldErrorCode.Required, "Pole wymagane")),
                             ),
                         )
                     }
