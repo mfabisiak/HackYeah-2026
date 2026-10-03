@@ -5,6 +5,8 @@ import io.github.mfabisiak.hubmi.api.AdminApplications
 import io.github.mfabisiak.hubmi.api.AdminFeedback
 import io.github.mfabisiak.hubmi.api.AdminFeedbackDto
 import io.github.mfabisiak.hubmi.api.AdminIdeas
+import io.github.mfabisiak.hubmi.api.AdminSummary
+import io.github.mfabisiak.hubmi.api.AdminSummaryDto
 import io.github.mfabisiak.hubmi.api.AdminTestRequestDto
 import io.github.mfabisiak.hubmi.api.AdminTestRequests
 import io.github.mfabisiak.hubmi.api.AdminTrends
@@ -48,6 +50,12 @@ class AdminApi internal constructor(
     fun trends(months: Int = 6): Promise<ApiResult<TrendsJs>> =
         scope.promiseResult {
             client.fetch<AdminTrends, TrendsDto>(AdminTrends(months = months)).map { it.toJs() }
+        }
+
+    /** Admin dashboard counters. */
+    fun summary(): Promise<ApiResult<AdminSummaryJs>> =
+        scope.promiseResult {
+            client.fetch<AdminSummary, AdminSummaryDto>(AdminSummary()).map { it.toJs() }
         }
 
     /** Moderation queue. @param status `IdeaStatus` name to filter by. */

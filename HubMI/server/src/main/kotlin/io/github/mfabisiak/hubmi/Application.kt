@@ -1,5 +1,6 @@
 package io.github.mfabisiak.hubmi
 
+import io.github.mfabisiak.hubmi.admin.adminRoutes
 import io.github.mfabisiak.hubmi.auth.authRoutes
 import io.github.mfabisiak.hubmi.auth.configureSecurity
 import io.github.mfabisiak.hubmi.calls.grantCallRoutes
@@ -81,6 +82,7 @@ fun Application.module(
         ideaRoutes()
         grantCallRoutes()
         messagingRoutes()
+        adminRoutes()
     }
 }
 

@@ -35,5 +35,4 @@ private fun Route.authenticatedStubs() {
 }
 
 private fun Route.adminStubs() {
-    get<AdminTrends> { notImplemented() }
 }

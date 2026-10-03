@@ -116,10 +116,33 @@ data class MunicipalityTrend(
 )
 
 @Serializable
+data class MonthlyTrendPoint(
+    val month: String,
+    val count: Int,
+)
+
+@Serializable
 data class TrendsDto(
     val byArea: List<AreaTrend>,
     val byMunicipality: List<MunicipalityTrend>,
     val unmatchedNeeds: Int,
+    val series: List<MonthlyTrendPoint> = emptyList(),
+    val topUnmatchedTerms: List<String> = emptyList(),
+)
+
+/** `GET`: admin dashboard counters. */
+@Serializable
+@Resource("summary")
+class AdminSummary(
+    val parent: Api.Admin = Api.Admin(),
+)
+
+@Serializable
+data class AdminSummaryDto(
+    val submittedIdeas: Int,
+    val pendingTestRequests: Int,
+    val unmatchedNeedsThisWeek: Int,
+    val pendingThreads: Int,
 )
 
 @Serializable

@@ -2,6 +2,7 @@ package io.github.mfabisiak.hubmi.di
 
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
+import io.github.mfabisiak.hubmi.admin.AdminDashboardService
 import io.github.mfabisiak.hubmi.calls.ApplicationRepository
 import io.github.mfabisiak.hubmi.calls.ApplicationService
 import io.github.mfabisiak.hubmi.calls.GrantCallRepository
@@ -96,5 +97,6 @@ fun appModule(config: AppConfig) =
         single { TestRequestService(get(), get()) }
         single { ThreadService(get(), get(), get(), get()) }
         single { NotificationService(get()) }
+        single { AdminDashboardService(get(), get(), get(), get(), get(), get()) }
         single { DatabaseSeeder(get<MongoRepository>().database, get()) }
     }

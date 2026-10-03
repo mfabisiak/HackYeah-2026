@@ -57,6 +57,12 @@ object MongoIndexes {
                 ),
             )
             database.needs.createIndex(Indexes.ascending(NeedItem::matchedInnovationIds))
+            database.needs.createIndex(
+                MongoIndexesHelper.compoundIndex(
+                    Indexes.ascending(NeedItem::createdAt),
+                    Indexes.ascending(NeedItem::areas),
+                ),
+            )
             database.feedbacks.createIndex(
                 Indexes.ascending(FeedbackItem::innovationId, FeedbackItem::userId),
                 IndexOptions().unique(true),

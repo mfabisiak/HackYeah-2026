@@ -60,4 +60,25 @@ class NeedRepository(
                 .limit(limit)
                 .toList()
         }
+
+    suspend fun findSince(since: String): Either<RepositoryError, List<NeedItem>> =
+        mongoCatch {
+            collection
+                .find(Filters.gte(NeedItem::createdAt, since))
+                .toList()
+        }
+
+    suspend fun countUnmatchedSince(since: String): Either<RepositoryError, Int> =
+        mongoCatch {
+            collection
+                .countDocuments(
+                    Filters.and(
+                        Filters.gte(NeedItem::createdAt, since),
+                        Filters.or(
+                            Filters.eq(NeedItem::noGoodMatch, true),
+                            Filters.size(NeedItem::matchedInnovationIds, 0),
+                        ),
+                    ),
+                ).toInt()
+        }
 }

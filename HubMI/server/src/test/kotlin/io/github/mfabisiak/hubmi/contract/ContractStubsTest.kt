@@ -22,34 +22,6 @@ import kotlin.test.*
 
 class ContractStubsTest {
     @Test
-    fun stubAnswersWithNotImplementedErrorCode() =
-        testApplication {
-            application {
-                module(
-                    AppConfig(
-                        port = 8080,
-                        keycloakIssuer = TestSecurityHelper.ISSUER,
-                        keycloakJwksUrl = "http://localhost:8081/realms/hubmi/protocol/openid-connect/certs",
-                        mongoUri = MongoTestEnvironment.connectionString,
-                        mongoDatabase = "test-hubmi-stubs-${System.nanoTime()}",
-                        seed = false,
-                    ),
-                    module { single { TestSecurityHelper.testJwkProvider } },
-                )
-            }
-            val client = createClient { install(Resources) }
-            val adminToken = TestSecurityHelper.generateToken(roles = setOf(Role.ADMIN))
-
-            val response =
-                client.get(AdminTrends()) {
-                    bearerAuth(adminToken)
-                }
-
-            assertEquals(HttpStatusCode.NotImplemented, response.status)
-            assertTrue(response.bodyAsText().contains(ErrorCode.NOT_IMPLEMENTED.name))
-        }
-
-    @Test
     fun authenticatedStubsRequireToken() =
         testApplication {
             application { module(offlineConfig) }
