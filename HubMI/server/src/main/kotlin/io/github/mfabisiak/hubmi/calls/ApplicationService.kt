@@ -33,7 +33,6 @@ class ApplicationService(
         const val MAX_TITLE_LENGTH = 300
         const val MAX_NARRATIVE_LENGTH = 5000
         const val MAX_PLAN_ITEMS = 50
-        const val MAX_PARTNERS = 5
         const val MAX_ITEM_COST_GROSZE = 10_000_000
 
         private fun polishTargetGroupLabel(targetGroup: TargetGroup): String =

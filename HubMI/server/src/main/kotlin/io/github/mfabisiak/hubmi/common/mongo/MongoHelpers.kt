@@ -9,7 +9,6 @@ import com.mongodb.MongoBulkWriteException
 import com.mongodb.MongoCommandException
 import com.mongodb.MongoWriteException
 import com.mongodb.client.model.Filters
-import com.mongodb.client.result.UpdateResult
 import io.github.mfabisiak.hubmi.common.RepositoryError
 import org.bson.conversions.Bson
 
@@ -46,16 +45,6 @@ suspend fun <T> catching(block: suspend () -> T): Either<RepositoryError, T> =
         }
 
 suspend fun <T> mongoCatch(block: suspend () -> T): Either<RepositoryError, T> = catching(block)
-
-/** Ensures that an update matched at least one document; otherwise returns [RepositoryError.Conflict]. */
-fun UpdateResult.requireMatched(): Either<RepositoryError.Conflict, Unit> =
-    if (matchedCount > 0) {
-        Unit.right()
-    } else {
-        RepositoryError
-            .Conflict(IllegalStateException("Warunek optymistycznej współbieżności nie został spełniony"))
-            .left()
-    }
 
 /** For writes that must return a document (upserts): a missing one is a database fault, not a "not found". */
 fun <T : Any> Either<RepositoryError, T?>.requireDocument(): Either<RepositoryError, T> =

@@ -7,6 +7,7 @@ import com.mongodb.kotlin.client.model.Sorts
 import com.mongodb.kotlin.client.model.Updates
 import io.github.mfabisiak.hubmi.api.Page
 import io.github.mfabisiak.hubmi.api.PageRequest
+import io.github.mfabisiak.hubmi.api.ParticipantRole
 import io.github.mfabisiak.hubmi.common.RepositoryError
 import io.github.mfabisiak.hubmi.common.mongo.mongoCatch
 import kotlinx.coroutines.flow.toList
@@ -78,6 +79,7 @@ class ThreadRepository(
         lastMessageAt: Instant,
         lastMessageBy: String,
         participantId: String,
+        lastMessageRole: ParticipantRole,
     ): Either<RepositoryError, Unit> =
         mongoCatch {
             collection.updateOne(
@@ -85,6 +87,7 @@ class ThreadRepository(
                 Updates.combine(
                     Updates.set(ThreadItem::lastMessageAt, lastMessageAt),
                     Updates.set(ThreadItem::lastMessageBy, lastMessageBy),
+                    Updates.set(ThreadItem::lastMessageRole, lastMessageRole),
                     Updates.addToSet(ThreadItem::participantIds, participantId),
                     Updates.set(ThreadItem::updatedAt, lastMessageAt),
                     JavaUpdates.set("lastReadAt.$participantId", lastMessageAt),
@@ -103,4 +106,12 @@ class ThreadRepository(
                 JavaUpdates.set("lastReadAt.$userId", at),
             )
         }.map { }
+
+    suspend fun countPendingAdminReply(): Either<RepositoryError, Int> =
+        mongoCatch {
+            collection
+                .countDocuments(
+                    Filters.ne(ThreadItem::lastMessageRole, ParticipantRole.ADMIN),
+                ).toInt()
+        }
 }

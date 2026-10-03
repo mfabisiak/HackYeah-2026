@@ -2,6 +2,7 @@ package io.github.mfabisiak.hubmi.di
 
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
+import io.github.mfabisiak.hubmi.admin.AdminDashboardService
 import io.github.mfabisiak.hubmi.calls.ApplicationRepository
 import io.github.mfabisiak.hubmi.calls.ApplicationService
 import io.github.mfabisiak.hubmi.calls.GrantCallRepository
@@ -16,7 +17,6 @@ import io.github.mfabisiak.hubmi.health.GreetingService
 import io.github.mfabisiak.hubmi.ideas.EventPublisher
 import io.github.mfabisiak.hubmi.ideas.IdeaRepository
 import io.github.mfabisiak.hubmi.ideas.IdeaService
-import io.github.mfabisiak.hubmi.ideas.NoOpEventPublisher
 import io.github.mfabisiak.hubmi.innovations.InnovationRepository
 import io.github.mfabisiak.hubmi.innovations.InnovationService
 import io.github.mfabisiak.hubmi.matching.EmbeddingClient
@@ -139,5 +139,6 @@ fun appModule(config: AppConfig) =
         single { TestRequestService(get(), get()) }
         single { ThreadService(get(), get(), get(), get()) }
         single { NotificationService(get()) }
+        single { AdminDashboardService(get(), get(), get(), get(), get(), get()) }
         single { DatabaseSeeder(get<MongoRepository>().database, get()) }
     }

@@ -7,7 +7,6 @@ import arrow.core.raise.ensureNotNull
 import io.github.mfabisiak.hubmi.api.CreateThreadRequest
 import io.github.mfabisiak.hubmi.api.MessageDto
 import io.github.mfabisiak.hubmi.api.Page
-import io.github.mfabisiak.hubmi.api.PageRequest
 import io.github.mfabisiak.hubmi.api.ParticipantRole
 import io.github.mfabisiak.hubmi.api.PostMessageRequest
 import io.github.mfabisiak.hubmi.api.Role
@@ -53,6 +52,7 @@ class ThreadService(
                     participantIds = setOf(callerId),
                     lastMessageAt = now,
                     lastMessageBy = callerId,
+                    lastMessageRole = authorRole,
                     lastReadAt = mapOf(callerId to now),
                     createdAt = now,
                     updatedAt = now,
@@ -204,7 +204,7 @@ class ThreadService(
                     .bind()
 
             threadRepository
-                .updateLastMessage(threadId, now, callerId, callerId)
+                .updateLastMessage(threadId, now, callerId, callerId, authorRole)
                 .mapLeft { it.toDomainError() }
                 .bind()
 

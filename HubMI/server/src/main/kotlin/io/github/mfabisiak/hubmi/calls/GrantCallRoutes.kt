@@ -1,5 +1,6 @@
 package io.github.mfabisiak.hubmi.calls
 
+import arrow.core.Either
 import io.github.mfabisiak.hubmi.api.AdminApplications
 import io.github.mfabisiak.hubmi.api.Applications
 import io.github.mfabisiak.hubmi.api.Calls
@@ -49,7 +50,7 @@ fun Route.grantCallRoutes() {
             respondEither(HttpStatusCode.Created) {
                 val user = call.currentUser.bind()
                 val request =
-                    arrow.core.Either
+                    Either
                         .catch { call.receive<CreateApplicationDraftRequest?>() }
                         .getOrNull()
                 val dto = applicationService.apply(params.parent.id, user.id, request).bind()

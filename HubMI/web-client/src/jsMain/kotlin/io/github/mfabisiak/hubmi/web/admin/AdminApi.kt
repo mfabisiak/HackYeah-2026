@@ -5,6 +5,8 @@ import io.github.mfabisiak.hubmi.api.AdminApplications
 import io.github.mfabisiak.hubmi.api.AdminFeedback
 import io.github.mfabisiak.hubmi.api.AdminFeedbackDto
 import io.github.mfabisiak.hubmi.api.AdminIdeas
+import io.github.mfabisiak.hubmi.api.AdminSummary
+import io.github.mfabisiak.hubmi.api.AdminSummaryDto
 import io.github.mfabisiak.hubmi.api.AdminTestRequestDto
 import io.github.mfabisiak.hubmi.api.AdminTestRequests
 import io.github.mfabisiak.hubmi.api.AdminTrends
@@ -18,20 +20,16 @@ import io.github.mfabisiak.hubmi.api.TestRequestStatus
 import io.github.mfabisiak.hubmi.api.TrendsDto
 import io.github.mfabisiak.hubmi.api.UpdateIdeaStatusRequest
 import io.github.mfabisiak.hubmi.api.UpdateTestRequestStatusRequest
-import io.github.mfabisiak.hubmi.web.ApiErrorJs
 import io.github.mfabisiak.hubmi.web.ApiResult
-import io.github.mfabisiak.hubmi.web.EmptyJs
 import io.github.mfabisiak.hubmi.web.PageJs
 import io.github.mfabisiak.hubmi.web.enumOf
 import io.github.mfabisiak.hubmi.web.enumOrNull
-import io.github.mfabisiak.hubmi.web.enumsOf
 import io.github.mfabisiak.hubmi.web.fetch
 import io.github.mfabisiak.hubmi.web.ideas.ApplicationJs
 import io.github.mfabisiak.hubmi.web.ideas.IdeaJs
 import io.github.mfabisiak.hubmi.web.ideas.toJs
 import io.github.mfabisiak.hubmi.web.promiseResult
 import io.github.mfabisiak.hubmi.web.send
-import io.github.mfabisiak.hubmi.web.sendForUnit
 import io.github.mfabisiak.hubmi.web.toPageJs
 import io.ktor.client.HttpClient
 import io.ktor.http.HttpMethod
@@ -48,6 +46,12 @@ class AdminApi internal constructor(
     fun trends(months: Int = 6): Promise<ApiResult<TrendsJs>> =
         scope.promiseResult {
             client.fetch<AdminTrends, TrendsDto>(AdminTrends(months = months)).map { it.toJs() }
+        }
+
+    /** Admin dashboard counters. */
+    fun summary(): Promise<ApiResult<AdminSummaryJs>> =
+        scope.promiseResult {
+            client.fetch<AdminSummary, AdminSummaryDto>(AdminSummary()).map { it.toJs() }
         }
 
     /** Moderation queue. @param status `IdeaStatus` name to filter by. */

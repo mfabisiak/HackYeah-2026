@@ -56,11 +56,6 @@ suspend inline fun <reified T : Any> ApplicationCall.respondResult(
     )
 }
 
-suspend inline fun <reified T : Any> RoutingContext.respondResult(
-    result: Either<DomainError, T>,
-    successStatus: HttpStatusCode = HttpStatusCode.OK,
-) = call.respondResult(result, successStatus)
-
 suspend inline fun <reified T : Any> ApplicationCall.respondEither(
     either: Either<DomainError, T>,
     successStatus: HttpStatusCode = HttpStatusCode.OK,
@@ -80,16 +75,6 @@ suspend fun ApplicationCall.respondResultUnit(
         ifRight = { respond(successStatus) },
     )
 }
-
-suspend fun RoutingContext.respondResultUnit(
-    result: Either<DomainError, Unit>,
-    successStatus: HttpStatusCode = HttpStatusCode.NoContent,
-) = call.respondResultUnit(result, successStatus)
-
-suspend fun ApplicationCall.respondEitherUnit(
-    either: Either<DomainError, Unit>,
-    successStatus: HttpStatusCode = HttpStatusCode.NoContent,
-) = respondResultUnit(either, successStatus)
 
 suspend fun RoutingContext.respondEitherUnit(
     either: Either<DomainError, Unit>,

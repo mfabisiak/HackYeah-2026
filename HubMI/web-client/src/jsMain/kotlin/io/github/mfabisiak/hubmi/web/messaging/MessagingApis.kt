@@ -1,6 +1,5 @@
 package io.github.mfabisiak.hubmi.web.messaging
 
-import arrow.core.raise.either
 import io.github.mfabisiak.hubmi.api.CreateThreadRequest
 import io.github.mfabisiak.hubmi.api.MessageDto
 import io.github.mfabisiak.hubmi.api.NotificationDto
@@ -10,13 +9,9 @@ import io.github.mfabisiak.hubmi.api.PageRequest
 import io.github.mfabisiak.hubmi.api.PostMessageRequest
 import io.github.mfabisiak.hubmi.api.ThreadDto
 import io.github.mfabisiak.hubmi.api.Threads
-import io.github.mfabisiak.hubmi.web.ApiErrorJs
 import io.github.mfabisiak.hubmi.web.ApiResult
 import io.github.mfabisiak.hubmi.web.EmptyJs
 import io.github.mfabisiak.hubmi.web.PageJs
-import io.github.mfabisiak.hubmi.web.enumOf
-import io.github.mfabisiak.hubmi.web.enumOrNull
-import io.github.mfabisiak.hubmi.web.enumsOf
 import io.github.mfabisiak.hubmi.web.fetch
 import io.github.mfabisiak.hubmi.web.promiseResult
 import io.github.mfabisiak.hubmi.web.send

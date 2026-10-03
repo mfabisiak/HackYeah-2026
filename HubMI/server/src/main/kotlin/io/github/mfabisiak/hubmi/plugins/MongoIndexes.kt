@@ -5,9 +5,7 @@ import com.mongodb.client.model.IndexOptions
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import com.mongodb.kotlin.client.model.Indexes
 import io.github.mfabisiak.hubmi.calls.ApplicationItem
-import io.github.mfabisiak.hubmi.calls.GrantCallItem
 import io.github.mfabisiak.hubmi.calls.applications
-import io.github.mfabisiak.hubmi.calls.grantCalls
 import io.github.mfabisiak.hubmi.challenges.ChallengeItem
 import io.github.mfabisiak.hubmi.challenges.challenges
 import io.github.mfabisiak.hubmi.common.RepositoryError
@@ -57,6 +55,12 @@ object MongoIndexes {
                 ),
             )
             database.needs.createIndex(Indexes.ascending(NeedItem::matchedInnovationIds))
+            database.needs.createIndex(
+                MongoIndexesHelper.compoundIndex(
+                    Indexes.ascending(NeedItem::createdAt),
+                    Indexes.ascending(NeedItem::areas),
+                ),
+            )
             database.feedbacks.createIndex(
                 Indexes.ascending(FeedbackItem::innovationId, FeedbackItem::userId),
                 IndexOptions().unique(true),

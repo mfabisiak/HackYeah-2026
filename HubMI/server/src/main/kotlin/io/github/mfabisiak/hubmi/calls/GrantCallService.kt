@@ -155,15 +155,14 @@ class GrantCallService(
         either {
             val objectId = parseObjectId(idString).bind()
 
-            val existing =
-                ensureNotNull(
-                    callRepository
-                        .findById(objectId)
-                        .mapLeft { it.toDomainError() }
-                        .bind(),
-                ) {
-                    DomainError.NotFound("Nie znaleziono naboru o id: $idString")
-                }
+            ensureNotNull(
+                callRepository
+                    .findById(objectId)
+                    .mapLeft { it.toDomainError() }
+                    .bind(),
+            ) {
+                DomainError.NotFound("Nie znaleziono naboru o id: $idString")
+            }
 
             val hasApplications =
                 applicationRepository

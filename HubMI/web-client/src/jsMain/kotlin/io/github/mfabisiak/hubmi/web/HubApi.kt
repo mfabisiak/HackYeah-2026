@@ -19,7 +19,6 @@ import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.resources.Resources
 import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.url
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.promise

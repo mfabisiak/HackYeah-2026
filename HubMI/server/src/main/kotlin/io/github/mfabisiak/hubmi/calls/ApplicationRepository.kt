@@ -96,20 +96,6 @@ class ApplicationRepository(
             collection.countDocuments(filter)
         }
 
-    suspend fun countSubmittedByCallAndApplicant(
-        callId: ObjectId,
-        applicantId: String,
-    ): Either<RepositoryError, Long> =
-        mongoCatch {
-            val filter =
-                Filters.and(
-                    Filters.eq(ApplicationItem::callId, callId),
-                    Filters.eq(ApplicationItem::applicantId, applicantId),
-                    Filters.eq(ApplicationItem::status, ApplicationStatus.SUBMITTED),
-                )
-            collection.countDocuments(filter)
-        }
-
     suspend fun findByApplicantId(
         applicantId: String,
         pageRequest: PageRequest,

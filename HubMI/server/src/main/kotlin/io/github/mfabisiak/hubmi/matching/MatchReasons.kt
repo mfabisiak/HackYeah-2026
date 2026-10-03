@@ -2,7 +2,6 @@ package io.github.mfabisiak.hubmi.matching
 
 import io.github.mfabisiak.hubmi.challenges.MunicipalityName
 import io.github.mfabisiak.hubmi.innovations.InnovationItem
-import io.github.mfabisiak.hubmi.innovations.Region
 
 /** Polish, template-based explanations built only from fields of the innovation (at most three per match). */
 object MatchReasons {

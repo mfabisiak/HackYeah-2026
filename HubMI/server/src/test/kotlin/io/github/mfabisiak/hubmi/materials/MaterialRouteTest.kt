@@ -2,8 +2,6 @@ package io.github.mfabisiak.hubmi.materials
 
 import io.github.mfabisiak.hubmi.MongoTestEnvironment
 import io.github.mfabisiak.hubmi.TestSecurityHelper
-import io.github.mfabisiak.hubmi.api.ChallengeDto
-import io.github.mfabisiak.hubmi.api.Challenges
 import io.github.mfabisiak.hubmi.api.ErrorResponse
 import io.github.mfabisiak.hubmi.api.MaterialDto
 import io.github.mfabisiak.hubmi.api.MaterialType
@@ -11,7 +9,6 @@ import io.github.mfabisiak.hubmi.api.Materials
 import io.github.mfabisiak.hubmi.api.Page
 import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.SocialArea
-import io.github.mfabisiak.hubmi.api.UpsertChallengeRequest
 import io.github.mfabisiak.hubmi.api.UpsertMaterialRequest
 import io.github.mfabisiak.hubmi.config.AppConfig
 import io.github.mfabisiak.hubmi.module
@@ -22,7 +19,6 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
-import org.bson.types.ObjectId
 import org.koin.dsl.module
 import kotlin.test.*
 

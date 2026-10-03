@@ -6,7 +6,6 @@ import com.mongodb.kotlin.client.coroutine.MongoClient
 import com.mongodb.kotlin.client.model.Indexes
 import io.github.mfabisiak.hubmi.MongoTestEnvironment
 import io.github.mfabisiak.hubmi.api.PageRequest
-import io.github.mfabisiak.hubmi.common.Description
 import io.github.mfabisiak.hubmi.common.RepositoryError
 import kotlinx.coroutines.runBlocking
 import org.junit.AfterClass

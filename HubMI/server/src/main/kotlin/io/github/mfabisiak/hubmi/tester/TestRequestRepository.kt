@@ -121,4 +121,9 @@ class TestRequestRepository(
                 FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER),
             )
         }
+
+    suspend fun countByStatus(status: TestRequestStatus): Either<RepositoryError, Int> =
+        mongoCatch {
+            collection.countDocuments(Filters.eq(TestRequestItem::status, status)).toInt()
+        }
 }

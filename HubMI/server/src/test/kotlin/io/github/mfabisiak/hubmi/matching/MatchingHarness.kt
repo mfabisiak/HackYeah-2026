@@ -2,7 +2,6 @@ package io.github.mfabisiak.hubmi.matching
 
 import arrow.core.Either
 import arrow.core.right
-import io.github.mfabisiak.hubmi.common.mongo.matches
 import io.github.mfabisiak.hubmi.innovations.InnovationItem
 import io.github.mfabisiak.hubmi.seeding.SeedInnovationItem
 import io.github.mfabisiak.hubmi.seeding.seedObjectId

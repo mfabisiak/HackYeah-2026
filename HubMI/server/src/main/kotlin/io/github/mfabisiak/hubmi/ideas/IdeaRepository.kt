@@ -106,4 +106,9 @@ class IdeaRepository(
             val options = FindOneAndUpdateOptions().returnDocument(ReturnDocument.BEFORE)
             collection.findOneAndUpdate(filter, update, options)
         }
+
+    suspend fun countByStatus(status: IdeaStatus): Either<RepositoryError, Int> =
+        mongoCatch {
+            collection.countDocuments(Filters.eq(IdeaItem::status, status)).toInt()
+        }
 }
