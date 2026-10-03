@@ -1,7 +1,7 @@
 # CLAUDE.md – HubMI
 
 Backend platformy Małopolskiego Hubu Innowacji Społecznych (HackYeah 2026, wyzwanie ROPS Kraków).
-Opis zadania, moduły i kryteria oceny: [docs/TASK.md](docs/TASK.md); plan prac: [docs/ROADMAP.md](docs/ROADMAP.md), matchmaking: [docs/MATCHMAKING.md](docs/MATCHMAKING.md), backlog: [docs/BACKEND_TICKETS.md](docs/BACKEND_TICKETS.md). **Przeczytaj go przed większą zmianą.**
+Opis zadania, moduły i kryteria oceny: [docs/TASK.md](docs/TASK.md); plan prac: [docs/ROADMAP.md](docs/ROADMAP.md), matchmaking: [docs/MATCHMAKING.md](docs/MATCHMAKING.md), backlog: [docs/BACKEND_TICKETS.md](docs/BACKEND_TICKETS.md), [docs/FRONTEND_TICKETS.md](docs/FRONTEND_TICKETS.md). **Przeczytaj go przed większą zmianą.**
 
 ## Stack
 
