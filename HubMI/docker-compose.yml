@@ -76,13 +76,48 @@ services:
       KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/hubmi/protocol/openid-connect/certs
       MONGO_URI: mongodb://mongo:27017/?replicaSet=rs0
       MONGO_DATABASE: hubmi
+      # Default: Ollama running natively on the host (Metal on a Mac). For the container below start with
+      # `OLLAMA_URL=http://ollama:11434 docker compose --profile ollama up -d`. Without any Ollama matching
+      # falls back to keywords.
+      MATCHING_MODE: hybrid
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-bge-m3}
       SEED: "true"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "8080:8080"
     depends_on:
       keycloak:
         condition: service_healthy
       mongo:
+        condition: service_healthy
+
+  # Optional (profile "ollama"): embeddings without installing Ollama on the host. CPU only, which is plenty for
+  # embeddings; a native Ollama on a Mac is faster because it uses the GPU.
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["ollama"]
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
+
+  # Downloads the embedding model into the ollama-data volume (once; ~1.2 GB) and exits. Until it finishes the
+  # server answers from keywords only.
+  ollama-pull:
+    image: ollama/ollama:latest
+    profiles: ["ollama"]
+    entrypoint: ["ollama", "pull", "${EMBEDDING_MODEL:-bge-m3}"]
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    restart: "no"
+    depends_on:
+      ollama:
         condition: service_healthy
 
   web:
@@ -97,3 +132,4 @@ services:
 volumes:
   postgres-data:
   mongo-data:
+  ollama-data:

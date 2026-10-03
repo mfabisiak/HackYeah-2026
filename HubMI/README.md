@@ -44,8 +44,38 @@ Po zmianie kodu w `core` lub `web-client` zbuduj klienta ponownie (komenda z `./
 - Mongo: replica set jednowęzłowy na porcie `27017` (gdy zajęty: `MONGO_PORT=27018 docker compose up -d`)
 
 Konfiguracja serwera przez zmienne środowiskowe: `KEYCLOAK_ISSUER` (musi równać się `iss` tokena),
-`KEYCLOAK_JWKS_URL`, `MONGO_URI`, `MONGO_DATABASE`, `PORT`. Frontend: `VITE_KEYCLOAK_URL`, `VITE_KEYCLOAK_REALM`,
+`KEYCLOAK_JWKS_URL`, `MONGO_URI`, `MONGO_DATABASE`, `PORT`, `MATCHING_MODE`, `OLLAMA_URL`, `EMBEDDING_MODEL`. Frontend: `VITE_KEYCLOAK_URL`, `VITE_KEYCLOAK_REALM`,
 `VITE_KEYCLOAK_CLIENT_ID`, a w dev `HUBMI_BACKEND` (adres serwera dla proxy Vite).
+
+### Matchmaking: Ollama (embeddingi)
+
+Dopasowanie problemu do innowacji (`POST /api/matches`) działa w trybie `MATCHING_MODE=hybrid` (domyślny): tekst (BM25) +
+znaczenie (embeddingi `bge-m3`). Embeddingi liczy **lokalna Ollama** – nic nie opuszcza maszyny. Bez Ollamy serwer
+działa dalej na samym tekście (`MATCHING_MODE=keyword` wymusza ten tryb).
+
+**Wariant A: Ollama na hoście** (zalecany na Macu: używa GPU przez Metal):
+
+```bash
+brew install ollama && brew services start ollama   # Windows: winget install Ollama.Ollama
+ollama pull bge-m3                                  # ~1,2 GB, jednorazowo
+docker compose up -d --build
+```
+
+Serwer w Dockerze łączy się z hostem przez `host.docker.internal:11434` (ustawione w `docker-compose.yml`); serwer
+uruchomiony lokalnie (`./gradlew :server:run`) używa `http://localhost:11434`.
+
+**Wariant B: Ollama w Dockerze** (bez instalacji na hoście; tylko CPU, co przy embeddingach wystarcza):
+
+```bash
+OLLAMA_URL=http://ollama:11434 docker compose --profile ollama up -d --build
+```
+
+Profil `ollama` uruchamia kontener `ollama` oraz jednorazowy `ollama-pull`, który pobiera model do wolumenu
+`ollama-data` (~1,2 GB, tylko za pierwszym razem). Do czasu pobrania serwer odpowiada na samych słowach kluczowych,
+a potem sam przechodzi na tryb hybrydowy (do 30 s). Postęp: `docker compose logs -f ollama-pull`.
+
+Zmienne: `MATCHING_MODE` (`keyword` | `hybrid`), `OLLAMA_URL`, `EMBEDDING_MODEL`. Szczegóły i pomiary:
+[docs/MATCHMAKING.md](docs/MATCHMAKING.md).
 
 Realm Keycloaka importuje się tylko przy pierwszym starcie. Po zmianie [keycloak/hubmi-realm.json](keycloak/hubmi-realm.json)
 usuń wolumeny (`docker compose down -v`) albo zaktualizuj klienta w konsoli.

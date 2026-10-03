@@ -3,6 +3,7 @@ package io.github.mfabisiak.hubmi
 import arrow.core.Either
 import io.github.mfabisiak.hubmi.config.AppConfig
 import io.github.mfabisiak.hubmi.config.ConfigError
+import io.github.mfabisiak.hubmi.config.MatchingMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -10,7 +11,38 @@ import kotlin.test.assertIs
 class AppConfigTest {
     @Test
     fun emptyEnvironmentGivesDefaults() {
-        assertEquals(Either.Right(AppConfig()), AppConfig.fromEnv(emptyMap()))
+        assertEquals(Either.Right(AppConfig(matchingMode = MatchingMode.HYBRID)), AppConfig.fromEnv(emptyMap()))
+    }
+
+    @Test
+    fun matchingModeIsReadCaseInsensitively() {
+        assertEquals(
+            MatchingMode.KEYWORD,
+            AppConfig.fromEnv(mapOf("MATCHING_MODE" to "Keyword")).getOrNull()?.matchingMode,
+        )
+        assertEquals(
+            MatchingMode.HYBRID,
+            AppConfig.fromEnv(mapOf("MATCHING_MODE" to "hybrid")).getOrNull()?.matchingMode,
+        )
+    }
+
+    @Test
+    fun unknownMatchingModeIsAnError() {
+        val result = AppConfig.fromEnv(mapOf("MATCHING_MODE" to "hybrid+llm"))
+        assertEquals(ConfigError.InvalidMatchingMode("MATCHING_MODE", "hybrid+llm"), result.leftOrNull())
+    }
+
+    @Test
+    fun ollamaSettingsComeFromTheEnvironment() {
+        val config =
+            AppConfig.fromEnv(mapOf("OLLAMA_URL" to "http://host.docker.internal:11434", "EMBEDDING_MODEL" to "x"))
+        assertEquals("http://host.docker.internal:11434", config.getOrNull()?.ollamaUrl)
+        assertEquals("x", config.getOrNull()?.embeddingModel)
+    }
+
+    @Test
+    fun invalidOllamaUrlIsAnError() {
+        assertIs<ConfigError.InvalidUrl>(AppConfig.fromEnv(mapOf("OLLAMA_URL" to "not a url")).leftOrNull())
     }
 
     @Test

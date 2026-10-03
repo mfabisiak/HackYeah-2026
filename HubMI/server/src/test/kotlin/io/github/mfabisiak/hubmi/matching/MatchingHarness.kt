@@ -86,7 +86,21 @@ object MatchingHarness {
         )
     }
 
-    fun run(engine: KeywordMatchingEngine): List<CaseResult> =
+    /** The hybrid engine over the seed with recorded vectors, cut-offs off like in [engine]. */
+    fun hybridEngine(config: HybridMatchingEngine.Config = HybridMatchingEngine.Config()): HybridMatchingEngine {
+        val analyzer = TextAnalyzer(PrefixStemmer())
+        val index = InnovationIndex(analyzer, load = { seed.right() })
+        val embedder = RecordedEmbeddings.load()
+        return HybridMatchingEngine(
+            index = index,
+            vectors = VectorIndex(embedder),
+            embedder = embedder,
+            keyword = KeywordMatchingEngine(index, analyzer),
+            config = config.copy(minScore = 0.0, maxResults = seed.size, relativeCutoff = 0.0),
+        )
+    }
+
+    fun run(engine: MatchingEngine): List<CaseResult> =
         golden.map { case ->
             val result = assertIs<Either.Right<EngineResult>>(runBlocking { engine.match(case.query, null) }).value
             CaseResult(case, result.matches.map { Hit(slugById.getValue(it.innovation.id), it.score, it.matchedTerms) })

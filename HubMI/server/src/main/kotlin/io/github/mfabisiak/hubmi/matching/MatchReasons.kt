@@ -15,12 +15,14 @@ object MatchReasons {
         matchedTerms: List<String>,
         municipality: MunicipalityName?,
         regionMatches: Boolean,
+        semanticallyClose: Boolean = false,
     ): List<String> {
         val terms = matchedTerms.take(MAX_LISTED).joinToString(", ")
         val areas = innovation.areas.take(MAX_LABELS).joinToString(", ") { it.polishLabel() }
         val groups = innovation.targetGroups.take(MAX_LABELS).joinToString(", ") { it.polishLabel() }
         return listOfNotNull(
             if (matchedTerms.isEmpty()) null else "Dopasowane frazy: $terms.",
+            if (semanticallyClose) "Zbliżony znaczeniowo do opisu problemu." else null,
             "Obszar: $areas.",
             if (regionMatches && municipality != null) {
                 "Region: ${innovation.region} (zgodny z podaną gminą ${municipality.value})."

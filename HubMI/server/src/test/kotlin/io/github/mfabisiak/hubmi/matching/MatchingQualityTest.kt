@@ -13,6 +13,7 @@ import kotlin.test.assertTrue
 class MatchingQualityTest {
     private val production = KeywordMatchingEngine.DEFAULT_MIN_SCORE
     private val productionResults = MatchingHarness.run(MatchingHarness.engine(PrefixStemmer()))
+    private val hybridResults = MatchingHarness.run(MatchingHarness.hybridEngine())
 
     @Test
     fun goldenSetReferencesExistingInnovationsAndCoversNegatives() {
@@ -58,6 +59,28 @@ class MatchingQualityTest {
     }
 
     @Test
+    fun hybridMeetsTheTargetsAndBeatsTheKeywordBaseline() {
+        val keyword = MatchingHarness.metrics(productionResults, production)
+        val hybrid = MatchingHarness.metrics(hybridResults, HybridMatchingEngine.DEFAULT_MIN_SCORE)
+
+        assertTrue(hybrid.hitAt3 > keyword.hitAt3, "hybrid hit@3 ${hybrid.hitAt3} must beat keyword ${keyword.hitAt3}")
+        assertTrue(hybrid.mrr > keyword.mrr, "hybrid MRR ${hybrid.mrr} must beat keyword ${keyword.mrr}")
+        assertTrue(hybrid.negativesRejected >= TARGET_NEGATIVES, "Rejected negatives ${hybrid.negativesRejected}")
+    }
+
+    @Test
+    fun hybridFindsWhatKeywordsMissOnSeniorQueries() {
+        val keyword = MatchingHarness.metrics(registerOf(productionResults, "senior"), production)
+        val hybrid =
+            MatchingHarness.metrics(
+                registerOf(hybridResults, "senior"),
+                HybridMatchingEngine.DEFAULT_MIN_SCORE,
+            )
+
+        assertTrue(hybrid.hitAt3 > keyword.hitAt3, "senior hit@3: hybrid ${hybrid.hitAt3} vs keyword ${keyword.hitAt3}")
+    }
+
+    @Test
     fun identicalQueriesGiveIdenticalRanking() {
         val again = MatchingHarness.run(MatchingHarness.engine(PrefixStemmer()))
 
@@ -69,6 +92,11 @@ class MatchingQualityTest {
         if (System.getenv("WRITE_MATCHING_BASELINE") != "true") return
         File("../docs/matching-baseline.md").writeText(report())
     }
+
+    private fun registerOf(
+        results: List<CaseResult>,
+        register: String,
+    ) = results.filter { it.case.register == register && !it.case.negative }
 
     /** Best hit@3 over the sweep among thresholds that still reject at least [COMPARISON_NEGATIVES] of the negatives. */
     private fun bestMetrics(results: List<CaseResult>): Metrics =
@@ -129,7 +157,7 @@ class MatchingQualityTest {
             ># Baza trafności matchmakingu (silnik `keyword`)
             >
             >Plik generuje test `MatchingQualityTest` (`WRITE_MATCHING_BASELINE=true ./gradlew :server:test`).
-            >To punkt odniesienia dla silnika hybrydowego (BE-04): hybryda musi dać wyższe hit@3 przy tym samym zestawie.
+            >To punkt odniesienia dla silnika hybrydowego (BE-04, sekcja na końcu): hybryda daje wyższe hit@3 przy tym samym zestawie.
             >
             >**Zestaw:** $positiveCount zapytań z oczekiwanymi innowacjami
             >+ $negativeCount negatywnych (bez dobrej odpowiedzi), na ${MatchingHarness.seed.size} innowacjach seedowych
@@ -187,7 +215,97 @@ class MatchingQualityTest {
             >
             >Uwaga: zestaw jest mały i pisany przez zespół, więc próg może być przeuczony; przed demo dołożyć zapytania od
             >osób spoza zespołu. $thresholdNote
+            >
+            >${hybridSection()}
             >""".trimMargin(">")
+    }
+
+    private fun hybridSection(): String {
+        val keyword = MatchingHarness.metrics(productionResults, production)
+        val threshold = HybridMatchingEngine.DEFAULT_MIN_SCORE
+        val hybrid = MatchingHarness.metrics(hybridResults, threshold)
+        val config = HybridMatchingEngine.Config()
+        val registers =
+            MatchingHarness.golden
+                .filter { !it.negative }
+                .map { it.register }
+                .distinct()
+                .joinToString("\n") { register ->
+                    val k = MatchingHarness.metrics(registerOf(productionResults, register), production)
+                    val h = MatchingHarness.metrics(registerOf(hybridResults, register), threshold)
+                    "| $register | ${registerOf(
+                        hybridResults,
+                        register,
+                    ).size} | ${pct(k.hitAt3)} | ${pct(h.hitAt3)} | " +
+                        "${num(k.mrr)} | ${num(h.mrr)} |"
+                }
+        val misses =
+            hybridResults
+                .filter { !it.case.negative }
+                .filter { result ->
+                    result.hits
+                        .filter { it.score >= threshold }
+                        .take(HIT_RANK)
+                        .none { it.slug in result.case.expected }
+                }.joinToString("\n") { "- „${it.case.query}” → oczekiwano: ${it.case.expected.joinToString()}" }
+                .ifEmpty { "brak" }
+        val sweep =
+            HYBRID_THRESHOLDS.joinToString(
+                "\n",
+            ) { "| ${num(it)} | ${row(MatchingHarness.metrics(hybridResults, it))} |" }
+        val highestNegative =
+            hybridResults.filter { it.case.negative }.maxOfOrNull { it.hits.firstOrNull()?.score ?: 0.0 } ?: 0.0
+        val lowestPositive =
+            hybridResults
+                .filter { !it.case.negative }
+                .minOfOrNull { result -> result.hits.firstOrNull { it.slug in result.case.expected }?.score ?: 0.0 }
+                ?: 0.0
+        return """
+            >## Silnik hybrydowy (BE-04)
+            >
+            >BM25 (j.w.) + embeddingi `bge-m3` z lokalnej Ollamy. Wektory zestawu nagrano do
+            >`server/src/test/resources/matching/embeddings.json.gz` (`WRITE_MATCHING_EMBEDDINGS=true`), więc pomiar
+            >i test w CI nie wymagają modelu. Trafność: `(1 − w)·semantyka + w·tekst`, `w` = ${num(
+            config.lexicalWeight,
+        )};
+            >semantyka to cosinus przeskalowany z ${num(config.cosineFloor)} (obcy tekst, 0) do
+            >${num(config.cosineCeiling)} (niemal parafraza, 1); próg `noGoodMatch` = ${num(threshold)};
+            >odcięcie względne ${pct(config.relativeCutoff)} najlepszego wyniku; maks. 5 wyników.
+            >
+            >| silnik | próg | hit@3 | MRR | negatywy odrzucone |
+            >|---|---|---|---|---|
+            >| keyword | ${num(production)} | ${row(keyword)} |
+            >| hybrid | ${num(threshold)} | ${row(hybrid)} |
+            >
+            >### Wg rejestru języka
+            >
+            >| rejestr | zapytań | hit@3 keyword | hit@3 hybrid | MRR keyword | MRR hybrid |
+            >|---|---|---|---|---|---|
+            >$registers
+            >
+            >### Chybione zapytania hybrydy
+            >
+            >$misses
+            >
+            >### Kalibracja progu hybrydy
+            >
+            >| próg | hit@3 | MRR | negatywy odrzucone |
+            >|---|---|---|---|
+            >$sweep
+            >
+            >Najniższy wynik trafnej innowacji w zestawie: ${num(lowestPositive)}; najwyższy wynik negatywu:
+            >${num(highestNegative)}. ${hybridThresholdNote(threshold, highestNegative)}
+        """.trimMargin(">")
+    }
+
+    private fun hybridThresholdNote(
+        threshold: Double,
+        highestNegative: Double,
+    ) = if (threshold > highestNegative) {
+        "Próg leży nad najwyższym negatywem."
+    } else {
+        "Próg leży poniżej najwyższego negatywu: świadomie przepuszczamy tematycznie sąsiednie zapytanie " +
+            "(brak w bibliotece, ale blisko „pomocy żywnościowej”), bo wyższy próg kosztuje trafne wyniki."
     }
 
     private fun bestOf(results: List<CaseResult>): Pair<Double, Metrics>? =
@@ -241,5 +359,6 @@ class MatchingQualityTest {
         const val COMPARISON_NEGATIVES = 0.9
         const val HIT_RANK = 3
         val THRESHOLDS = (5..40).map { it / 100.0 }
+        val HYBRID_THRESHOLDS = (15..45).map { it / 100.0 }
     }
 }
