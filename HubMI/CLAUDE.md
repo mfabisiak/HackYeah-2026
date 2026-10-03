@@ -157,8 +157,18 @@ Przepływ: `route → service → repository`. Warstwa nie woła warstwy nad sob
 - **Granica Kotlin/JS ↔ TS:** w `:web-client` eksportujemy tylko typy przyjazne JS (`String`, `Int`, `Double`, `Boolean`,
   `Array`, nullable) – bez `value class`, `Long`, `List`. Metody `suspend` zwracają `Promise`. Błędy nie są wyjątkami:
   każdy wynik to `ApiResult<T>` (`value` albo `error`); w Kotlinie `Either` mapujemy na `ApiResult` w jednym miejscu (`toResult`).
-- Nowy endpoint: DTO + `@Resource` w `:core` → implementacja w `:server` → metoda w `HubApi` + typ `...Js` w `:web-client`
+- Nowy endpoint: DTO + `@Resource` w `:core` → implementacja w `:server` → metoda w module `...Api` + typ `...Js` w `:web-client`
   → użycie w React. Po zmianie w Kotlinie przebuduj klienta (komenda wyżej).
+- **Układ `:web-client`** (`web/`, podpakiety per moduł: `innovations`, `knowledge`, `matching`, `ideas`, `messaging`, `admin`):
+  `HubApi` trzyma moduły (`hubApi.innovations.list(...)`). W podpakiecie leżą dwa pliki: `XxxApi(s).kt` (klasy `...Api`)
+  oraz `XxxTypes.kt` (wszystkie typy `...Js` modułu razem z mapowaniem DTO ↔ `...Js`). Wspólne helpery HTTP (`Fetch.kt`:
+  `fetch`, `send`, `sendForUnit`), parsowanie enumów (`Arguments.kt`) i typy wspólne (`JsTypes.kt`: `ApiResult`,
+  `ApiErrorJs`, `PageJs`, `EmptyJs`) są w `web/`. Nie mnożymy plików: jeden plik na typ obowiązuje w `:server`, a tu typy
+  `...Js` to cienkie kontenery danych grupowane per moduł.
+- Enumy przechodzą granicę JS jako nazwy (`"AGING"`), a parsuje je `enumOf`/`enumOrNull`/`enumsOf`; nieznana nazwa to
+  `ApiResult` z błędem `INVALID_ARGUMENT` (status `0`), nie wyjątek. `Map` z DTO zamieniamy na tablicę par (`AnswerJs`),
+  odpowiedź `204` to `ApiResult<EmptyJs>`. Kody błędów klienta (`NETWORK_ERROR`, `INVALID_RESPONSE`, `HTTP_<status>`) mają
+  tę samą konwencję `UPPER_SNAKE` co `ErrorCode`.
 - W kodzie TS: `const` zamiast `let`, brak `any`, ESLint z `jsx-a11y` musi przechodzić (`npm run lint`).
 - **WCAG 2.1 AA jest wymaganiem** (20% oceny): semantyczny HTML, obsługa klawiatury, widoczny focus, kontrast ≥ 4.5:1,
   komunikaty błędów tekstem (nie samym kolorem), `aria-live` dla wyników, `lang="pl"`, skalowanie do 200%,
