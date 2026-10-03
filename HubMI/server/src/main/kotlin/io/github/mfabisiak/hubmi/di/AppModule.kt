@@ -11,6 +11,7 @@ import io.github.mfabisiak.hubmi.challenges.ChallengeService
 import io.github.mfabisiak.hubmi.common.mongo.MongoRepository
 import io.github.mfabisiak.hubmi.common.toDomainError
 import io.github.mfabisiak.hubmi.config.AppConfig
+import io.github.mfabisiak.hubmi.config.MatchingMode
 import io.github.mfabisiak.hubmi.health.GreetingService
 import io.github.mfabisiak.hubmi.ideas.EventPublisher
 import io.github.mfabisiak.hubmi.ideas.IdeaRepository
@@ -18,14 +19,19 @@ import io.github.mfabisiak.hubmi.ideas.IdeaService
 import io.github.mfabisiak.hubmi.ideas.NoOpEventPublisher
 import io.github.mfabisiak.hubmi.innovations.InnovationRepository
 import io.github.mfabisiak.hubmi.innovations.InnovationService
+import io.github.mfabisiak.hubmi.matching.EmbeddingClient
+import io.github.mfabisiak.hubmi.matching.FallbackEngine
+import io.github.mfabisiak.hubmi.matching.HybridMatchingEngine
 import io.github.mfabisiak.hubmi.matching.InnovationIndex
 import io.github.mfabisiak.hubmi.matching.KeywordMatchingEngine
 import io.github.mfabisiak.hubmi.matching.MatchService
 import io.github.mfabisiak.hubmi.matching.MatchingEngine
 import io.github.mfabisiak.hubmi.matching.NeedRepository
+import io.github.mfabisiak.hubmi.matching.OllamaEmbeddingClient
 import io.github.mfabisiak.hubmi.matching.PrefixStemmer
 import io.github.mfabisiak.hubmi.matching.Stemmer
 import io.github.mfabisiak.hubmi.matching.TextAnalyzer
+import io.github.mfabisiak.hubmi.matching.VectorIndex
 import io.github.mfabisiak.hubmi.materials.MaterialRepository
 import io.github.mfabisiak.hubmi.materials.MaterialService
 import io.github.mfabisiak.hubmi.samples.SampleRepository
@@ -35,11 +41,20 @@ import io.github.mfabisiak.hubmi.tester.FeedbackRepository
 import io.github.mfabisiak.hubmi.tester.FeedbackService
 import io.github.mfabisiak.hubmi.tester.TestRequestRepository
 import io.github.mfabisiak.hubmi.tester.TestRequestService
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 import org.koin.dsl.onClose
 import java.net.URI
 import java.time.Clock
 import java.util.concurrent.TimeUnit
+
+private const val OLLAMA_CONNECT_TIMEOUT_MILLIS = 2_000L
+private const val OLLAMA_REQUEST_TIMEOUT_MILLIS = 15_000L
 
 fun appModule(config: AppConfig) =
     module {
@@ -62,7 +77,35 @@ fun appModule(config: AppConfig) =
             val innovations = get<InnovationRepository>()
             InnovationIndex(get(), load = { innovations.findAllActive().mapLeft { it.toDomainError() } })
         }
-        single<MatchingEngine> { KeywordMatchingEngine(get(), get()) }
+        single { KeywordMatchingEngine(get(), get()) }
+        single {
+            HttpClient(CIO) {
+                install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+                install(HttpTimeout) {
+                    connectTimeoutMillis = OLLAMA_CONNECT_TIMEOUT_MILLIS
+                    requestTimeoutMillis = OLLAMA_REQUEST_TIMEOUT_MILLIS
+                }
+            }
+        } onClose { it?.close() }
+        single<EmbeddingClient> {
+            val settings = get<AppConfig>()
+            OllamaEmbeddingClient(get(), settings.ollamaUrl, settings.embeddingModel)
+        }
+        single<MatchingEngine> {
+            val keyword = get<KeywordMatchingEngine>()
+            when (get<AppConfig>().matchingMode) {
+                MatchingMode.KEYWORD -> {
+                    keyword
+                }
+
+                MatchingMode.HYBRID -> {
+                    FallbackEngine(
+                        primary = HybridMatchingEngine(get(), VectorIndex(get()), get(), keyword),
+                        fallback = keyword,
+                    )
+                }
+            }
+        }
         single { ChallengeRepository(get<MongoRepository>().database) }
         single { MaterialRepository(get<MongoRepository>().database) }
         single { IdeaRepository(get<MongoRepository>().database) }

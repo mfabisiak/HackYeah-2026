@@ -76,6 +76,11 @@ services:
       KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/hubmi/protocol/openid-connect/certs
       MONGO_URI: mongodb://mongo:27017/?replicaSet=rs0
       MONGO_DATABASE: hubmi
+      # Ollama runs natively on the host (Metal), not in Docker; without it matching falls back to keywords
+      MATCHING_MODE: hybrid
+      OLLAMA_URL: http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "8080:8080"
     depends_on:

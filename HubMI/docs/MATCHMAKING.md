@@ -109,6 +109,10 @@ innowacjami. Metryki: **hit@3** i **MRR** dla każdego trybu; test w CI dla `key
 - `score` w odpowiedzi to trafność 0–1: wynik BM25 podzielony przez najlepszy możliwy wynik dla tego zapytania, więc
   zapytania z obcymi słowami mają niższą trafność. Próg `noGoodMatch` to 0,18; frontend powinien pokazywać etykiety
   jakościowe, a nie procenty.
+- Ogólnikowe słowa opisu problemu („brak”, „osoby”, „ludzie”, „mały”, „problem”) są stop-słowami: w małej bibliotece
+  nie mają siły dyskryminującej, a dawały punkty przypadkowym innowacjom. Stop-słowa porównujemy po złożeniu
+  diakrytyków. Dodatkowo pokazujemy tylko innowacje z wynikiem ≥ 70% najlepszego (`relativeCutoff`), żeby słaby
+  ogon nie towarzyszył wyraźnemu zwycięzcy.
 - Zapytanie jest zapisywane jako `need` (oczyszczony tekst, gmina, obszar najlepszego dopasowania, identyfikatory
   dopasowań, `helpful`); oryginalny opis nie trafia do bazy ani logów. **Login jest opcjonalny**: anonimowe
   zgłoszenie działa jak dotąd, a zalogowany zgłaszający zostaje właścicielem (`ownerId` = `sub` z Keycloaka). Właściciel
@@ -121,6 +125,36 @@ innowacjami. Metryki: **hit@3** i **MRR** dla każdego trybu; test w CI dla `key
 
 Do potwierdzenia z ROPS / zespołem: czy `need` ma mieć TTL (np. 12 miesięcy) i czy w „podobnych zgłoszeniach”
 pokazywać fragment tekstu, czy tylko obszar i liczbę.
+
+## Stan wdrożenia v2 (BE-04, tryb `hybrid`)
+
+- `matching/`: `EmbeddingClient` (port) z `OllamaEmbeddingClient` (`POST /api/embed`, błędy jako `EmbeddingError`, nigdy
+  wyjątek), `VectorIndex` (wektory innowacji w pamięci), `HybridMatchingEngine`, `FallbackEngine`.
+- **Wektory innowacji nie są zapisywane w Mongo** (odstępstwo od pierwotnego planu). Liczy je `VectorIndex` przy budowie
+  indeksu i trzyma w pamięci, kluczując treścią (`embeddingText()`): odbudowa indeksu (zmiana innowacji, TTL 5 min)
+  osadza ponownie tylko zmienione teksty, jednym wywołaniem. Dla kilkuset innowacji to ułamek sekundy, a odpada pole
+  w modelu, migracja i rozjazd wektora z tekstem. Zimny start (36 innowacji) to ~6 s, dlatego serwer rozgrzewa wektory
+  w tle zaraz po starcie (`MatchingEngine.warmUp`), a pierwszy użytkownik nie czeka.
+- **Trafność** = `(1 − w)·semantyka + w·tekst`, gdzie `w` = 0,4, a semantyka to cosinus przeskalowany z 0,35 (0) do
+  0,75 (1). Zamiast RRF (z ticketu) łączymy skalibrowane wyniki. Pomiar na zestawie złotym (hit@3 wszędzie 100%):
+  MRR 0,955 dla blendu, 0,934–0,938 dla RRF (k = 10 i 60), 0,944 dla samej semantyki, czyli różnice w rankingu są małe,
+  a składnik tekstowy daje tu niewiele ponad semantykę. O wyborze decyduje to, że RRF ma tylko rangi i nie daje progu
+  „brak dopasowania” (pojedyncze wyniki 0..1 dają). Składnik tekstowy zostaje dla wyjaśnień („Dopasowane frazy”) i jako
+  zabezpieczenie, gdy model słabo zna dane słownictwo (to hipoteza, zestaw tego nie pokazuje). Dalej: korekta regionu ×1,15, odcięcie
+  względne 70% najlepszego wyniku, próg `noGoodMatch` = 0,25, maks. 5 wyników.
+- Uzasadnienie: dopasowane frazy (jeśli są) + „Zbliżony znaczeniowo do opisu problemu.” + obszar/region. Wynik czysto
+  semantyczny nie ma fraz, więc to zdanie jest jedynym wyjaśnieniem, dlaczego innowacja pasuje.
+- **Awaria Ollamy nie psuje demo:** `FallbackEngine` przy `Unavailable` przechodzi na `KeywordMatchingEngine` i przez 30 s
+  nie pyta uszkodzonego silnika (jedno nieudane wywołanie zamiast timeoutu na każdym żądaniu); potem sam wraca do
+  hybrydy. Zweryfikowane na żywo: zatrzymana Ollama → `200` w ~10–40 ms z wynikami słownymi.
+- Konfiguracja: `MATCHING_MODE` (`keyword` | `hybrid`; `hybrid+llm` nie jest zaimplementowany), `OLLAMA_URL`,
+  `EMBEDDING_MODEL`. `AppConfig()` budowany ręcznie (testy) ma `keyword`; serwer z env domyślnie `hybrid`.
+- Pomiar: sekcja „Silnik hybrydowy” w [matching-baseline.md](matching-baseline.md). Wektory zestawu złotego są nagrane
+  w `server/src/test/resources/matching/embeddings.json.gz`, więc `MatchingQualityTest` mierzy hybrydę bez Ollamy.
+  Po zmianie seedu lub zestawu: `WRITE_MATCHING_EMBEDDINGS=true ./gradlew :server:test --tests '*RecordEmbeddingsTest*'`
+  (wymaga działającej Ollamy), potem `WRITE_MATCHING_BASELINE=true ./gradlew :server:test`.
+- Nie zrobione: LLM (ekstrakcja słów kluczowych, wygładzanie uzasadnień), korekta o oceny z modułu Tester, indeks
+  wektorowy w Mongo.
 
 ## Kolejność wdrożenia
 

@@ -14,7 +14,7 @@ class TextAnalyzer(
         text
             .lowercase(POLISH)
             .split(NON_WORD)
-            .filter { it.length >= MIN_WORD_LENGTH && it !in STOP_WORDS }
+            .filter { it.length >= MIN_WORD_LENGTH && fold(it) !in STOP_WORDS }
             .map { Token(surface = it, stem = fold(stemmer.stem(it))) }
 
     fun stems(text: String): List<String> = analyze(text).map(Token::stem)
@@ -25,8 +25,9 @@ class TextAnalyzer(
         val NON_WORD = Regex("""[^\p{L}\p{N}]+""")
         val DIACRITICS = Regex("""\p{Mn}+""")
 
+        /** Folded like the words they are compared with, so the unaccented spelling is a stop word too. */
         val STOP_WORDS =
-            setOf(
+            listOf(
                 "i",
                 "w",
                 "z",
@@ -129,7 +130,27 @@ class TextAnalyzer(
                 "każdy",
                 "wszystko",
                 "wszyscy",
-            )
+                "brak",
+                "braku",
+                "osoba",
+                "osoby",
+                "osób",
+                "osobom",
+                "osobami",
+                "ludzie",
+                "ludzi",
+                "ludziom",
+                "ludźmi",
+                "mały",
+                "mała",
+                "małe",
+                "małych",
+                "małym",
+                "duży",
+                "problem",
+                "problemy",
+                "problemem",
+            ).map(::fold).toSet()
 
         fun fold(word: String): String =
             Normalizer
