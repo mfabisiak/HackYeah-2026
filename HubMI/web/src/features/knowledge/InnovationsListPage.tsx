@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Badge,
   Box,
   Button,
@@ -51,6 +52,7 @@ export function InnovationsListPage() {
   const [data, setData] = useState<PageJs<InnovationSummaryJs> | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   const [prevQParam, setPrevQParam] = useState(qParam)
   if (prevQParam !== qParam) {
@@ -101,24 +103,36 @@ export function InnovationsListPage() {
     return () => {
       cancelled = true
     }
-  }, [qParam, areaParam, targetGroupParam, currentPage])
+  }, [qParam, areaParam, targetGroupParam, currentPage, refreshTrigger])
 
   const updateFilters = (newParams: Record<string, string | null>) => {
+    let hasChanged = false
+    const next = new URLSearchParams(searchParams)
+
+    Object.entries(newParams).forEach(([key, val]) => {
+      const prevVal = searchParams.get(key)
+      const isDefaultPage = key === 'page' && (!val || val === '1')
+      const trimmedVal = val && val.trim() !== '' && !isDefaultPage ? val.trim() : null
+
+      if (trimmedVal !== null) {
+        if (prevVal !== trimmedVal) hasChanged = true
+        next.set(key, trimmedVal)
+      } else {
+        if (prevVal !== null) hasChanged = true
+        next.delete(key)
+      }
+    })
+
     setIsLoading(true)
     setError(null)
-    startTransition(() => {
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev)
-        Object.entries(newParams).forEach(([key, val]) => {
-          if (val && val.trim() !== '') {
-            next.set(key, val)
-          } else {
-            next.delete(key)
-          }
-        })
-        return next
+
+    if (hasChanged) {
+      startTransition(() => {
+        setSearchParams(next)
       })
-    })
+    } else {
+      setRefreshTrigger((c) => c + 1)
+    }
   }
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -190,7 +204,18 @@ export function InnovationsListPage() {
               radius="md"
               value={searchInput}
               onChange={(e) => setSearchInput(e.currentTarget.value)}
-              leftSection={<IconSearch size={20} aria-hidden="true" />}
+              leftSection={
+                <ActionIcon
+                  type="submit"
+                  variant="subtle"
+                  color="gray"
+                  size="lg"
+                  aria-label="Szukaj w bazie innowacji"
+                >
+                  <IconSearch size={22} aria-hidden="true" />
+                </ActionIcon>
+              }
+              leftSectionPointerEvents="all"
               rightSection={
                 <Button type="submit" size="sm" radius="md">
                   Szukaj

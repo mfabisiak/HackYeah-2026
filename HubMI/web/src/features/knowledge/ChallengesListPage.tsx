@@ -41,6 +41,7 @@ export function ChallengesListPage() {
   const [data, setData] = useState<PageJs<ChallengeJs> | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   useEffect(() => {
     document.title = 'Katalog wyzwań Małopolski | HubMI'
@@ -83,24 +84,34 @@ export function ChallengesListPage() {
     return () => {
       cancelled = true
     }
-  }, [areaParam, currentPage])
+  }, [areaParam, currentPage, refreshTrigger])
 
   const updateFilters = (newParams: Record<string, string | null>) => {
+    let hasChanged = false
+    const next = new URLSearchParams(searchParams)
+
+    Object.entries(newParams).forEach(([key, val]) => {
+      const prevVal = searchParams.get(key)
+      const trimmedVal = val && val.trim() !== '' ? val.trim() : null
+      if (trimmedVal !== null) {
+        if (prevVal !== trimmedVal) hasChanged = true
+        next.set(key, trimmedVal)
+      } else {
+        if (prevVal !== null) hasChanged = true
+        next.delete(key)
+      }
+    })
+
     setIsLoading(true)
     setError(null)
-    startTransition(() => {
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev)
-        Object.entries(newParams).forEach(([key, val]) => {
-          if (val && val.trim() !== '') {
-            next.set(key, val)
-          } else {
-            next.delete(key)
-          }
-        })
-        return next
+
+    if (hasChanged) {
+      startTransition(() => {
+        setSearchParams(next)
       })
-    })
+    } else {
+      setRefreshTrigger((c) => c + 1)
+    }
   }
 
   const handleAreaChange = (val: string | null) => {

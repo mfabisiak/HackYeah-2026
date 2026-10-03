@@ -242,5 +242,32 @@ describe('Knowledge Base Feature (FE-04)', () => {
       expect(screen.getAllByText('Poradnik krok po kroku').length).toBeGreaterThan(0)
       expect(screen.getByText('Pobierz materiał (PDF)')).toBeInTheDocument()
     })
+
+    it('re-fetches materials without infinite loading when submitting search with empty query', async () => {
+      const listSpy = vi.spyOn(hubApi.materials, 'list').mockResolvedValue(
+        new ApiResult(mockMaterialsPage, null),
+      )
+
+      renderWithProviders(<MaterialsListPage />)
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Jak inkubować innowację społeczną – poradnik krok po kroku'),
+        ).toBeInTheDocument()
+      })
+
+      // Click "Szukaj" with empty input
+      const submitButton = screen.getByRole('button', { name: 'Szukaj' })
+      fireEvent.click(submitButton)
+
+      // It should re-fetch and NOT get stuck in loading
+      await waitFor(() => {
+        expect(listSpy).toHaveBeenCalledTimes(2)
+      })
+
+      expect(
+        screen.getByText('Jak inkubować innowację społeczną – poradnik krok po kroku'),
+      ).toBeInTheDocument()
+    })
   })
 })
