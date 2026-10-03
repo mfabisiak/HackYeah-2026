@@ -7,7 +7,10 @@ import { useAuth } from '../auth/AuthContext'
 const baseLinks = [
   { to: '/', label: 'Start' },
   { to: '/dopasuj', label: 'Opisz problem' },
-  { to: '/status', label: 'Status systemu' },
+  { to: '/innowacje', label: 'Baza innowacji' },
+  { to: '/wyzwania', label: 'Wyzwania Małopolski' },
+  { to: '/materialy', label: 'Materiały edukacyjne' },
+  { to: '/status', label: 'Status' },
   { to: '/konto', label: 'Moje konto' },
 ]
 

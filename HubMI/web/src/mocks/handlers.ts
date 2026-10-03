@@ -6,24 +6,38 @@ const mockInnovations = [
     title: 'Inteligentny asystent komunikacji dla seniorów',
     summary: 'Aplikacja mobilna upraszczająca kontakt z rodziną i służbami medycznymi.',
     description: 'Szczegółowy opis rozwiązania wspomagającego codzienne funkcjonowanie osób starszych.',
-    area: 'Dostępność cyfrowa',
-    targetGroup: 'Seniorzy',
-    maturityLevel: 'TRL 7 - prototyp sprawdzony w warunkach operacyjnych',
-    institution: 'Politechnika Warszawska',
-    contactEmail: 'innowacje@pw.edu.pl',
+    areas: ['DIGITAL_EXCLUSION', 'AGING'],
+    targetGroups: ['SENIORS', 'RESIDENTS'],
+    stage: 'IMPLEMENTED',
+    region: 'Kraków - Podgórze',
+    mediaUrls: ['https://rops.krakow.pl/innowacje/asystent-seniora.pdf'],
+    averageRating: 4.8,
+    ratingsCount: 12,
+    innovativeness: 'Intuicyjny interfejs o bardzo dużych przyciskach i kontrastowych barwach.',
+    problemDiagnosis: 'Samotność seniorów i lęk przed skomplikowanymi smartfonami.',
+    audienceDescription: 'Osoby w wieku 65+ mieszkające samotnie.',
+    expectedChange: 'Zwiększenie samodzielności i poczucia bezpieczeństwa.',
+    futureVision: 'Możliwość integracji z systemami teleopieki w całej Małopolsce.',
     createdAt: '2026-03-01T10:00:00Z',
     updatedAt: '2026-03-15T14:30:00Z',
   },
   {
     id: 'inno-002',
-    title: 'Ekomateriały biodegradowalne do opakowań leków',
-    summary: 'Biodegradowalny kompozyt z surowców odnawialnych redukujący ślad węglowy w farmacji.',
-    description: 'Zaawansowany polimer celulozowy opracowany w standardzie cleanroom.',
-    area: 'Zielona transformacja',
-    targetGroup: 'Przemysł farmaceutyczny',
-    maturityLevel: 'TRL 6 - technologia zademonstrowana',
-    institution: 'Instytut Chemii Przemysłowej',
-    contactEmail: 'kontakt@ichp.pl',
+    title: 'Mobilny Punkt Wsparcia Sąsiedzkiego',
+    summary: 'Sieć wzajemnej pomocy łącząca seniorów z zaufanymi sąsiadami z tej samej okolicy.',
+    description: 'System organizacyjny wspierający lokalne społeczności wiejskie i miejskie.',
+    areas: ['AGING', 'LONELINESS', 'SERVICE_ACCESS'],
+    targetGroups: ['SENIORS', 'FAMILIES'],
+    stage: 'TESTED',
+    region: 'Tarnów',
+    mediaUrls: ['https://youtube.com/watch?v=pomoc-sasiedzka'],
+    averageRating: 4.5,
+    ratingsCount: 8,
+    innovativeness: 'Mikro-wolontariat oparty na relacjach sąsiedzkich.',
+    problemDiagnosis: 'Brak codziennej pomocy w zakupach i drobnych naprawach.',
+    audienceDescription: 'Seniorzy i osoby z trudnościami w poruszaniu się.',
+    expectedChange: 'Zmniejszenie izolacji społecznej.',
+    futureVision: 'Skalowanie do wszystkich sołectw regionu.',
     createdAt: '2026-03-10T12:00:00Z',
     updatedAt: '2026-03-20T09:15:00Z',
   },
@@ -32,22 +46,18 @@ const mockInnovations = [
 const mockChallenges = [
   {
     id: 'chal-001',
-    title: 'Cyfryzacja i optymalizacja tras transportu publicznego w gminach wiejskich',
-    description: 'Poszukujemy algorytmu optymalizującego zapotrzebowanie na transport na żądanie.',
-    area: 'Transport i mobilność',
-    organization: 'Związek Gmin Wiejskich',
-    deadline: '2026-11-30T23:59:59Z',
-    budget: '150 000 PLN',
+    title: 'Transport na żądanie dla seniorów z sołectw podmiejskich',
+    description: 'Osoby starsze mieszkające w mniejszych sołectwach mają utrudniony dostęp do placówek ochrony zdrowia i urzędów.',
+    area: 'AGING',
+    municipalities: ['Wieliczka', 'Niepołomice', 'Biskupice'],
     createdAt: '2026-02-15T08:00:00Z',
   },
   {
     id: 'chal-002',
-    title: 'Narzędzie AI do automatycznego generowania audytów WCAG 2.1',
-    description: 'Zapotrzebowanie na otwarte narzędzie wspierające urzędy w audycie dostępności serwisów.',
-    area: 'Dostępność cyfrowa',
-    organization: 'Ministerstwo Cyfryzacji',
-    deadline: '2026-12-15T23:59:59Z',
-    budget: '300 000 PLN',
+    title: 'Osamotnienie seniorów w osiedlach wielkopłytowych',
+    description: 'Bariery architektoniczne powodują uwięzienie w domach wielu samotnych seniorów.',
+    area: 'LONELINESS',
+    municipalities: ['Tarnów', 'Kraków'],
     createdAt: '2026-03-01T09:00:00Z',
   },
 ]
@@ -55,13 +65,30 @@ const mockChallenges = [
 const mockMaterials = [
   {
     id: 'mat-001',
-    title: 'Poradnik wdrażania standardu WCAG 2.1 AA w jednostkach publicznych',
-    description: 'Kompletny zbiór dobrych praktyk, szablonów i checklist dla audytorów i programistów.',
-    type: 'Przewodnik',
-    area: 'Dostępność cyfrowa',
-    fileUrl: '/files/poradnik-wcag.pdf',
-    fileSize: '4.2 MB',
+    title: 'Jak inkubować innowację społeczną – poradnik krok po kroku',
+    description: 'Kompleksowy przewodnik dla animatorów i samorządowców opisujący etapy od diagnozy problemu po wdrożenie.',
+    type: 'GUIDE',
+    areas: ['COORDINATION', 'OTHER'],
+    url: 'https://rops.krakow.pl/innowacje/poradnik-inkubacji.pdf',
     createdAt: '2026-01-10T10:00:00Z',
+  },
+  {
+    id: 'mat-002',
+    title: 'Model Canvas dla Innowacji Społecznych – szablon pracy',
+    description: 'Narzędzie warsztatowe do projektowania propozycji wartości, odbiorców i wskaźników wpływu społecznego.',
+    type: 'CANVAS',
+    areas: ['OTHER'],
+    url: 'https://rops.krakow.pl/materialy/canvas-innowacji.pdf',
+    createdAt: '2026-01-15T10:00:00Z',
+  },
+  {
+    id: 'mat-003',
+    title: 'Dostępność cyfrowa stron i e-usług wg WCAG 2.1 AA',
+    description: 'Instruktaż wideo dla twórców stron: semantyka HTML, nawigacja klawiaturą i kontrast.',
+    type: 'VIDEO',
+    areas: ['DIGITAL_EXCLUSION'],
+    url: 'https://youtube.com/watch?v=dostepnosc-wcag',
+    createdAt: '2026-02-01T10:00:00Z',
   },
 ]
 
@@ -134,6 +161,52 @@ export const handlers = [
       updatedAt: new Date().toISOString(),
     }
     return HttpResponse.json(newInno, { status: 201 })
+  }),
+
+  // Test requests
+  http.get('/api/innovations/:id/test-request', ({ params }) => {
+    return HttpResponse.json({
+      id: `tr-${params.id}`,
+      innovationId: params.id,
+      note: 'Przykładowa notatka zgłoszenia testowego',
+      status: 'NEW',
+      createdAt: '2026-03-25T11:00:00Z',
+    })
+  }),
+
+  http.put('/api/innovations/:id/test-request', async ({ params, request }) => {
+    const body = (await request.json()) as { note?: string }
+    return HttpResponse.json({
+      id: `tr-${params.id}`,
+      innovationId: params.id,
+      note: body.note ?? null,
+      status: 'NEW',
+      createdAt: new Date().toISOString(),
+    })
+  }),
+
+  // Feedback
+  http.get('/api/innovations/:id/feedback', ({ params }) => {
+    return HttpResponse.json({
+      id: `fb-${params.id}`,
+      innovationId: params.id,
+      rating: 5,
+      comment: 'Świetne i potrzebne rozwiązanie!',
+      suggestion: 'Więcej warsztatów stacjonarnych',
+      createdAt: '2026-03-25T11:30:00Z',
+    })
+  }),
+
+  http.put('/api/innovations/:id/feedback', async ({ params, request }) => {
+    const body = (await request.json()) as { rating: number; comment?: string; suggestion?: string }
+    return HttpResponse.json({
+      id: `fb-${params.id}`,
+      innovationId: params.id,
+      rating: body.rating,
+      comment: body.comment ?? null,
+      suggestion: body.suggestion ?? null,
+      createdAt: new Date().toISOString(),
+    })
   }),
 
   // Challenges
