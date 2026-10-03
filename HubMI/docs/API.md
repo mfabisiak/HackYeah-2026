@@ -41,10 +41,10 @@ błąd to zawsze `ErrorResponse(code, message)`. Dostęp: 🌐 publiczny · 🔑
 | 4 | `GET /api/admin/feedback?innovationId&page&size` | 🛡️ | → `Page<AdminFeedbackDto>` *(zaimplementowane; oceny z komentarzami, najnowsze pierwsze)* |
 | 4 | `GET /api/admin/test-requests?innovationId&status&page&size` | 🛡️ | → `Page<AdminTestRequestDto>` *(zaimplementowane)* |
 | 4 | `PATCH /api/admin/test-requests/{id}/status` | 🛡️ | `UpdateTestRequestStatusRequest` → `AdminTestRequestDto` *(zaimplementowane; `NEW → ACCEPTED \| DECLINED`, inne przejścia `409`)* |
-| 5 | `GET`/`POST /api/threads` | 🔑 | → `Page<ThreadDto>`; `CreateThreadRequest` → `ThreadDto` |
-| 5 | `GET`/`POST /api/threads/{id}/messages` | 🔑 | → `List<MessageDto>`; `PostMessageRequest` → `MessageDto` |
-| 5 | `GET /api/notifications?unreadOnly&page&size` | 🔑 | → `Page<NotificationDto>` |
-| 5 | `POST /api/notifications/{id}/read` | 🔑 | → `204` |
+| 5 | `GET`/`POST /api/threads` | 🔑 | → `Page<ThreadDto>`; `CreateThreadRequest` → `ThreadDto` *(zaimplementowane)* |
+| 5 | `GET`/`POST /api/threads/{id}/messages` | 🔑 | → `List<MessageDto>`; `PostMessageRequest` → `MessageDto` *(zaimplementowane)* |
+| 5 | `GET /api/notifications?unreadOnly&page&size`, `GET /api/notifications/stream` | 🔑 | → `Page<NotificationDto>`; SSE stream *(zaimplementowane)* |
+| 5 | `POST /api/notifications/{id}/read` | 🔑 | → `204` *(zaimplementowane)* |
 | 6 | `GET /api/admin/trends?months` | 🛡️ | → `TrendsDto` |
 | 6 | `GET /api/admin/ideas?status&page&size` | 🛡️ | → `Page<IdeaDto>` *(zaimplementowane)* |
 | 6 | `PATCH /api/admin/ideas/{id}/status` | 🛡️ | `UpdateIdeaStatusRequest` → `IdeaDto` *(zaimplementowane)* |

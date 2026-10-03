@@ -20,6 +20,12 @@ import io.github.mfabisiak.hubmi.matching.NeedItem
 import io.github.mfabisiak.hubmi.matching.needs
 import io.github.mfabisiak.hubmi.materials.MaterialItem
 import io.github.mfabisiak.hubmi.materials.materials
+import io.github.mfabisiak.hubmi.messaging.MessageItem
+import io.github.mfabisiak.hubmi.messaging.NotificationItem
+import io.github.mfabisiak.hubmi.messaging.ThreadItem
+import io.github.mfabisiak.hubmi.messaging.messages
+import io.github.mfabisiak.hubmi.messaging.notifications
+import io.github.mfabisiak.hubmi.messaging.threads
 import io.github.mfabisiak.hubmi.samples.SampleItem
 import io.github.mfabisiak.hubmi.samples.samples
 import io.github.mfabisiak.hubmi.tester.FeedbackItem
@@ -60,5 +66,22 @@ object MongoIndexes {
                 Indexes.ascending(TestRequestItem::innovationId, TestRequestItem::userId),
                 IndexOptions().unique(true),
             )
+
+            database.threads.createIndex(Indexes.descending(ThreadItem::lastMessageAt))
+            database.threads.createIndex(Indexes.ascending(ThreadItem::participantIds))
+            database.messages.createIndex(
+                Indexes.ascending(
+                    MessageItem::threadId,
+                    MessageItem::sentAt,
+                ),
+            )
+            database.notifications.createIndex(Indexes.descending(NotificationItem::createdAt))
+            database.notifications.createIndex(
+                Indexes.ascending(
+                    NotificationItem::recipientId,
+                    NotificationItem::read,
+                ),
+            )
+            database.notifications.createIndex(Indexes.ascending(NotificationItem::targetRole))
         }.map { }
 }
