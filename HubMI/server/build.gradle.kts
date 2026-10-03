@@ -30,4 +30,5 @@ dependencies {
     testImplementation(libs.ktor.clientContentNegotiation)
     testImplementation(libs.ktor.clientResources)
     testImplementation(libs.kotlin.testJunit)
+    testImplementation(libs.testcontainers.mongodb)
 }

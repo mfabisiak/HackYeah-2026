@@ -16,6 +16,21 @@ data class Page<T>(
     val total: Int,
 )
 
+@Serializable
+data class PageRequest(
+    val page: Int = DEFAULT_PAGE,
+    val size: Int = DEFAULT_SIZE,
+) {
+    val skip: Int get() = page * size
+    val limit: Int get() = size
+
+    companion object {
+        const val DEFAULT_PAGE = 0
+        const val DEFAULT_SIZE = 20
+        const val MAX_SIZE = 100
+    }
+}
+
 /** Thematic areas of social challenges (taxonomy based on the Social Challenges Map). */
 @Serializable
 enum class SocialArea {

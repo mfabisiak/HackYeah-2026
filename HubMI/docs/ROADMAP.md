@@ -34,10 +34,10 @@ zamiast jednego perfekcyjnego. Pozostałe 60% to wdrażalność (20%), dostępno
 |:------:|:--------------------------------------------------------------|
 |   ✅   | Ktor + Koin + Keycloak (JWT, role), docker compose, CI, ktlint|
 |   ✅   | Mongo + Arrow w compose i zależnościach                       |
-|   ⬜   | `ErrorResponse(code, message)`, `DomainError`, `respondError` (jedno miejsce mapowania na HTTP) |
-|   ⬜   | Szablon zasobu end-to-end (route → service → repository) i wzorcowy test |
-|   ⬜   | Kontrakt API v1 w `:core`: DTO + value classes ID, wspólne `Page<T>`        |
-|   ⬜   | Ktor Resources w `:core` (`@Resource` per zasób) – serwer i klient web używają tych samych tras |
+|   ✅   | `ErrorResponse(code, message)`, `DomainError`, `respondError` (jedno miejsce mapowania na HTTP) |
+|   ✅   | Szablon zasobu end-to-end (route → service → repository) i wzorcowy test |
+|   ✅   | Kontrakt API v1 w `:core`: DTO + value classes ID, wspólne `Page<T>`        |
+|   ✅   | Ktor Resources w `:core` (`@Resource` per zasób) – serwer i klient web używają tych samych tras |
 
 ## Backend
 

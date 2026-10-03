@@ -1,32 +1,24 @@
 package io.github.mfabisiak.hubmi.plugins
 
-import com.auth0.jwk.JwkProviderBuilder
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
+import com.auth0.jwk.JwkProvider
 import io.github.mfabisiak.hubmi.config.AppConfig
+import io.github.mfabisiak.hubmi.service.DomainError
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import org.koin.ktor.ext.inject
-import java.net.URI
-import java.util.concurrent.TimeUnit
 
 const val KEYCLOAK_AUTH = "keycloak"
 
 fun Application.configureSecurity() {
     val config by inject<AppConfig>()
-
-    // Signing keys are fetched lazily from Keycloak on the first token, so the server can start before Keycloak.
-    val jwkProvider =
-        JwkProviderBuilder(URI(config.keycloakJwksUrl).toURL())
-            .cached(10, 24, TimeUnit.HOURS)
-            .rateLimited(10, 1, TimeUnit.MINUTES)
-            .build()
+    val jwkProvider by inject<JwkProvider>()
 
     install(Authentication) {
         jwt(KEYCLOAK_AUTH) {
@@ -41,6 +33,20 @@ fun Application.configureSecurity() {
     }
 }
 
+/** Authenticated user context extracted from JWT claims. */
+data class UserContext(
+    val userId: String,
+    val username: String?,
+    val email: String?,
+    val roles: Set<String>,
+) {
+    val isAdmin: Boolean get() = "admin" in roles
+    val isExpert: Boolean get() = "expert" in roles
+    val isUser: Boolean get() = "user" in roles
+
+    fun hasRole(role: String): Boolean = role in roles
+}
+
 /** Realm roles assigned in Keycloak (`realm_access.roles` claim). */
 val JWTPrincipal.realmRoles: Set<String>
     get() =
@@ -53,9 +59,22 @@ val JWTPrincipal.realmRoles: Set<String>
             ?.toSet()
             .orEmpty()
 
-/** Allows the request only if the authenticated user has [role]; use inside an `authenticate { }` block. */
-fun Route.requireRole(
-    role: String,
+/** Extracts the authenticated [UserContext] safely, returning [DomainError.Unauthorized] if missing. */
+val ApplicationCall.userContext: Either<DomainError.Unauthorized, UserContext>
+    get() {
+        val principal = principal<JWTPrincipal>() ?: return DomainError.Unauthorized().left()
+        val subject = principal.subject ?: return DomainError.Unauthorized().left()
+        return UserContext(
+            userId = subject,
+            username = principal.payload.getClaim("preferred_username").asString(),
+            email = principal.payload.getClaim("email").asString(),
+            roles = principal.realmRoles,
+        ).right()
+    }
+
+/** Allows the request only if the authenticated user has at least one of [roles]. */
+fun Route.requireAnyRole(
+    vararg roles: String,
     build: Route.() -> Unit,
 ): Route {
     val route =
@@ -68,10 +87,10 @@ fun Route.requireRole(
             },
         )
     route.install(
-        createRouteScopedPlugin("RequireRole-$role") {
+        createRouteScopedPlugin("RequireAnyRole-${roles.joinToString("-")}") {
             on(AuthenticationChecked) { call ->
                 val principal = call.principal<JWTPrincipal>()
-                if (principal == null || role !in principal.realmRoles) {
+                if (principal == null || roles.none { it in principal.realmRoles }) {
                     call.respond(HttpStatusCode.Forbidden)
                 }
             }
@@ -80,3 +99,9 @@ fun Route.requireRole(
     route.build()
     return route
 }
+
+/** Allows the request only if the authenticated user has [role]; use inside an `authenticate { }` block. */
+fun Route.requireRole(
+    role: String,
+    build: Route.() -> Unit,
+): Route = requireAnyRole(role, build = build)

@@ -7,7 +7,8 @@
   "roles": {
     "realm": [
       { "name": "user", "description": "Regular user" },
-      { "name": "admin", "description": "Administrator" }
+      { "name": "admin", "description": "Administrator" },
+      { "name": "expert", "description": "Expert / mentor" }
     ]
   },
   "defaultRole": { "name": "default-roles-hubmi" },
@@ -48,6 +49,16 @@
       "emailVerified": true,
       "credentials": [{ "type": "password", "value": "admin", "temporary": false }],
       "realmRoles": ["user", "admin"]
+    },
+    {
+      "username": "expert",
+      "email": "expert@hubmi.local",
+      "firstName": "Test",
+      "lastName": "Expert",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "expert", "temporary": false }],
+      "realmRoles": ["user", "expert"]
     }
   ]
 }
