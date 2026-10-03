@@ -95,6 +95,7 @@ plugins/      konfiguracja Ktor: Koin, Serialization, Security, Routing, Indexes
 routes/       cienkie routy per zasób: parsowanie → serwis → odpowiedź
 domain/       value classes (`Title`, `HttpUrl`, `InnovationId`…) i `*Draft`: `parse(request)` → `Either`; bez Ktora i Mongo
 service/      logika domenowa, zwraca Either<DomainError, T>; bez wiedzy o HTTP i Mongo
+  matching/   silniki dopasowania (BM25, oczyszczanie danych osobowych, indeks w pamięci) – czyste, bez IO poza `InnovationIndex`
 repository/   dostęp do Mongo; zwraca Either<RepositoryError, T>; bez logiki biznesowej
 models/       dokumenty Mongo (data class) + Mappers.kt (model → DTO)
 seeding/      dane przykładowe (żadnych prawdziwych danych osobowych!)
@@ -195,7 +196,8 @@ Przepływ: `route (parsowanie do typów domenowych) → service → repository`.
 
 - `kotlin.test` + `ktor-server-test-host`. Każdy endpoint: scenariusz sukcesu, 401, 403, walidacja.
 - Serwisy testujemy z prawdziwym Mongo w kontenerze (Testcontainers) lub z fake'iem repozytorium – nie mockujemy Arrow.
-- Matchmaking: testy trafności na zestawie seedowym (znane problemy → oczekiwane innowacje).
+- Matchmaking: testy trafności na zestawie seedowym (znane problemy → oczekiwane innowacje): `MatchingQualityTest` liczy
+  hit@3 i MRR i pilnuje celów; `WRITE_MATCHING_BASELINE=true ./gradlew :server:test` odświeża `docs/matching-baseline.md`.
 - Asercje na `Either`: `assertIs<Either.Right<*>>` / sprawdzanie typu błędu, nie na tekście komunikatu.
 
 ## Czego nie robić

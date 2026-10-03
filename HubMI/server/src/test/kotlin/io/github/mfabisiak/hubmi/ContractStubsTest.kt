@@ -6,7 +6,6 @@ import io.github.mfabisiak.hubmi.api.CallStatus
 import io.github.mfabisiak.hubmi.api.Calls
 import io.github.mfabisiak.hubmi.api.ErrorCode
 import io.github.mfabisiak.hubmi.api.Ideas
-import io.github.mfabisiak.hubmi.api.Matches
 import io.ktor.client.plugins.resources.Resources
 import io.ktor.client.plugins.resources.delete
 import io.ktor.client.plugins.resources.get
@@ -25,7 +24,6 @@ class ContractStubsTest {
 
             assertEquals(HttpStatusCode.NotImplemented, client.get(Calls()).status)
             assertEquals(HttpStatusCode.NotImplemented, client.get(Calls.Active()).status)
-            assertEquals(HttpStatusCode.NotImplemented, client.post(Matches()).status)
         }
 
     @Test

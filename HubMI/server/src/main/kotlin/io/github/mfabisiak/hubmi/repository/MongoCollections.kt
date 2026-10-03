@@ -5,6 +5,7 @@ import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import io.github.mfabisiak.hubmi.models.ChallengeItem
 import io.github.mfabisiak.hubmi.models.InnovationItem
 import io.github.mfabisiak.hubmi.models.MaterialItem
+import io.github.mfabisiak.hubmi.models.NeedItem
 import io.github.mfabisiak.hubmi.models.SampleItem
 
 /**
@@ -15,6 +16,7 @@ const val SAMPLES_COLLECTION = "samples"
 const val INNOVATIONS_COLLECTION = "innovations"
 const val CHALLENGES_COLLECTION = "challenges"
 const val MATERIALS_COLLECTION = "materials"
+const val NEEDS_COLLECTION = "needs"
 
 val MongoDatabase.samples: MongoCollection<SampleItem>
     get() = getCollection<SampleItem>(SAMPLES_COLLECTION)
@@ -27,3 +29,6 @@ val MongoDatabase.challenges: MongoCollection<ChallengeItem>
 
 val MongoDatabase.materials: MongoCollection<MaterialItem>
     get() = getCollection<MaterialItem>(MATERIALS_COLLECTION)
+
+val MongoDatabase.needs: MongoCollection<NeedItem>
+    get() = getCollection<NeedItem>(NEEDS_COLLECTION)

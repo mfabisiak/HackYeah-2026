@@ -7,12 +7,14 @@ import com.mongodb.kotlin.client.model.Indexes
 import io.github.mfabisiak.hubmi.models.ChallengeItem
 import io.github.mfabisiak.hubmi.models.InnovationItem
 import io.github.mfabisiak.hubmi.models.MaterialItem
+import io.github.mfabisiak.hubmi.models.NeedItem
 import io.github.mfabisiak.hubmi.models.SampleItem
 import io.github.mfabisiak.hubmi.repository.RepositoryError
 import io.github.mfabisiak.hubmi.repository.challenges
 import io.github.mfabisiak.hubmi.repository.innovations
 import io.github.mfabisiak.hubmi.repository.materials
 import io.github.mfabisiak.hubmi.repository.mongoCatch
+import io.github.mfabisiak.hubmi.repository.needs
 import io.github.mfabisiak.hubmi.repository.samples
 
 object MongoIndexes {
@@ -27,5 +29,7 @@ object MongoIndexes {
 
             database.materials.createIndex(Indexes.ascending(MaterialItem::type))
             database.materials.createIndex(Indexes.ascending(MaterialItem::areas))
+
+            database.needs.createIndex(Indexes.ascending(NeedItem::matchedInnovationIds))
         }.map { }
 }

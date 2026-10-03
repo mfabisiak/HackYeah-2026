@@ -4,6 +4,7 @@ import arrow.core.Either
 import io.github.mfabisiak.hubmi.api.FieldError
 import io.github.mfabisiak.hubmi.api.FieldErrorCode
 import io.github.mfabisiak.hubmi.api.InnovationStage
+import io.github.mfabisiak.hubmi.api.MatchRequest
 import io.github.mfabisiak.hubmi.api.MaterialType
 import io.github.mfabisiak.hubmi.api.SocialArea
 import io.github.mfabisiak.hubmi.api.TargetGroup
@@ -134,5 +135,61 @@ class DraftsTest {
         assertIs<Either.Right<InnovationId>>(InnovationId.parse("66a1f0c2e4b0a1b2c3d4e5f6"))
         assertIs<Either.Left<*>>(ChallengeId.parse("abc"))
         assertIs<Either.Left<*>>(MaterialId.parse(""))
+    }
+
+    @Test
+    fun matchRequestDraftTrimsAndMunicipalityIsOptional() {
+        val draft =
+            assertIs<Either.Right<MatchRequestDraft>>(
+                MatchRequestDraft.parse(MatchRequest("  Mama mieszka sama na wsi  ", municipality = " Tarnów ")),
+            ).value
+        assertEquals("Mama mieszka sama na wsi", draft.description.value)
+        assertEquals("Tarnów", draft.municipality?.value)
+        assertNull(
+            assertIs<Either.Right<MatchRequestDraft>>(
+                MatchRequestDraft.parse(MatchRequest("Opis problemu")),
+            ).value.municipality,
+        )
+    }
+
+    @Test
+    fun matchRequestDraftReportsDescriptionAndMunicipality() {
+        val errors = errorsOf(MatchRequestDraft.parse(MatchRequest(description = "abc", municipality = " ")))
+
+        assertEquals(setOf("description", "municipality"), errors.map { it.field }.toSet())
+    }
+
+    @Test
+    fun needIdRejectsNonObjectIds() {
+        assertIs<Either.Right<NeedId>>(NeedId.parse("66a1f0c2e4b0a1b2c3d4e5f6"))
+        assertIs<Either.Left<*>>(NeedId.parse("nope"))
+    }
+
+    @Test
+    fun narrativeSectionsAreOptionalTrimmedAndBounded() {
+        val full =
+            assertIs<Either.Right<InnovationDraft>>(
+                InnovationDraft.parse(
+                    innovation().copy(
+                        innovativeness = "  Nowe w regionie  ",
+                        problemDiagnosis = "Seniorzy nie mają jak dojechać do lekarza",
+                        audienceDescription = " ",
+                        futureVision = "Można wdrożyć w każdej gminie",
+                    ),
+                ),
+            ).value.narrative
+        assertEquals("Nowe w regionie", full.innovativeness?.value)
+        assertEquals("Seniorzy nie mają jak dojechać do lekarza", full.problemDiagnosis?.value)
+        assertNull(full.audienceDescription, "a blank section means 'not filled in'")
+        assertNull(full.expectedChange)
+        assertEquals("Można wdrożyć w każdej gminie", full.futureVision?.value)
+
+        val errors =
+            errorsOf(
+                InnovationDraft.parse(
+                    innovation().copy(problemDiagnosis = "x".repeat(5001), expectedChange = "y".repeat(5001)),
+                ),
+            )
+        assertEquals(setOf("problemDiagnosis", "expectedChange"), errors.map { it.field }.toSet())
     }
 }

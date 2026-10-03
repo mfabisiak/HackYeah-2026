@@ -70,6 +70,11 @@ class InnovationRepository(
             Updates.set(InnovationItem::stage, draft.stage),
             Updates.set(InnovationItem::region, draft.region?.value),
             Updates.set(InnovationItem::mediaUrls, draft.mediaUrls.map(HttpUrl::value)),
+            Updates.set(InnovationItem::innovativeness, draft.narrative.innovativeness?.value),
+            Updates.set(InnovationItem::problemDiagnosis, draft.narrative.problemDiagnosis?.value),
+            Updates.set(InnovationItem::audienceDescription, draft.narrative.audienceDescription?.value),
+            Updates.set(InnovationItem::expectedChange, draft.narrative.expectedChange?.value),
+            Updates.set(InnovationItem::futureVision, draft.narrative.futureVision?.value),
         )
 
     suspend fun softDelete(

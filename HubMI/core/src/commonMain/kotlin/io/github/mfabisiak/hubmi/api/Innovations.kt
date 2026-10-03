@@ -49,11 +49,17 @@ data class InnovationSummary(
     val stage: InnovationStage,
 )
 
+/**
+ * An innovation of the library. [description] to [futureVision] mirror the narrative sections of ROPS' application
+ * form (items 3 to 8): what the innovation is, what is new about it, the diagnosed problem, its audience, the change
+ * it brings and its prospects. The applicant's personal data from the form is deliberately not part of the library.
+ */
 @Serializable
 data class InnovationDto(
     val id: String,
     val title: String,
     val summary: String,
+    /** Form item 3, "Opis innowacji". */
     val description: String,
     val areas: List<SocialArea>,
     val targetGroups: List<TargetGroup>,
@@ -62,6 +68,16 @@ data class InnovationDto(
     val mediaUrls: List<String>,
     val averageRating: Double?,
     val ratingsCount: Int,
+    /** Form item 4, "Innowacyjność rozwiązania". */
+    val innovativeness: String? = null,
+    /** Form item 5, "Diagnoza problemu". */
+    val problemDiagnosis: String? = null,
+    /** Form item 6, "Opis odbiorców innowacji". */
+    val audienceDescription: String? = null,
+    /** Form item 7, "Zmiana, jaką wprowadza innowacja". */
+    val expectedChange: String? = null,
+    /** Form item 8, "Wizja przyszłości innowacji". */
+    val futureVision: String? = null,
 )
 
 @Serializable
@@ -74,6 +90,11 @@ data class UpsertInnovationRequest(
     val stage: InnovationStage,
     val region: String? = null,
     val mediaUrls: List<String> = emptyList(),
+    val innovativeness: String? = null,
+    val problemDiagnosis: String? = null,
+    val audienceDescription: String? = null,
+    val expectedChange: String? = null,
+    val futureVision: String? = null,
 )
 
 @Serializable

@@ -10,6 +10,7 @@ import io.github.mfabisiak.hubmi.repository.MongoRepository
 import io.github.mfabisiak.hubmi.routes.appRoutes
 import io.github.mfabisiak.hubmi.routes.innovationRoutes
 import io.github.mfabisiak.hubmi.routes.knowledgeRoutes
+import io.github.mfabisiak.hubmi.routes.matchRoutes
 import io.github.mfabisiak.hubmi.routes.sampleRoutes
 import io.github.mfabisiak.hubmi.seeding.DatabaseSeeder
 import io.ktor.server.application.*
@@ -54,6 +55,7 @@ fun Application.module(
         sampleRoutes()
         innovationRoutes()
         knowledgeRoutes()
+        matchRoutes()
     }
 }
 

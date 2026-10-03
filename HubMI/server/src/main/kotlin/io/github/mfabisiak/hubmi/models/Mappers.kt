@@ -5,6 +5,7 @@ import io.github.mfabisiak.hubmi.api.InnovationDto
 import io.github.mfabisiak.hubmi.api.InnovationSummary
 import io.github.mfabisiak.hubmi.api.MaterialDto
 import io.github.mfabisiak.hubmi.api.MeResponse
+import io.github.mfabisiak.hubmi.api.SimilarNeedDto
 import io.github.mfabisiak.hubmi.domain.ChallengeDraft
 import io.github.mfabisiak.hubmi.domain.HttpUrl
 import io.github.mfabisiak.hubmi.domain.InnovationDraft
@@ -44,6 +45,11 @@ fun InnovationItem.toDto(): InnovationDto =
         mediaUrls = mediaUrls,
         averageRating = if (ratingsCount > 0) ratingSum.toDouble() / ratingsCount else null,
         ratingsCount = ratingsCount,
+        innovativeness = innovativeness,
+        problemDiagnosis = problemDiagnosis,
+        audienceDescription = audienceDescription,
+        expectedChange = expectedChange,
+        futureVision = futureVision,
     )
 
 fun ChallengeItem.toDto(): ChallengeDto =
@@ -75,6 +81,11 @@ fun InnovationDraft.toItem(now: String): InnovationItem =
         stage = stage,
         region = region?.value,
         mediaUrls = mediaUrls.map(HttpUrl::value),
+        innovativeness = narrative.innovativeness?.value,
+        problemDiagnosis = narrative.problemDiagnosis?.value,
+        audienceDescription = narrative.audienceDescription?.value,
+        expectedChange = narrative.expectedChange?.value,
+        futureVision = narrative.futureVision?.value,
         createdAt = now,
         updatedAt = now,
     )
@@ -99,3 +110,6 @@ fun MaterialDraft.toItem(now: String): MaterialItem =
         createdAt = now,
         updatedAt = now,
     )
+
+fun NeedItem.toSimilarNeed(excerpt: String): SimilarNeedDto =
+    SimilarNeedDto(id = id.toHexString(), excerpt = excerpt, area = areas.firstOrNull())

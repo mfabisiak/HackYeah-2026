@@ -63,7 +63,7 @@ ports: EmbeddingClient (Ollama), LlmClient (Ollama), VectorIndex (w pamięci; p�
 
 - `POST /api/matches` – body `MatchRequest(description, municipality?)` → `MatchResult(matches[], similarNeeds[], noGoodMatch)`;
   `Match(innovationId, score, reasons[], matchedTerms[])`.
-- `POST /api/matches/{needId}/feedback` – „czy pomogło?" (tak/nie).
+- `PUT /api/matches/{needId}/feedback` – „czy pomogło?" (tak/nie); idempotentne, zastępuje poprzednią odpowiedź.
 - `GET /api/admin/trends` – agregacje `needs` (tylko admin).
 
 ## Budżet PoC (M1 Pro, 32 GB)
@@ -92,6 +92,35 @@ innowacjami. Metryki: **hit@3** i **MRR** dla każdego trybu; test w CI dla `key
 - **Luki jako dane**: zapytania bez dopasowania pokazują adminowi braki w bibliotece innowacji.
 - **Dopasowanie odwrotne**: dla innowacji – gminy z największym zapotrzebowaniem (dla JST).
 - **Przejrzystość**: czytelne uzasadnienie „dlaczego to pasuje" dla każdego wyniku.
+
+## Stan wdrożenia v1 (BE-03, tryb `keyword`)
+
+- `service/matching/`: `PersonalDataScrubber` (PESEL z sumą kontrolną, telefon, e-mail), `TextAnalyzer` (małe litery,
+  stop-słowa, obcięcie do 5 znaków, składanie diakrytyków), `Bm25Index` (pola ważone, zob. niżej), `InnovationIndex`
+  (indeks w pamięci, budowany leniwie, unieważniany przy zmianie innowacji i odświeżany co 5 minut),
+  `KeywordMatchingEngine`.
+- **Pola innowacji zgodne z formularzem aplikacyjnym ROPS** (załącznik nr 3 do ogłoszenia, pkt 3–8): opis innowacji
+  (`description`), innowacyjność, diagnoza problemu, opis odbiorców, zmiana, wizja przyszłości. Wagi w indeksie:
+  tytuł ×3, słowa kluczowe ×3, streszczenie ×2, opis ×1, diagnoza problemu ×2, odbiorcy ×1, zmiana ×0,5,
+  innowacyjność ×0,25, wizja ×0,25 – najwięcej waży diagnoza, bo pisana jest językiem problemu, a tak samo pisze
+  zgłaszający. Sekcje są opcjonalne (starsze wpisy ich nie mają). Dane pomysłodawcy (osoba, podmiot, grupa
+  nieformalna), plan i koszty, kwota grantu, zespół i oświadczenia należą do wniosku grantowego (BE-05), nie do
+  biblioteki, i nie są tu przechowywane.
+- `score` w odpowiedzi to trafność 0–1: wynik BM25 podzielony przez najlepszy możliwy wynik dla tego zapytania, więc
+  zapytania z obcymi słowami mają niższą trafność. Próg `noGoodMatch` to 0,18; frontend powinien pokazywać etykiety
+  jakościowe, a nie procenty.
+- Zapytanie jest zapisywane jako `need` (oczyszczony tekst, gmina, obszar najlepszego dopasowania, identyfikatory
+  dopasowań, `helpful`); oryginalny opis nie trafia do bazy ani logów. **Login jest opcjonalny**: anonimowe
+  zgłoszenie działa jak dotąd, a zalogowany zgłaszający zostaje właścicielem (`ownerId` = `sub` z Keycloaka). Właściciel
+  to warunek powiadomień o zmianach i zaproszeń do testów (BE-07); tylko on może ocenić „czy pomogło?”, a anonimowe
+  zgłoszenie ocenia się samym `needId`. Wymusić logowanie można, usuwając `optional = true` w `MatchRoutes`.
+- „Podobne zgłoszenia” to najnowsze zgłoszenia dopasowane do tej samej innowacji (fragment ≤ 120 znaków).
+- Trafność i dobór normalizacji: [matching-baseline.md](matching-baseline.md) (generowany testem
+  `MatchingQualityTest`, `WRITE_MATCHING_BASELINE=true`). Zestaw złotych przypadków:
+  `server/src/test/resources/matching/golden.json`.
+
+Do potwierdzenia z ROPS / zespołem: czy `need` ma mieć TTL (np. 12 miesięcy) i czy w „podobnych zgłoszeniach”
+pokazywać fragment tekstu, czy tylko obszar i liczbę.
 
 ## Kolejność wdrożenia
 
