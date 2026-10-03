@@ -9,4 +9,15 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.kotlinSerialization) apply false
     alias(libs.plugins.ktor) apply false
+    alias(libs.plugins.ktlint) apply false
+}
+
+// Style checks apply to the backend modules; Compose/Android modules are not linted yet.
+subprojects {
+    if (path == ":server" || path == ":core") {
+        apply(plugin = rootProject.libs.plugins.ktlint.get().pluginId)
+        extensions.configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+            version.set(rootProject.libs.versions.ktlint.get())
+        }
+    }
 }

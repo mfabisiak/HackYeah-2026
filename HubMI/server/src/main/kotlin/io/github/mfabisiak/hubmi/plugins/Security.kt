@@ -22,10 +22,11 @@ fun Application.configureSecurity() {
     val config by inject<AppConfig>()
 
     // Signing keys are fetched lazily from Keycloak on the first token, so the server can start before Keycloak.
-    val jwkProvider = JwkProviderBuilder(URI(config.keycloakJwksUrl).toURL())
-        .cached(10, 24, TimeUnit.HOURS)
-        .rateLimited(10, 1, TimeUnit.MINUTES)
-        .build()
+    val jwkProvider =
+        JwkProviderBuilder(URI(config.keycloakJwksUrl).toURL())
+            .cached(10, 24, TimeUnit.HOURS)
+            .rateLimited(10, 1, TimeUnit.MINUTES)
+            .build()
 
     install(Authentication) {
         jwt(KEYCLOAK_AUTH) {
@@ -42,27 +43,40 @@ fun Application.configureSecurity() {
 
 /** Realm roles assigned in Keycloak (`realm_access.roles` claim). */
 val JWTPrincipal.realmRoles: Set<String>
-    get() = payload.getClaim("realm_access").asMap()
-        ?.get("roles")
-        ?.let { it as? Collection<*> }
-        ?.filterIsInstance<String>()
-        ?.toSet()
-        .orEmpty()
+    get() =
+        payload
+            .getClaim("realm_access")
+            .asMap()
+            ?.get("roles")
+            ?.let { it as? Collection<*> }
+            ?.filterIsInstance<String>()
+            ?.toSet()
+            .orEmpty()
 
 /** Allows the request only if the authenticated user has [role]; use inside an `authenticate { }` block. */
-fun Route.requireRole(role: String, build: Route.() -> Unit): Route {
-    val route = createChild(object : RouteSelector() {
-        override suspend fun evaluate(context: RoutingResolveContext, segmentIndex: Int) =
-            RouteSelectorEvaluation.Transparent
-    })
-    route.install(createRouteScopedPlugin("RequireRole-$role") {
-        on(AuthenticationChecked) { call ->
-            val principal = call.principal<JWTPrincipal>()
-            if (principal == null || role !in principal.realmRoles) {
-                call.respond(HttpStatusCode.Forbidden)
+fun Route.requireRole(
+    role: String,
+    build: Route.() -> Unit,
+): Route {
+    val route =
+        createChild(
+            object : RouteSelector() {
+                override suspend fun evaluate(
+                    context: RoutingResolveContext,
+                    segmentIndex: Int,
+                ) = RouteSelectorEvaluation.Transparent
+            },
+        )
+    route.install(
+        createRouteScopedPlugin("RequireRole-$role") {
+            on(AuthenticationChecked) { call ->
+                val principal = call.principal<JWTPrincipal>()
+                if (principal == null || role !in principal.realmRoles) {
+                    call.respond(HttpStatusCode.Forbidden)
+                }
             }
-        }
-    })
+        },
+    )
     route.build()
     return route
 }

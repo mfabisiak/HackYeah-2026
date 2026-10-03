@@ -15,6 +15,7 @@ Opis zadania, moduły i kryteria oceny: [docs/TASK.md](docs/TASK.md). **Przeczyt
 
 ```bash
 ./gradlew :server:test             # testy serwera
+./gradlew ktlintCheck              # styl (ktlint_official); ./gradlew ktlintFormat naprawia
 ./gradlew :server:run              # serwer lokalnie (wymaga Mongo i Keycloaka)
 docker compose up -d --build       # Mongo + Keycloak + serwer
 ```
@@ -89,7 +90,7 @@ Przepływ: `route → service → repository`. Warstwa nie woła warstwy nad sob
 
 - Pakiet bazowy: `io.github.mfabisiak.hubmi`. Jeden publiczny typ główny na plik, nazwa pliku = nazwa typu.
 - Nazwy w kodzie **po angielsku**; komunikaty błędów dla użytkownika, seed, README i dokumentacja **po polsku**.
-- Formatowanie: `kotlin.code.style=official`, 4 spacje, trailing commas dozwolone, bez wildcard-importów poza `io.ktor.*`.
+- Formatowanie: ktlint (`ktlint_official`, konfiguracja w `.editorconfig`), max 120 znaków, 4 spacje, trailing commas, wildcard-importy tylko `io.ktor.*` i `kotlin.test.*`. Przed commitem: `./gradlew ktlintFormat`.
 - Komentarze tylko gdy wyjaśniają *dlaczego*; nie opisują *co* robi kod. Brak martwego kodu i zakomentowanych bloków.
 - Sekrety i konfiguracja wyłącznie z env, nigdy w repo (dane z realmu testowego to wyjątek, tylko dev).
 

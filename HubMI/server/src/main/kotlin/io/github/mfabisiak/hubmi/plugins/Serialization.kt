@@ -9,13 +9,16 @@ import io.ktor.server.response.*
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ErrorResponse(val error: String)
+data class ErrorResponse(
+    val error: String,
+)
 
 fun Application.configureSerialization() {
     install(ContentNegotiation) { json() }
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            call.application.environment.log.error("Unhandled exception", cause)
+            call.application.environment.log
+                .error("Unhandled exception", cause)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse("Internal server error"))
         }
         status(HttpStatusCode.Unauthorized) { call, _ ->

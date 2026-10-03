@@ -7,34 +7,37 @@ import io.ktor.server.testing.*
 import kotlin.test.*
 
 class ApplicationTest {
+    @Test
+    fun testRoot() =
+        testApplication {
+            application { module() }
+            val response = client.get("/")
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals("Hello, Ktor!", response.bodyAsText())
+        }
 
     @Test
-    fun testRoot() = testApplication {
-        application { module() }
-        val response = client.get("/")
-        assertEquals(HttpStatusCode.OK, response.status)
-        assertEquals("Hello, Ktor!", response.bodyAsText())
-    }
+    fun testHealth() =
+        testApplication {
+            application { module() }
+            val response = client.get("/health")
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertTrue(response.bodyAsText().contains("UP"))
+        }
 
     @Test
-    fun testHealth() = testApplication {
-        application { module() }
-        val response = client.get("/health")
-        assertEquals(HttpStatusCode.OK, response.status)
-        assertTrue(response.bodyAsText().contains("UP"))
-    }
+    fun protectedRouteRequiresToken() =
+        testApplication {
+            application { module() }
+            assertEquals(HttpStatusCode.Unauthorized, client.get("/api/me").status)
+            assertEquals(HttpStatusCode.Unauthorized, client.get("/api/admin").status)
+        }
 
     @Test
-    fun protectedRouteRequiresToken() = testApplication {
-        application { module() }
-        assertEquals(HttpStatusCode.Unauthorized, client.get("/api/me").status)
-        assertEquals(HttpStatusCode.Unauthorized, client.get("/api/admin").status)
-    }
-
-    @Test
-    fun invalidTokenIsRejected() = testApplication {
-        application { module() }
-        val response = client.get("/api/me") { bearerAuth("not-a-jwt") }
-        assertEquals(HttpStatusCode.Unauthorized, response.status)
-    }
+    fun invalidTokenIsRejected() =
+        testApplication {
+            application { module() }
+            val response = client.get("/api/me") { bearerAuth("not-a-jwt") }
+            assertEquals(HttpStatusCode.Unauthorized, response.status)
+        }
 }

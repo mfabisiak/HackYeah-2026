@@ -14,7 +14,9 @@ import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 
 @Serializable
-data class HealthResponse(val status: String)
+data class HealthResponse(
+    val status: String,
+)
 
 @Serializable
 data class MeResponse(
@@ -25,7 +27,9 @@ data class MeResponse(
 )
 
 @Serializable
-data class MessageResponse(val message: String)
+data class MessageResponse(
+    val message: String,
+)
 
 fun Route.appRoutes() {
     val greetingService by inject<GreetingService>()
@@ -56,7 +60,7 @@ fun Route.appRoutes() {
                         username = principal.payload.getClaim("preferred_username").asString(),
                         email = principal.payload.getClaim("email").asString(),
                         roles = principal.realmRoles,
-                    )
+                    ),
                 )
             }
 
