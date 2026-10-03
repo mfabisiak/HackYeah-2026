@@ -102,14 +102,14 @@ export function MatchmakingView() {
         <Box component="header">
           <Stack gap="xs">
             <Group gap="xs">
-              <IconSparkles size={24} color="var(--mantine-color-blue-filled)" aria-hidden="true" />
-              <Title order={1} size="h2">
+              <IconSparkles size={28} color="var(--mantine-color-blue-filled)" aria-hidden="true" />
+              <Title order={1} size="h1" style={{ fontSize: '2rem', lineHeight: 1.3 }}>
                 Opisz problem, znajdź rozwiązanie
               </Title>
             </Group>
-            <Text size="md" c="dimmed">
-              Nasz inteligentny asystent przeszuka bazę sprawdzonych innowacji społecznych w Małopolsce
-              i wskaże rozwiązania najbardziej odpowiadające Twojej sytuacji wraz z uzasadnieniem.
+            <Text size="lg" c="dark.7" style={{ lineHeight: 1.6 }}>
+              Nasz asystent przeszuka bazę sprawdzonych innowacji społecznych w Małopolsce
+              i wskaże rozwiązania najbardziej odpowiadające Twojej sytuacji wraz z prostym wyjaśnieniem.
             </Text>
           </Stack>
         </Box>
@@ -132,31 +132,39 @@ export function MatchmakingView() {
         )}
 
         {result && !isLoading && (
-          <Stack gap="lg" mt="md" component="section" aria-label="Wyniki dopasowania">
-            <Title
-              ref={resultsRef}
-              tabIndex={-1}
-              order={2}
-              size="h3"
-              style={{ outline: 'none' }}
-              data-testid="results-heading"
-            >
-              {result.noGoodMatch || result.matches.length === 0
-                ? 'Wyniki dopasowania'
-                : `Znalezione rozwiązania (${result.matches.length})`}
-            </Title>
+          <Stack gap="xl" mt="md" component="section" aria-label="Wyniki dopasowania">
+            <Stack gap={4}>
+              <Title
+                ref={resultsRef}
+                tabIndex={-1}
+                order={2}
+                size="h2"
+                style={{ fontSize: '1.65rem', outline: 'none' }}
+                data-testid="results-heading"
+              >
+                {result.noGoodMatch || result.matches.length === 0
+                  ? 'Wyniki wyszukiwania rozwiązań'
+                  : `Znalezione rozwiązania (${result.matches.length})`}
+              </Title>
+              {result.matches.length > 0 && !result.noGoodMatch && (
+                <Text size="md" c="dimmed">
+                  Poniżej znajdują się projekty i pomysły, które najlepiej odpowiadają Twojemu opisowi:
+                </Text>
+              )}
+            </Stack>
 
             {result.noGoodMatch || result.matches.length === 0 ? (
               <EmptyState
-                icon={<IconBulb size={32} />}
-                title="Nie znaleźliśmy jeszcze idealnie dopasowanego rozwiązania"
-                description="Twój problem może być nowym wyzwaniem społecznym, które nie ma jeszcze gotowego wzorca w bazie. Możesz spróbować doprecyzować opis lub zgłosić pomysł na nową innowację."
+                icon={<IconBulb size={36} />}
+                title="Nie znaleźliśmy jeszcze bezpośrednio pasującego rozwiązania"
+                description="Twój problem może być nowym wyzwaniem społecznym, które wymaga świeżego podejścia. Możesz spróbować opisać go innymi słowami lub zgłosić pomysł na nową innowację społeczną."
                 action={
                   <Button
                     component={Link}
                     to="/pomysly/nowy"
-                    variant="light"
-                    rightSection={<IconArrowRight size={16} aria-hidden="true" />}
+                    variant="filled"
+                    size="md"
+                    rightSection={<IconArrowRight size={18} aria-hidden="true" />}
                   >
                     Zgłoś własny pomysł na innowację
                   </Button>

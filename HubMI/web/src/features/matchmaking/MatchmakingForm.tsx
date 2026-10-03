@@ -9,7 +9,7 @@ import {
   Text,
   Textarea,
 } from '@mantine/core'
-import { IconSearch, IconShieldExclamation, IconSparkles } from '@tabler/icons-react'
+import { IconSearch, IconShieldCheck, IconSparkles } from '@tabler/icons-react'
 import { MALOPOLSKA_MUNICIPALITIES, SAMPLE_QUERIES } from './constants'
 
 export interface MatchmakingFormProps {
@@ -34,11 +34,11 @@ export function MatchmakingForm({ isLoading, onSubmit }: MatchmakingFormProps) {
     e.preventDefault()
     const trimmed = description.trim()
     if (!trimmed) {
-      setError('Opis problemu jest wymagany.')
+      setError('Prosimy wpisać opis problemu przed wyszukiwaniem.')
       return
     }
     if (trimmed.length < MIN_LENGTH) {
-      setError(`Opis problemu jest zbyt krótki (minimum ${MIN_LENGTH} znaków).`)
+      setError(`Opis problemu jest zbyt krótki (wymagane minimum ${MIN_LENGTH} znaków).`)
       return
     }
     if (trimmed.length > MAX_LENGTH) {
@@ -57,45 +57,48 @@ export function MatchmakingForm({ isLoading, onSubmit }: MatchmakingFormProps) {
     <Paper
       withBorder
       p={{ base: 'md', sm: 'xl' }}
-      radius="md"
-      shadow="xs"
+      radius="lg"
+      shadow="sm"
       component="form"
       onSubmit={handleSubmit}
       noValidate
       aria-label="Formularz zgłoszenia problemu społecznego"
     >
-      <Stack gap="md">
+      <Stack gap="lg">
         <Alert
-          color="yellow"
+          color="blue"
           variant="light"
           radius="md"
-          icon={<IconShieldExclamation size={20} aria-hidden="true" />}
-          title="Ochrona danych osobowych"
+          icon={<IconShieldCheck size={24} aria-hidden="true" />}
+          title="Dbamy o Twoją prywatność i bezpieczeństwo danych"
           id="privacy-notice"
+          styles={{
+            title: { fontSize: '1rem', fontWeight: 700 },
+          }}
         >
-          <Text size="sm">
-            Nie wpisuj imion i nazwisk, numerów PESEL, telefonów ani dokładnych adresów zamieszkania.
-            Opisz wyłącznie naturę problemu społecznego.
+          <Text size="md" style={{ lineHeight: 1.5 }}>
+            Nie musisz podawać swoich danych osobowych: nazwiska, numeru PESEL, telefonu ani dokładnego adresu.
+            Wystarczy ogólny opis problemu, np. brak transportu dla seniorów do ośrodka zdrowia.
           </Text>
         </Alert>
 
         <Stack gap="xs">
-          <Text size="sm" fw={600} component="label" htmlFor="problem-description">
+          <Text size="md" fw={700} component="label" htmlFor="problem-description">
             Opisz problem swoimi słowami{' '}
             <Text component="span" c="red" aria-hidden="true">
               *
             </Text>
           </Text>
 
-          <Text size="xs" c="dimmed" id="description-hint">
-            Napisz, z jakim wyzwaniem społecznym mierzysz się w swojej społeczności, gminie lub organizacji.
+          <Text size="sm" c="dimmed" id="description-hint">
+            Napisz prostymi słowami, co sprawia trudność w codziennym życiu seniorom lub mieszkańcom Twojej okolicy.
           </Text>
 
           <Textarea
             id="problem-description"
             name="description"
             rows={5}
-            placeholder="Np. Seniorzy w naszej gminie mają trudności z dojazdem do lekarza specjalisty po likwidacji lokalnych połączeń autobusowych..."
+            placeholder="Np. Osoby starsze w naszej miejscowości mają problem z dotarciem do lekarza specjalisty lub apteki, bo nie ma bezpośredniego autobusu..."
             value={description}
             onChange={(e) => {
               setDescription(e.target.value)
@@ -107,17 +110,20 @@ export function MatchmakingForm({ isLoading, onSubmit }: MatchmakingFormProps) {
             error={error}
             size="md"
             radius="md"
+            styles={{
+              input: { fontSize: '1.05rem', lineHeight: 1.6 },
+            }}
           />
 
           <Group justify="space-between" align="center">
-            <Text size="xs" c="dimmed">
+            <Text size="sm" c="dimmed">
               Wymagane minimum {MIN_LENGTH} znaków.
             </Text>
             <Text
               id="description-counter"
-              size="xs"
+              size="sm"
               c={isOverLimit ? 'red' : 'dimmed'}
-              fw={isOverLimit ? 600 : 400}
+              fw={isOverLimit ? 700 : 500}
               aria-live="polite"
             >
               {length} / {MAX_LENGTH} znaków
@@ -126,21 +132,24 @@ export function MatchmakingForm({ isLoading, onSubmit }: MatchmakingFormProps) {
         </Stack>
 
         <Stack gap="xs">
-          <Text size="xs" fw={500} c="dimmed">
-            Możesz też skorzystać z gotowego przykładu:
+          <Text size="sm" fw={600} c="dark.7">
+            Możesz też wybrać gotowy przykład problemu (kliknij, aby wstawić):
           </Text>
-          <Group gap="xs" wrap="wrap">
+          <Group gap="sm" wrap="wrap">
             {SAMPLE_QUERIES.map((sample) => (
               <Button
                 key={sample.label}
                 type="button"
                 variant="light"
-                color="gray"
-                size="xs"
-                radius="xl"
-                leftSection={<IconSparkles size={14} aria-hidden="true" />}
+                color="blue"
+                size="sm"
+                radius="md"
+                leftSection={<IconSparkles size={16} aria-hidden="true" />}
                 onClick={() => handleSampleClick(sample.text)}
                 disabled={isLoading}
+                styles={{
+                  root: { height: 38, fontSize: '0.95rem' },
+                }}
               >
                 {sample.label}
               </Button>
@@ -150,27 +159,34 @@ export function MatchmakingForm({ isLoading, onSubmit }: MatchmakingFormProps) {
 
         <Select
           id="municipality-select"
-          label="Gmina lub miasto w Małopolsce (opcjonalnie)"
-          description="Pomaga dopasować rozwiązania przetestowane w podobnym typie gminy."
-          placeholder="Wybierz lub pozostaw puste..."
+          label="Twoja gmina lub miasto w Małopolsce (opcjonalnie)"
+          description="Jeśli wskażesz gminę, system sprawdzi rozwiązania dopasowane do Twojego terenu."
+          placeholder="Wybierz miejscowość lub pozostaw puste..."
           data={MALOPOLSKA_MUNICIPALITIES.map((name) => ({ value: name, label: name }))}
           value={municipality}
           onChange={setMunicipality}
           searchable
           clearable
           disabled={isLoading}
-          size="sm"
+          size="md"
           radius="md"
+          styles={{
+            label: { fontSize: '0.95rem', fontWeight: 600 },
+            description: { fontSize: '0.875rem' },
+          }}
         />
 
-        <Group justify="flex-end" mt="xs">
+        <Group justify="flex-end" mt="md">
           <Button
             type="submit"
-            size="md"
+            size="lg"
             loading={isLoading}
-            leftSection={<IconSearch size={20} aria-hidden="true" />}
+            leftSection={<IconSearch size={22} aria-hidden="true" />}
+            styles={{
+              root: { minHeight: 50, fontSize: '1.1rem', fontWeight: 700, paddingLeft: 24, paddingRight: 24 },
+            }}
           >
-            Znajdź rozwiązania
+            Wyszukaj sprawdzone rozwiązania
           </Button>
         </Group>
       </Stack>
