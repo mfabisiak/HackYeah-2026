@@ -22,6 +22,30 @@ data class IdeaStatusChanged(
     override val occurredAt: Instant,
 ) : DomainEvent
 
+data class MessageReceived(
+    val threadId: String,
+    val messageId: String,
+    val senderId: String,
+    val senderName: String,
+    val senderRole: io.github.mfabisiak.hubmi.api.ParticipantRole,
+    val recipientIds: Set<String>,
+    val threadSubject: String,
+    val text: String,
+    override val occurredAt: Instant,
+) : DomainEvent
+
+data class CallPublished(
+    val callId: String,
+    val callTitle: String,
+    override val occurredAt: Instant,
+) : DomainEvent
+
+data class CallChanged(
+    val callId: String,
+    val callTitle: String,
+    override val occurredAt: Instant,
+) : DomainEvent
+
 interface EventPublisher {
     suspend fun publish(event: DomainEvent)
 }
