@@ -1,7 +1,7 @@
 # CLAUDE.md – HubMI
 
 Backend platformy Małopolskiego Hubu Innowacji Społecznych (HackYeah 2026, wyzwanie ROPS Kraków).
-Opis zadania, moduły i kryteria oceny: [docs/TASK.md](docs/TASK.md); plan prac: [docs/ROADMAP.md](docs/ROADMAP.md), matchmaking: [docs/MATCHMAKING.md](docs/MATCHMAKING.md). **Przeczytaj go przed większą zmianą.**
+Opis zadania, moduły i kryteria oceny: [docs/TASK.md](docs/TASK.md); plan prac: [docs/ROADMAP.md](docs/ROADMAP.md), matchmaking: [docs/MATCHMAKING.md](docs/MATCHMAKING.md), backlog: [docs/BACKEND_TICKETS.md](docs/BACKEND_TICKETS.md), [docs/FRONTEND_TICKETS.md](docs/FRONTEND_TICKETS.md). **Przeczytaj go przed większą zmianą.**
 
 ## Stack
 
@@ -35,7 +35,9 @@ Test users: `user`/`user`, `admin`/`admin` (realm [keycloak/hubmi-realm.json](ke
 2. **Zero rzucania wyjątków w kodzie domenowym.** Nie używamy `throw`, `error()`, `require()`, `check()`, `!!`,
    `TODO()`. Błędy to wartości: `Either<Error, T>` (Arrow). Wyjątki łapiemy **tylko na granicy** z zewnętrznym
    światem (Mongo, JWT, parsowanie) przez `Either.catch { }` (nie połyka `CancellationException`) i od razu
-   mapujemy na typowany błąd. Zakaz gołego `try/catch` i `runCatching` poza tą granicą.
+   mapujemy na typowany błąd. Zakaz gołego `try/catch` i `runCatching` poza tą granicą. Jedyny wyjątek: ostatnia deska
+   ratunku w `StatusPages` (`500` z logiem) – nie służy do obsługi błędów domenowych.
+   Konfiguracja z env ładuje się jako `Either<ConfigError, AppConfig>`; `main` kończy proces przy błędzie.
 3. **Błędy jako `sealed interface`**, osobne per warstwa: `RepositoryError` → `DomainError` → odpowiedź HTTP.
    Mapowanie na status HTTP w jednym miejscu (`respondError`), nigdy w logice domenowej.
 4. **Zero `null` w domenie tam, gdzie można uniknąć.** `T?` dozwolone dla „brak dokumentu" z repozytorium
@@ -87,7 +89,11 @@ Przepływ: `route → service → repository`. Warstwa nie woła warstwy nad sob
 - Indeksy (w tym tekstowe dla matchmakingu) i JSON Schema tworzone przy starcie (`plugins/Indexes.kt`, `Schemas.kt`) – idempotentnie.
 - Każda metoda repozytorium: `Either.catch { ... }.mapLeft { RepositoryError.DatabaseException(it) }`;
   naruszenie unikalności → `RepositoryError.Conflict`.
-- Wielodokumentowe zmiany w transakcji (`MongoRepository.withTransaction`).
+- **Bez transakcji wielodokumentowych.** Modelujemy dane tak, by agregat mieścił się w jednym dokumencie, a każda
+  mutacja była atomową operacją na jednym dokumencie: `findOneAndUpdate`, `$inc`, `$push`, `$set`, upsert po kluczu
+  unikalnym. Warunki w filtrze (np. `{_id, status: oczekiwany}`) dają optymistyczną współbieżność i maszyny stanów.
+  Dane pochodne (agregaty, `lastMessageAt`) są idempotentne i samonaprawiające (przeliczane z danych źródłowych), a nie
+  utrzymywane „na styk" w dwóch dokumentach naraz.
 - Connection string z env (`MONGO_URI`, `MONGO_DATABASE`).
 
 ### DI (Koin)

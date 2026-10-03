@@ -57,7 +57,7 @@ data class CurrentUser(
 
 typealias UserContext = CurrentUser
 
-/** Realm roles assigned in Keycloak (`realm_access.roles` claim). */
+/** Realm roles assigned in Keycloak (`realm_access.roles` claim); the JWT library exposes claims untyped. */
 val JWTPrincipal.realmRoles: Set<String>
     get() =
         payload

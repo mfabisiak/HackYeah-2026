@@ -1,18 +1,17 @@
 package io.github.mfabisiak.hubmi.routes
 
-import arrow.core.Either
 import io.github.mfabisiak.hubmi.api.Api
 import io.github.mfabisiak.hubmi.api.Health
 import io.github.mfabisiak.hubmi.api.HealthResponse
-import io.github.mfabisiak.hubmi.api.MeResponse
 import io.github.mfabisiak.hubmi.api.MessageResponse
+import io.github.mfabisiak.hubmi.models.toMeResponse
 import io.github.mfabisiak.hubmi.plugins.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.plugins.requireRole
-import io.github.mfabisiak.hubmi.plugins.userContext
 import io.github.mfabisiak.hubmi.repository.MongoRepository
 import io.github.mfabisiak.hubmi.service.GreetingService
 import io.ktor.http.*
 import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.resources.get
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -41,23 +40,10 @@ fun Route.appRoutes() {
     // Requires a valid Keycloak access token
     authenticate(KEYCLOAK_AUTH) {
         get<Api.Me> {
-            when (val userResult = call.userContext) {
-                is Either.Left -> {
-                    respondError(userResult.value)
-                }
-
-                is Either.Right -> {
-                    val user = userResult.value
-                    call.respond(
-                        MeResponse(
-                            id = user.id,
-                            username = user.username,
-                            email = user.email,
-                            roles = user.roles,
-                        ),
-                    )
-                }
-            }
+            call
+                .principal<JWTPrincipal>()
+                ?.let { call.respond(it.toMeResponse()) }
+                ?: call.respond(HttpStatusCode.Unauthorized)
         }
 
         requireRole("admin") {

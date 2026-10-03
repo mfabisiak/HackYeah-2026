@@ -13,12 +13,11 @@ import org.koin.dsl.onClose
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
-val appModule =
+fun appModule(config: AppConfig) =
     module {
-        single { AppConfig.fromEnv() }
+        single { config }
         single { MongoRepository(get()) } onClose { it?.close() }
         single<JwkProvider> {
-            val config = get<AppConfig>()
             JwkProviderBuilder(URI(config.keycloakJwksUrl).toURL())
                 .cached(10, 24, TimeUnit.HOURS)
                 .rateLimited(10, 1, TimeUnit.MINUTES)

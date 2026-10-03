@@ -18,14 +18,26 @@ import io.ktor.server.routing.*
 import kotlinx.coroutines.launch
 import org.koin.core.module.Module
 import org.koin.ktor.ext.get
+import kotlin.system.exitProcess
 
 fun main() {
-    embeddedServer(Netty, port = AppConfig.fromEnv().port, host = "0.0.0.0", module = { module() })
-        .start(wait = true)
+    AppConfig.fromEnv().fold(
+        ifLeft = {
+            System.err.println("Invalid configuration: $it")
+            exitProcess(1)
+        },
+        ifRight = { config ->
+            embeddedServer(Netty, port = config.port, host = "0.0.0.0") { module(config) }
+                .start(wait = true)
+        },
+    )
 }
 
-fun Application.module(vararg extraModules: Module) {
-    configureKoin(appModule, *extraModules)
+fun Application.module(
+    config: AppConfig,
+    vararg extraModules: Module,
+) {
+    configureKoin(appModule(config), *extraModules)
     configureSerialization()
     configureSecurity()
 
@@ -42,3 +54,5 @@ fun Application.module(vararg extraModules: Module) {
         sampleRoutes()
     }
 }
+
+fun Application.module(vararg extraModules: Module) = module(AppConfig(), *extraModules)
