@@ -35,12 +35,16 @@ class ApplicationRepository(
             item
         }
 
-    suspend fun updateDraft(item: ApplicationItem): Either<RepositoryError, ApplicationItem?> =
+    suspend fun updateDraft(
+        item: ApplicationItem,
+        expectedUpdatedAt: Instant,
+    ): Either<RepositoryError, ApplicationItem?> =
         mongoCatch {
             val filter =
                 Filters.and(
                     Filters.eq(ApplicationItem::id, item.id),
                     Filters.eq(ApplicationItem::status, ApplicationStatus.DRAFT),
+                    Filters.eq(ApplicationItem::updatedAt, expectedUpdatedAt),
                 )
             val options = FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER)
             collection.findOneAndReplace(filter, item, options)
@@ -48,18 +52,21 @@ class ApplicationRepository(
 
     suspend fun submit(
         id: ObjectId,
-        updatedAt: Instant,
+        expectedUpdatedAt: Instant,
+        submittedAt: Instant,
     ): Either<RepositoryError, ApplicationItem?> =
         mongoCatch {
             val filter =
                 Filters.and(
                     Filters.eq(ApplicationItem::id, id),
                     Filters.eq(ApplicationItem::status, ApplicationStatus.DRAFT),
+                    Filters.eq(ApplicationItem::updatedAt, expectedUpdatedAt),
                 )
             val update =
                 Updates.combine(
                     Updates.set(ApplicationItem::status, ApplicationStatus.SUBMITTED),
-                    Updates.set(ApplicationItem::updatedAt, updatedAt),
+                    Updates.set(ApplicationItem::submittedAt, submittedAt),
+                    Updates.set(ApplicationItem::updatedAt, submittedAt),
                 )
             val options = FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
             collection.findOneAndUpdate(filter, update, options)
@@ -68,6 +75,25 @@ class ApplicationRepository(
     suspend fun findById(id: ObjectId): Either<RepositoryError, ApplicationItem?> =
         mongoCatch {
             collection.find(Filters.eq(ApplicationItem::id, id)).toList().firstOrNull()
+        }
+
+    suspend fun existsByCallId(callId: ObjectId): Either<RepositoryError, Boolean> =
+        mongoCatch {
+            collection.countDocuments(Filters.eq(ApplicationItem::callId, callId)) > 0
+        }
+
+    suspend fun countDraftsByCallAndApplicant(
+        callId: ObjectId,
+        applicantId: String,
+    ): Either<RepositoryError, Long> =
+        mongoCatch {
+            val filter =
+                Filters.and(
+                    Filters.eq(ApplicationItem::callId, callId),
+                    Filters.eq(ApplicationItem::applicantId, applicantId),
+                    Filters.eq(ApplicationItem::status, ApplicationStatus.DRAFT),
+                )
+            collection.countDocuments(filter)
         }
 
     suspend fun countSubmittedByCallAndApplicant(

@@ -2,9 +2,9 @@ package io.github.mfabisiak.hubmi.calls
 
 import io.github.mfabisiak.hubmi.MongoTestEnvironment
 import io.github.mfabisiak.hubmi.TestSecurityHelper
+import io.github.mfabisiak.hubmi.api.ApplicantType
 import io.github.mfabisiak.hubmi.api.ApplicationDto
 import io.github.mfabisiak.hubmi.api.CallField
-import io.github.mfabisiak.hubmi.api.CallFieldType
 import io.github.mfabisiak.hubmi.api.CallStatus
 import io.github.mfabisiak.hubmi.api.Calls
 import io.github.mfabisiak.hubmi.api.CreateApplicationDraftRequest
@@ -99,13 +99,11 @@ class GrantCallRouteTest {
                                 key = "project_name",
                                 label = "Nazwa projektu",
                                 required = true,
-                                type = CallFieldType.TEXT,
                             ),
                             CallField(
                                 key = "budget",
                                 label = "Szacowany budżet",
                                 required = false,
-                                type = CallFieldType.NUMBER,
                             ),
                         ),
                 )
@@ -271,7 +269,12 @@ class GrantCallRouteTest {
 
             // 5. Declarations endpoint
             val declarationsResponse =
-                client.get(Calls.ById.Declarations(Calls.ById(id = openCall.id), applicantType = "INDIVIDUAL"))
+                client.get(
+                    Calls.ById.Declarations(
+                        parent = Calls.ById(id = openCall.id),
+                        applicantType = ApplicantType.INDIVIDUAL,
+                    ),
+                )
             assertEquals(HttpStatusCode.OK, declarationsResponse.status)
         }
 }

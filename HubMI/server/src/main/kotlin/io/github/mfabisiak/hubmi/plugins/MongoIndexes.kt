@@ -20,6 +20,7 @@ import io.github.mfabisiak.hubmi.materials.MaterialItem
 import io.github.mfabisiak.hubmi.materials.materials
 import io.github.mfabisiak.hubmi.samples.SampleItem
 import io.github.mfabisiak.hubmi.samples.samples
+import com.mongodb.client.model.Indexes as MongoIndexesHelper
 
 object MongoIndexes {
     suspend fun configure(database: MongoDatabase): Either<RepositoryError, Unit> =
@@ -35,11 +36,13 @@ object MongoIndexes {
             database.materials.createIndex(Indexes.ascending(MaterialItem::areas))
 
             database.ideas.createIndex(Indexes.ascending(IdeaItem::authorId))
-            database.ideas.createIndex(Indexes.ascending(IdeaItem::status))
-            database.grantCalls.createIndex(Indexes.descending(GrantCallItem::opensAt))
-            database.grantCalls.createIndex(Indexes.descending(GrantCallItem::closesAt))
-            database.applications.createIndex(Indexes.ascending(ApplicationItem::callId))
             database.applications.createIndex(Indexes.ascending(ApplicationItem::applicantId))
-            database.applications.createIndex(Indexes.ascending(ApplicationItem::ideaId))
+            database.applications.createIndex(
+                MongoIndexesHelper.compoundIndex(
+                    Indexes.ascending(ApplicationItem::callId),
+                    Indexes.ascending(ApplicationItem::applicantId),
+                    Indexes.ascending(ApplicationItem::status),
+                ),
+            )
         }.map { }
 }

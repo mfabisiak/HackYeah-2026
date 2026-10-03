@@ -61,7 +61,7 @@ class Calls(
         @Resource("declarations")
         class Declarations(
             val parent: ById,
-            val applicantType: String? = null,
+            val applicantType: ApplicantType? = null,
         )
     }
 }
@@ -104,23 +104,10 @@ data class IdeaDto(
 )
 
 @Serializable
-enum class CallFieldType {
-    TEXT,
-    LONG_TEXT,
-    NUMBER,
-    CHOICE,
-}
-
-@Serializable
 data class CallField(
     val key: String,
     val label: String,
     val required: Boolean,
-    val type: CallFieldType = CallFieldType.TEXT,
-    val maxLength: Int? = null,
-    val helpText: String? = null,
-    val prefillFromIdea: String? = null,
-    val options: List<String> = emptyList(),
 )
 
 @Serializable

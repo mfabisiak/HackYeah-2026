@@ -44,11 +44,6 @@ class CallFieldJs(
     val key: String,
     val label: String,
     val required: Boolean,
-    val type: String = "TEXT",
-    val maxLength: Int? = null,
-    val helpText: String? = null,
-    val prefillFromIdea: String? = null,
-    val options: Array<String> = emptyArray(),
 )
 
 @JsExport
@@ -73,19 +68,19 @@ class UpsertCallJs(
     val fields: Array<CallFieldJs>,
 )
 
-/** One answer of an application form; `Map` is not JS-friendly, so answers travel as key/value pairs. */
-@JsExport
-class AnswerJs(
-    val key: String,
-    val value: String,
-)
-
 @JsExport
 class ApplicationJs(
     val id: String,
     val callId: String,
+    val applicantId: String,
     val ideaId: String?,
+    val status: String,
+    val formVersion: Int,
+    val title: String?,
+    val requestedGrantAmountGrosze: Int?,
+    val submittedAt: String?,
     val createdAt: String,
+    val updatedAt: String,
 )
 
 internal fun IdeaDto.toJs(): IdeaJs =
@@ -104,23 +99,29 @@ internal fun CreateIdeaJs.toDto(): Either<ApiErrorJs, CreateIdeaRequest> =
 internal fun GrantCallDto.toJs(): GrantCallJs =
     GrantCallJs(id, title, description, opensAt, closesAt, status.name, fields.map { it.toJs() }.toTypedArray())
 
-internal fun ApplicationDto.toJs(): ApplicationJs = ApplicationJs(id, callId, ideaId, createdAt)
+internal fun ApplicationDto.toJs(): ApplicationJs =
+    ApplicationJs(
+        id = id,
+        callId = callId,
+        applicantId = applicantId,
+        ideaId = ideaId,
+        status = status.name,
+        formVersion = formVersion,
+        title = title,
+        requestedGrantAmountGrosze = requestedGrantAmountGrosze,
+        submittedAt = submittedAt,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+    )
 
 internal fun UpsertCallJs.toDto(): UpsertCallRequest =
     UpsertCallRequest(title, description, opensAt, closesAt, fields.map { it.toDto() })
-
-internal fun List<AnswerJs>.toAnswers(): Map<String, String> = associate { it.key to it.value }
 
 private fun CallField.toJs(): CallFieldJs =
     CallFieldJs(
         key = key,
         label = label,
         required = required,
-        type = type.name,
-        maxLength = maxLength,
-        helpText = helpText,
-        prefillFromIdea = prefillFromIdea,
-        options = options.toTypedArray(),
     )
 
 private fun CallFieldJs.toDto(): CallField =
@@ -128,12 +129,4 @@ private fun CallFieldJs.toDto(): CallField =
         key = key,
         label = label,
         required = required,
-        type =
-            io.github.mfabisiak.hubmi.api.CallFieldType.entries
-                .firstOrNull { it.name == type }
-                ?: io.github.mfabisiak.hubmi.api.CallFieldType.TEXT,
-        maxLength = maxLength,
-        helpText = helpText,
-        prefillFromIdea = prefillFromIdea,
-        options = options.toList(),
     )

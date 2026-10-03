@@ -4,7 +4,7 @@ import arrow.core.raise.either
 import io.github.mfabisiak.hubmi.api.ApplicationDto
 import io.github.mfabisiak.hubmi.api.CallStatus
 import io.github.mfabisiak.hubmi.api.Calls
-import io.github.mfabisiak.hubmi.api.CreateApplicationRequest
+import io.github.mfabisiak.hubmi.api.CreateApplicationDraftRequest
 import io.github.mfabisiak.hubmi.api.CreateIdeaRequest
 import io.github.mfabisiak.hubmi.api.GrantCallDto
 import io.github.mfabisiak.hubmi.api.IdeaDto
@@ -106,17 +106,17 @@ class CallsApi internal constructor(
     fun delete(id: String): Promise<ApiResult<EmptyJs>> =
         scope.promiseResult { client.sendForUnit(HttpMethod.Delete, Calls.ById(id = id)).map { EmptyJs() } }
 
-    /** Submits an application generated from the call's template. */
+    /** Creates a draft application generated from the call's template. */
     fun apply(
         callId: String,
         ideaId: String? = null,
     ): Promise<ApiResult<ApplicationJs>> =
         scope.promiseResult {
             client
-                .send<Calls.ById.Applications, CreateApplicationRequest, ApplicationDto>(
+                .send<Calls.ById.Applications, CreateApplicationDraftRequest, ApplicationDto>(
                     HttpMethod.Post,
                     Calls.ById.Applications(parent = Calls.ById(id = callId)),
-                    CreateApplicationRequest(ideaId),
+                    CreateApplicationDraftRequest(ideaId),
                 ).map { it.toJs() }
         }
 }

@@ -8,8 +8,7 @@ import io.github.mfabisiak.hubmi.api.UpdateIdeaStatusRequest
 import io.github.mfabisiak.hubmi.auth.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.auth.currentUser
 import io.github.mfabisiak.hubmi.auth.requireRole
-import io.github.mfabisiak.hubmi.common.http.respondError
-import io.github.mfabisiak.hubmi.common.http.respondResult
+import io.github.mfabisiak.hubmi.common.http.respondEither
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -25,51 +24,41 @@ fun Route.ideaRoutes() {
 
     authenticate(KEYCLOAK_AUTH) {
         post<Ideas> {
-            val userOrError = call.currentUser
-            userOrError.fold(
-                ifLeft = { call.respondError(it) },
-                ifRight = { user ->
-                    val request = call.receive<CreateIdeaRequest>()
-                    val result = ideaService.create(user.id, request)
-                    result.fold(
-                        ifLeft = { call.respondError(it) },
-                        ifRight = { dto ->
-                            call.response.header(HttpHeaders.Location, "/api/ideas/${dto.id}")
-                            call.respond(HttpStatusCode.Created, dto)
-                        },
-                    )
-                },
-            )
+            respondEither(HttpStatusCode.Created) {
+                val user = call.currentUser.bind()
+                val request = call.receive<CreateIdeaRequest>()
+                val dto = ideaService.create(user.id, request).bind()
+                call.response.header(HttpHeaders.Location, "/api/ideas/${dto.id}")
+                dto
+            }
         }
 
         get<Ideas.Mine> { params ->
-            val userOrError = call.currentUser
-            userOrError.fold(
-                ifLeft = { call.respondError(it) },
-                ifRight = { user ->
-                    call.respondResult(ideaService.getMine(user.id, params.page, params.size))
-                },
-            )
+            respondEither {
+                val user = call.currentUser.bind()
+                ideaService.getMine(user.id, params.page, params.size).bind()
+            }
         }
 
         get<Ideas.ById> { params ->
-            val userOrError = call.currentUser
-            userOrError.fold(
-                ifLeft = { call.respondError(it) },
-                ifRight = { user ->
-                    call.respondResult(ideaService.getById(params.id, user.id, user.roles))
-                },
-            )
+            respondEither {
+                val user = call.currentUser.bind()
+                ideaService.getById(params.id, user.id, user.roles).bind()
+            }
         }
 
         requireRole(Role.ADMIN) {
             get<AdminIdeas> { params ->
-                call.respondResult(ideaService.adminList(params.status, params.page, params.size))
+                respondEither {
+                    ideaService.listForAdmin(params.status, params.page, params.size).bind()
+                }
             }
 
             patch<AdminIdeas.Status> { params ->
-                val request = call.receive<UpdateIdeaStatusRequest>()
-                call.respondResult(ideaService.adminUpdateStatus(params.id, request))
+                respondEither {
+                    val request = call.receive<UpdateIdeaStatusRequest>()
+                    ideaService.updateStatus(params.id, request).bind()
+                }
             }
         }
     }

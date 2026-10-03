@@ -11,9 +11,13 @@ import io.github.mfabisiak.hubmi.api.Applications
 import io.github.mfabisiak.hubmi.api.Calls
 import io.github.mfabisiak.hubmi.api.ContactPersonDto
 import io.github.mfabisiak.hubmi.api.CreateApplicationDraftRequest
+import io.github.mfabisiak.hubmi.api.DeclarationId
 import io.github.mfabisiak.hubmi.api.EntityApplicantDto
 import io.github.mfabisiak.hubmi.api.GrantCallDto
+import io.github.mfabisiak.hubmi.api.GroupRepresentativeDto
 import io.github.mfabisiak.hubmi.api.IndividualApplicantDto
+import io.github.mfabisiak.hubmi.api.IndividualPartnerDto
+import io.github.mfabisiak.hubmi.api.NonFormalGroupApplicantDto
 import io.github.mfabisiak.hubmi.api.PlanItemDto
 import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.SaveApplicationDraftRequest
@@ -108,6 +112,35 @@ class RopsApplicationTest {
                 ),
         )
 
+    private val validPartner =
+        IndividualPartnerDto(
+            firstName = "Piotr",
+            lastName = "Zieliński",
+            address =
+                AddressDto(
+                    street = "Floriańska",
+                    buildingNumber = "12",
+                    postalCode = "31-019",
+                    city = "Kraków",
+                ),
+            phone = "123456789",
+            email = "piotr.z@example.com",
+        )
+
+    private val validGroupRepresentative =
+        GroupRepresentativeDto(
+            firstName = "Adam",
+            lastName = "Mickiewicz",
+            phone = "123456789",
+            email = "adam.m@example.com",
+        )
+
+    private val validNonFormalGroup =
+        NonFormalGroupApplicantDto(
+            partners = listOf(validPartner),
+            representative = validGroupRepresentative,
+        )
+
     private val validPlan =
         ActionPlanDto(
             preparation =
@@ -150,18 +183,33 @@ class RopsApplicationTest {
     @Test
     fun checksumValidationUnitTests() {
         // NIP
-        assertTrue(RopsApplicationValidator.isValidNip("1234563218"))
-        assertFalse(RopsApplicationValidator.isValidNip("1234563219"))
-        assertFalse(RopsApplicationValidator.isValidNip("123"))
+        assertTrue(Nip.parse("nip", "1234563218").isRight())
+        assertTrue(Nip.parse("nip", "123-456-32-18").isRight())
+        assertFalse(Nip.parse("nip", "1234563219").isRight())
+        assertFalse(Nip.parse("nip", "123").isRight())
 
         // REGON 9
-        assertTrue(RopsApplicationValidator.isValidRegon("123456785"))
-        assertFalse(RopsApplicationValidator.isValidRegon("123456789"))
+        assertTrue(Regon.parse("regon", "123456785").isRight())
+        assertFalse(Regon.parse("regon", "123456789").isRight())
 
         // KRS
-        assertTrue(RopsApplicationValidator.isValidKrs("0000123456"))
-        assertFalse(RopsApplicationValidator.isValidKrs("123456"))
-        assertFalse(RopsApplicationValidator.isValidKrs("00001234567"))
+        assertTrue(Krs.parse("krs", "0000123456").isRight())
+        assertFalse(Krs.parse("krs", "123456").isRight())
+        assertFalse(Krs.parse("krs", "00001234567").isRight())
+
+        // PostalCode
+        assertTrue(PostalCode.parse("postalCode", "31-019").isRight())
+        assertFalse(PostalCode.parse("postalCode", "31019").isRight())
+        assertFalse(PostalCode.parse("postalCode", "abc").isRight())
+
+        // Email
+        assertTrue(Email.parse("email", "test@example.com").isRight())
+        assertFalse(Email.parse("email", "invalid-email").isRight())
+
+        // Phone
+        assertTrue(Phone.parse("phone", "+48 123 456 789").isRight())
+        assertTrue(Phone.parse("phone", "123456789").isRight())
+        assertFalse(Phone.parse("phone", "12").isRight())
     }
 
     @Test
@@ -394,5 +442,301 @@ class RopsApplicationTest {
                     header(HttpHeaders.Authorization, "Bearer $adminToken")
                 }
             assertEquals(HttpStatusCode.OK, adminGet.status)
+        }
+
+    @Test
+    fun adminCannotEditOrSubmitApplicantDraft() =
+        testApplication {
+            application { module(testModule) }
+            val client = createJsonClient()
+            val adminToken = TestSecurityHelper.generateToken(roles = setOf(Role.ADMIN))
+            val userToken = TestSecurityHelper.generateToken(userId = "user-applicant", roles = setOf(Role.USER))
+
+            val callResponse =
+                client.post(Calls()) {
+                    header(HttpHeaders.Authorization, "Bearer $adminToken")
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        UpsertCallRequest(
+                            title = "Nabór Test Admin Lock",
+                            description = "Opis",
+                            opensAt = fixedNow.minus(1, ChronoUnit.DAYS).toString(),
+                            closesAt = fixedNow.plus(30, ChronoUnit.DAYS).toString(),
+                            fields = emptyList(),
+                        ),
+                    )
+                }
+            val call = callResponse.body<GrantCallDto>()
+
+            val draftResponse =
+                client.post(Calls.ById.Applications(Calls.ById(id = call.id))) {
+                    header(HttpHeaders.Authorization, "Bearer $userToken")
+                    contentType(ContentType.Application.Json)
+                    setBody(CreateApplicationDraftRequest())
+                }
+            val draft = draftResponse.body<ApplicationDto>()
+
+            val adminPut =
+                client.put(Applications.ById(id = draft.id)) {
+                    header(HttpHeaders.Authorization, "Bearer $adminToken")
+                    contentType(ContentType.Application.Json)
+                    setBody(createValidDraftRequest(validIndividual))
+                }
+            assertEquals(HttpStatusCode.Forbidden, adminPut.status)
+
+            val adminSubmit =
+                client.post(Applications.ById.Submit(Applications.ById(id = draft.id))) {
+                    header(HttpHeaders.Authorization, "Bearer $adminToken")
+                }
+            assertEquals(HttpStatusCode.Forbidden, adminSubmit.status)
+        }
+
+    @Test
+    fun nonFormalGroupPartnerCountLimits() =
+        testApplication {
+            application { module(testModule) }
+            val client = createJsonClient()
+            val adminToken = TestSecurityHelper.generateToken(roles = setOf(Role.ADMIN))
+            val userToken = TestSecurityHelper.generateToken(userId = "user-group", roles = setOf(Role.USER))
+
+            val callResponse =
+                client.post(Calls()) {
+                    header(HttpHeaders.Authorization, "Bearer $adminToken")
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        UpsertCallRequest(
+                            title = "Nabór Grupy",
+                            description = "Opis",
+                            opensAt = fixedNow.minus(1, ChronoUnit.DAYS).toString(),
+                            closesAt = fixedNow.plus(30, ChronoUnit.DAYS).toString(),
+                            fields = emptyList(),
+                        ),
+                    )
+                }
+            val call = callResponse.body<GrantCallDto>()
+
+            // 0 partners -> fails
+            val draft0Response =
+                client.post(Calls.ById.Applications(Calls.ById(id = call.id))) {
+                    header(HttpHeaders.Authorization, "Bearer $userToken")
+                    contentType(ContentType.Application.Json)
+                    setBody(CreateApplicationDraftRequest())
+                }
+            val draft0 = draft0Response.body<ApplicationDto>()
+            val group0 = validNonFormalGroup.copy(partners = emptyList())
+            client.put(Applications.ById(id = draft0.id)) {
+                header(HttpHeaders.Authorization, "Bearer $userToken")
+                contentType(ContentType.Application.Json)
+                setBody(createValidDraftRequest(group0))
+            }
+            val submit0 =
+                client.post(Applications.ById.Submit(Applications.ById(id = draft0.id))) {
+                    header(HttpHeaders.Authorization, "Bearer $userToken")
+                }
+            assertEquals(HttpStatusCode.BadRequest, submit0.status)
+
+            // 6 partners -> fails
+            val group6 = validNonFormalGroup.copy(partners = List(6) { validPartner })
+            client.put(Applications.ById(id = draft0.id)) {
+                header(HttpHeaders.Authorization, "Bearer $userToken")
+                contentType(ContentType.Application.Json)
+                setBody(createValidDraftRequest(group6))
+            }
+            val submit6 =
+                client.post(Applications.ById.Submit(Applications.ById(id = draft0.id))) {
+                    header(HttpHeaders.Authorization, "Bearer $userToken")
+                }
+            assertEquals(HttpStatusCode.BadRequest, submit6.status)
+
+            // 1 partner -> succeeds
+            val group1 = validNonFormalGroup.copy(partners = listOf(validPartner))
+            client.put(Applications.ById(id = draft0.id)) {
+                header(HttpHeaders.Authorization, "Bearer $userToken")
+                contentType(ContentType.Application.Json)
+                setBody(createValidDraftRequest(group1))
+            }
+            val submit1 =
+                client.post(Applications.ById.Submit(Applications.ById(id = draft0.id))) {
+                    header(HttpHeaders.Authorization, "Bearer $userToken")
+                }
+            assertEquals(HttpStatusCode.OK, submit1.status)
+        }
+
+    @Test
+    fun declarationValidationRules() =
+        testApplication {
+            application { module(testModule) }
+            val client = createJsonClient()
+            val adminToken = TestSecurityHelper.generateToken(roles = setOf(Role.ADMIN))
+            val userToken = TestSecurityHelper.generateToken(userId = "user-decl", roles = setOf(Role.USER))
+
+            val callResponse =
+                client.post(Calls()) {
+                    header(HttpHeaders.Authorization, "Bearer $adminToken")
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        UpsertCallRequest(
+                            title = "Nabór Oświadczenia",
+                            description = "Opis",
+                            opensAt = fixedNow.minus(1, ChronoUnit.DAYS).toString(),
+                            closesAt = fixedNow.plus(30, ChronoUnit.DAYS).toString(),
+                            fields = emptyList(),
+                        ),
+                    )
+                }
+            val call = callResponse.body<GrantCallDto>()
+
+            val draftResponse =
+                client.post(Calls.ById.Applications(Calls.ById(id = call.id))) {
+                    header(HttpHeaders.Authorization, "Bearer $userToken")
+                    contentType(ContentType.Application.Json)
+                    setBody(CreateApplicationDraftRequest())
+                }
+            val draft = draftResponse.body<ApplicationDto>()
+
+            // Missing required declaration -> fails
+            val missingDeclRequest =
+                createValidDraftRequest(validIndividual).copy(
+                    declarations = listOf(DeclarationId.RODO_ROPS),
+                )
+            client.put(Applications.ById(id = draft.id)) {
+                header(HttpHeaders.Authorization, "Bearer $userToken")
+                contentType(ContentType.Application.Json)
+                setBody(missingDeclRequest)
+            }
+            val submitMissing =
+                client.post(Applications.ById.Submit(Applications.ById(id = draft.id))) {
+                    header(HttpHeaders.Authorization, "Bearer $userToken")
+                }
+            assertEquals(HttpStatusCode.BadRequest, submitMissing.status)
+
+            // Duplicate declarations -> fails
+            val validDecls = RopsDeclarations.getRequiredIds(validIndividual.type).toList()
+            val duplicateDeclRequest =
+                createValidDraftRequest(validIndividual).copy(
+                    declarations = validDecls + validDecls.first(),
+                )
+            client.put(Applications.ById(id = draft.id)) {
+                header(HttpHeaders.Authorization, "Bearer $userToken")
+                contentType(ContentType.Application.Json)
+                setBody(duplicateDeclRequest)
+            }
+            val submitDuplicate =
+                client.post(Applications.ById.Submit(Applications.ById(id = draft.id))) {
+                    header(HttpHeaders.Authorization, "Bearer $userToken")
+                }
+            assertEquals(HttpStatusCode.BadRequest, submitDuplicate.status)
+        }
+
+    @Test
+    fun actionPlanSequenceAndTimingRules() =
+        testApplication {
+            application { module(testModule) }
+            val client = createJsonClient()
+            val adminToken = TestSecurityHelper.generateToken(roles = setOf(Role.ADMIN))
+            val userToken = TestSecurityHelper.generateToken(userId = "user-seq", roles = setOf(Role.USER))
+
+            val callResponse =
+                client.post(Calls()) {
+                    header(HttpHeaders.Authorization, "Bearer $adminToken")
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        UpsertCallRequest(
+                            title = "Nabór Harmonogram",
+                            description = "Opis",
+                            opensAt = fixedNow.minus(1, ChronoUnit.DAYS).toString(),
+                            closesAt = fixedNow.plus(30, ChronoUnit.DAYS).toString(),
+                            fields = emptyList(),
+                        ),
+                    )
+                }
+            val call = callResponse.body<GrantCallDto>()
+
+            val draftResponse =
+                client.post(Calls.ById.Applications(Calls.ById(id = call.id))) {
+                    header(HttpHeaders.Authorization, "Bearer $userToken")
+                    contentType(ContentType.Application.Json)
+                    setBody(CreateApplicationDraftRequest())
+                }
+            val draft = draftResponse.body<ApplicationDto>()
+
+            // TestingPhase1 item before Preparation item -> fails
+            val invertedPlan =
+                validPlan.copy(
+                    preparation = listOf(PlanItemDto("Prep", "2026-08", 2_500_000)),
+                    testingPhase1 = listOf(PlanItemDto("Test1", "2026-07", 2_500_000)),
+                    testingPhase2 = emptyList(),
+                )
+            val invertedRequest =
+                createValidDraftRequest(validIndividual).copy(
+                    plan = invertedPlan,
+                    requestedGrantAmountGrosze = 5_000_000,
+                )
+            client.put(Applications.ById(id = draft.id)) {
+                header(HttpHeaders.Authorization, "Bearer $userToken")
+                contentType(ContentType.Application.Json)
+                setBody(invertedRequest)
+            }
+            val submitInverted =
+                client.post(Applications.ById.Submit(Applications.ById(id = draft.id))) {
+                    header(HttpHeaders.Authorization, "Bearer $userToken")
+                }
+            assertEquals(HttpStatusCode.BadRequest, submitInverted.status)
+        }
+
+    @Test
+    fun budgetIntegerOverflowSafety() =
+        testApplication {
+            application { module(testModule) }
+            val client = createJsonClient()
+            val adminToken = TestSecurityHelper.generateToken(roles = setOf(Role.ADMIN))
+            val userToken = TestSecurityHelper.generateToken(userId = "user-overflow", roles = setOf(Role.USER))
+
+            val callResponse =
+                client.post(Calls()) {
+                    header(HttpHeaders.Authorization, "Bearer $adminToken")
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        UpsertCallRequest(
+                            title = "Nabór Overflow",
+                            description = "Opis",
+                            opensAt = fixedNow.minus(1, ChronoUnit.DAYS).toString(),
+                            closesAt = fixedNow.plus(30, ChronoUnit.DAYS).toString(),
+                            fields = emptyList(),
+                        ),
+                    )
+                }
+            val call = callResponse.body<GrantCallDto>()
+
+            val draftResponse =
+                client.post(Calls.ById.Applications(Calls.ById(id = call.id))) {
+                    header(HttpHeaders.Authorization, "Bearer $userToken")
+                    contentType(ContentType.Application.Json)
+                    setBody(CreateApplicationDraftRequest())
+                }
+            val draft = draftResponse.body<ApplicationDto>()
+
+            // Huge costs that sum over Int.MAX_VALUE
+            val overflowPlan =
+                validPlan.copy(
+                    preparation = listOf(PlanItemDto("P1", "2026-06", 1_500_000_000)),
+                    testingPhase1 = listOf(PlanItemDto("T1", "2026-08", 1_500_000_000)),
+                    testingPhase2 = emptyList(),
+                )
+            val overflowRequest =
+                createValidDraftRequest(validIndividual).copy(
+                    plan = overflowPlan,
+                    requestedGrantAmountGrosze = 3_000_000_000L.toInt(),
+                )
+            client.put(Applications.ById(id = draft.id)) {
+                header(HttpHeaders.Authorization, "Bearer $userToken")
+                contentType(ContentType.Application.Json)
+                setBody(overflowRequest)
+            }
+            val submitOverflow =
+                client.post(Applications.ById.Submit(Applications.ById(id = draft.id))) {
+                    header(HttpHeaders.Authorization, "Bearer $userToken")
+                }
+            assertEquals(HttpStatusCode.BadRequest, submitOverflow.status)
         }
 }

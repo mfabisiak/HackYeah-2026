@@ -6,7 +6,6 @@ import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import com.mongodb.kotlin.client.model.Filters
 import com.mongodb.kotlin.client.model.Updates
 import io.github.mfabisiak.hubmi.api.CallField
-import io.github.mfabisiak.hubmi.api.CallFieldType
 import io.github.mfabisiak.hubmi.api.IdeaStatus
 import io.github.mfabisiak.hubmi.api.InnovationStage
 import io.github.mfabisiak.hubmi.api.MaterialType
@@ -36,6 +35,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 private const val OBJECT_ID_BYTES = 12
+private const val SEED_USER_ID = "c0000000-0000-0000-0000-000000000001"
 
 @Serializable
 data class SeedSampleItem(
@@ -201,28 +201,21 @@ class DatabaseSeeder(
                                 key = "opis_problemu",
                                 label = "Opis problemu społecznego",
                                 required = true,
-                                type = CallFieldType.LONG_TEXT,
-                                helpText = "Jaki problem w Małopolsce rozwiązuje innowacja?",
-                                prefillFromIdea = "essence",
                             ),
                             CallField(
                                 key = "grupa_docelowa",
                                 label = "Odbiorcy innowacji",
                                 required = true,
-                                type = CallFieldType.TEXT,
-                                helpText = "Do kogo bezpośrednio skierowane jest wsparcie?",
                             ),
                             CallField(
                                 key = "budzet",
                                 label = "Szacowany budżet (PLN)",
                                 required = true,
-                                type = CallFieldType.NUMBER,
                             ),
                             CallField(
                                 key = "partnerzy",
                                 label = "Potencjalni partnerzy",
                                 required = false,
-                                type = CallFieldType.LONG_TEXT,
                             ),
                         ),
                     createdAt = now,
@@ -239,13 +232,11 @@ class DatabaseSeeder(
                                 key = "tytul",
                                 label = "Tytuł projektu",
                                 required = true,
-                                type = CallFieldType.TEXT,
                             ),
                             CallField(
                                 key = "zalozenia",
                                 label = "Główne założenia usługi opiekuńczej",
                                 required = true,
-                                type = CallFieldType.LONG_TEXT,
                             ),
                         ),
                     createdAt = now,
@@ -263,7 +254,6 @@ class DatabaseSeeder(
                                 key = "podsumowanie",
                                 label = "Podsumowanie rezultatów",
                                 required = true,
-                                type = CallFieldType.LONG_TEXT,
                             ),
                         ),
                     createdAt = now,
@@ -292,7 +282,7 @@ class DatabaseSeeder(
         val ideas =
             listOf(
                 IdeaItem(
-                    authorId = "user",
+                    authorId = SEED_USER_ID,
                     title = "Mobilny Asystent Seniora",
                     essence =
                         "Aplikacja łącząca wolontariuszy z seniorami potrzebującymi wsparcia w codziennych sprawach.",
@@ -303,7 +293,7 @@ class DatabaseSeeder(
                     updatedAt = now,
                 ),
                 IdeaItem(
-                    authorId = "user",
+                    authorId = SEED_USER_ID,
                     title = "Centrum Równych Szans",
                     essence =
                         "Klub rówieśniczy wspierający młodzież z obszarów wiejskich w rozwijaniu pasji i integracji.",

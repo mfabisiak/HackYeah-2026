@@ -10,8 +10,8 @@ import io.github.mfabisiak.hubmi.api.UpsertCallRequest
 import io.github.mfabisiak.hubmi.auth.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.auth.currentUser
 import io.github.mfabisiak.hubmi.auth.requireRole
+import io.github.mfabisiak.hubmi.common.http.respondEither
 import io.github.mfabisiak.hubmi.common.http.respondEitherUnit
-import io.github.mfabisiak.hubmi.common.http.respondError
 import io.github.mfabisiak.hubmi.common.http.respondResult
 import io.ktor.http.*
 import io.ktor.server.auth.*
@@ -26,6 +26,7 @@ import org.koin.ktor.ext.inject
 
 fun Route.grantCallRoutes() {
     val grantCallService by inject<GrantCallService>()
+    val applicationService by inject<ApplicationService>()
 
     get<Calls> { params ->
         call.respondResult(grantCallService.list(params.status))
@@ -40,128 +41,104 @@ fun Route.grantCallRoutes() {
     }
 
     get<Calls.ById.Declarations> { params ->
-        call.respondResult(grantCallService.getDeclarations(params.parent.id, params.applicantType))
+        call.respondResult(applicationService.getDeclarations(params.parent.id, params.applicantType))
     }
 
     authenticate(KEYCLOAK_AUTH) {
         post<Calls.ById.Applications> { params ->
-            val userOrError = call.currentUser
-            userOrError.fold(
-                ifLeft = { call.respondError(it) },
-                ifRight = { user ->
-                    val request = call.receive<CreateApplicationDraftRequest>()
-                    val result = grantCallService.apply(params.parent.id, user.id, request)
-                    result.fold(
-                        ifLeft = { call.respondError(it) },
-                        ifRight = { dto ->
-                            call.response.header(
-                                HttpHeaders.Location,
-                                "/api/applications/${dto.id}",
-                            )
-                            call.respond(HttpStatusCode.Created, dto)
-                        },
-                    )
-                },
-            )
+            respondEither(HttpStatusCode.Created) {
+                val user = call.currentUser.bind()
+                val request =
+                    arrow.core.Either
+                        .catch { call.receive<CreateApplicationDraftRequest?>() }
+                        .getOrNull()
+                val dto = applicationService.apply(params.parent.id, user.id, request).bind()
+                call.response.header(HttpHeaders.Location, "/api/applications/${dto.id}")
+                dto
+            }
         }
 
         put<Applications.ById> { params ->
-            val userOrError = call.currentUser
-            userOrError.fold(
-                ifLeft = { call.respondError(it) },
-                ifRight = { user ->
-                    val request = call.receive<SaveApplicationDraftRequest>()
-                    call.respondResult(
-                        grantCallService.saveDraft(
-                            idString = params.id,
-                            callerId = user.id,
-                            isAdmin = user.roles.contains(Role.ADMIN),
-                            request = request,
-                        ),
-                    )
-                },
-            )
+            respondEither {
+                val user = call.currentUser.bind()
+                val request = call.receive<SaveApplicationDraftRequest>()
+                applicationService
+                    .saveDraft(
+                        idString = params.id,
+                        callerId = user.id,
+                        request = request,
+                    ).bind()
+            }
         }
 
         post<Applications.ById.Submit> { params ->
-            val userOrError = call.currentUser
-            userOrError.fold(
-                ifLeft = { call.respondError(it) },
-                ifRight = { user ->
-                    call.respondResult(
-                        grantCallService.submit(
-                            idString = params.parent.id,
-                            callerId = user.id,
-                            isAdmin = user.roles.contains(Role.ADMIN),
-                        ),
-                    )
-                },
-            )
+            respondEither {
+                val user = call.currentUser.bind()
+                applicationService
+                    .submit(
+                        idString = params.parent.id,
+                        callerId = user.id,
+                    ).bind()
+            }
         }
 
         get<Applications.Mine> { params ->
-            val userOrError = call.currentUser
-            userOrError.fold(
-                ifLeft = { call.respondError(it) },
-                ifRight = { user ->
-                    call.respondResult(
-                        grantCallService.listMyApplications(
-                            callerId = user.id,
-                            page = params.page,
-                            size = params.size,
-                        ),
-                    )
-                },
-            )
+            respondEither {
+                val user = call.currentUser.bind()
+                applicationService
+                    .listMyApplications(
+                        callerId = user.id,
+                        page = params.page,
+                        size = params.size,
+                    ).bind()
+            }
         }
 
         get<Applications.ById> { params ->
-            val userOrError = call.currentUser
-            userOrError.fold(
-                ifLeft = { call.respondError(it) },
-                ifRight = { user ->
-                    call.respondResult(
-                        grantCallService.getApplicationById(
-                            idString = params.id,
-                            callerId = user.id,
-                            isAdmin = user.roles.contains(Role.ADMIN),
-                        ),
-                    )
-                },
-            )
+            respondEither {
+                val user = call.currentUser.bind()
+                applicationService
+                    .getApplicationById(
+                        idString = params.id,
+                        callerId = user.id,
+                        isAdmin = user.roles.contains(Role.ADMIN),
+                    ).bind()
+            }
         }
 
         requireRole(Role.ADMIN) {
             post<Calls> {
-                val request = call.receive<UpsertCallRequest>()
-                val result = grantCallService.create(request)
-                result.fold(
-                    ifLeft = { call.respondError(it) },
-                    ifRight = { dto ->
-                        call.response.header(HttpHeaders.Location, "/api/calls/${dto.id}")
-                        call.respond(HttpStatusCode.Created, dto)
-                    },
-                )
+                respondEither(HttpStatusCode.Created) {
+                    val request = call.receive<UpsertCallRequest>()
+                    val dto = grantCallService.create(request).bind()
+                    call.response.header(HttpHeaders.Location, "/api/calls/${dto.id}")
+                    dto
+                }
             }
 
             put<Calls.ById> { params ->
-                val request = call.receive<UpsertCallRequest>()
-                call.respondResult(grantCallService.update(params.id, request))
+                respondEither {
+                    val request = call.receive<UpsertCallRequest>()
+                    grantCallService.update(params.id, request).bind()
+                }
             }
 
             delete<Calls.ById> { params ->
-                call.respondEitherUnit(grantCallService.delete(params.id))
+                respondEitherUnit {
+                    grantCallService.delete(params.id).bind()
+                }
             }
 
             get<AdminApplications> { params ->
-                call.respondResult(
-                    grantCallService.adminListApplications(
-                        callIdString = params.callId,
-                        status = params.status,
-                        page = params.page,
-                        size = params.size,
-                    ),
-                )
+                respondEither {
+                    applicationService
+                        .adminListApplications(
+                            callIdString = params.callId,
+                            status = params.status,
+                            page = params.page,
+                            size = params.size,
+                        ).bind()
+                }
             }
         }
     }

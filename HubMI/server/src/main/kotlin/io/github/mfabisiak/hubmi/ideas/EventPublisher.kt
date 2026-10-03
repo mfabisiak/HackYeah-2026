@@ -11,7 +11,7 @@ data class IdeaSubmitted(
     val ideaId: String,
     val authorId: String,
     val title: String,
-    override val occurredAt: Instant = Instant.now(),
+    override val occurredAt: Instant,
 ) : DomainEvent
 
 data class IdeaStatusChanged(
@@ -19,8 +19,7 @@ data class IdeaStatusChanged(
     val authorId: String,
     val oldStatus: IdeaStatus,
     val newStatus: IdeaStatus,
-    val adminComment: String?,
-    override val occurredAt: Instant = Instant.now(),
+    override val occurredAt: Instant,
 ) : DomainEvent
 
 interface EventPublisher {

@@ -23,6 +23,7 @@ data class GrantCallItem(
     @Serializable(with = JavaInstantAsBsonDateTime::class)
     val closesAt: Instant,
     val fields: List<CallField>,
+    val submittedCounts: Map<String, Int> = emptyMap(),
     @Serializable(with = JavaInstantAsBsonDateTime::class)
     val createdAt: Instant,
     @Serializable(with = JavaInstantAsBsonDateTime::class)

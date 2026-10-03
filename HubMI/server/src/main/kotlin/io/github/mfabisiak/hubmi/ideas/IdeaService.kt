@@ -11,21 +11,32 @@ import io.github.mfabisiak.hubmi.api.IdeaDto
 import io.github.mfabisiak.hubmi.api.IdeaStatus
 import io.github.mfabisiak.hubmi.api.Page
 import io.github.mfabisiak.hubmi.api.Role
+import io.github.mfabisiak.hubmi.api.TargetGroup
 import io.github.mfabisiak.hubmi.api.UpdateIdeaStatusRequest
 import io.github.mfabisiak.hubmi.common.DomainError
+import io.github.mfabisiak.hubmi.common.orValidationError
 import io.github.mfabisiak.hubmi.common.toDomainError
 import io.github.mfabisiak.hubmi.common.validatePageRequest
 import org.bson.types.ObjectId
-import java.time.Instant
+import java.time.Clock
+
+data class IdeaPrefill(
+    val ideaId: ObjectId,
+    val title: String,
+    val essence: String,
+    val targetGroups: List<TargetGroup>,
+)
 
 class IdeaService(
     private val repository: IdeaRepository,
     private val eventPublisher: EventPublisher,
+    private val clock: Clock = Clock.systemUTC(),
 ) {
     companion object {
+        const val MAX_ADMIN_COMMENT_LENGTH = 1000
+
         val ALLOWED_TRANSITIONS: Map<IdeaStatus, Set<IdeaStatus>> =
             mapOf(
-                IdeaStatus.DRAFT to setOf(IdeaStatus.SUBMITTED),
                 IdeaStatus.SUBMITTED to setOf(IdeaStatus.IN_REVIEW),
                 IdeaStatus.IN_REVIEW to setOf(IdeaStatus.ACCEPTED, IdeaStatus.REJECTED),
                 IdeaStatus.ACCEPTED to emptySet(),
@@ -38,40 +49,16 @@ class IdeaService(
         request: CreateIdeaRequest,
     ): Either<DomainError, IdeaDto> =
         either {
-            val fieldErrors =
-                buildList {
-                    if (request.title.isBlank()) {
-                        add(FieldError("title", FieldErrorCode.Blank, "Tytuł pomysłu nie może być pusty"))
-                    }
-                    if (request.essence.isBlank()) {
-                        add(FieldError("essence", FieldErrorCode.Blank, "Istota pomysłu nie może być pusta"))
-                    }
-                    if (request.targetGroups.isEmpty()) {
-                        add(
-                            FieldError(
-                                field = "targetGroups",
-                                code = FieldErrorCode.Blank,
-                                message = "Należy wybrać przynajmniej jedną grupę docelową",
-                            ),
-                        )
-                    }
-                }
+            val draft = IdeaDraft.parse(request).orValidationError("Błąd walidacji formularza pomysłu").bind()
 
-            ensure(fieldErrors.isEmpty()) {
-                DomainError.Validation(
-                    message = "Błąd walidacji formularza pomysłu",
-                    details = fieldErrors,
-                )
-            }
-
-            val now = Instant.now()
+            val now = clock.instant()
             val item =
                 IdeaItem(
                     authorId = callerId,
-                    title = request.title.trim(),
-                    essence = request.essence.trim(),
-                    targetGroups = request.targetGroups,
-                    stage = request.stage,
+                    title = draft.title,
+                    essence = draft.essence,
+                    targetGroups = draft.targetGroups.distinct(),
+                    stage = draft.stage,
                     status = IdeaStatus.SUBMITTED,
                     createdAt = now,
                     updatedAt = now,
@@ -120,6 +107,34 @@ class IdeaService(
             idea.toDto()
         }
 
+    suspend fun getPrefill(
+        idString: String,
+        callerId: String,
+    ): Either<DomainError, IdeaPrefill> =
+        either {
+            val objectId = parseObjectId(idString).bind()
+            val idea =
+                ensureNotNull(
+                    repository
+                        .findById(objectId)
+                        .mapLeft { it.toDomainError() }
+                        .bind(),
+                ) {
+                    DomainError.NotFound("Nie znaleziono pomysłu o id: $idString")
+                }
+
+            ensure(idea.authorId == callerId) {
+                DomainError.Forbidden("Wskazany pomysł nie należy do Ciebie")
+            }
+
+            IdeaPrefill(
+                ideaId = idea.id,
+                title = idea.title,
+                essence = idea.essence,
+                targetGroups = idea.targetGroups,
+            )
+        }
+
     suspend fun getMine(
         callerId: String,
         page: Int?,
@@ -141,7 +156,7 @@ class IdeaService(
             )
         }
 
-    suspend fun adminList(
+    suspend fun listForAdmin(
         status: IdeaStatus?,
         page: Int?,
         size: Int?,
@@ -162,7 +177,7 @@ class IdeaService(
             )
         }
 
-    suspend fun adminUpdateStatus(
+    suspend fun updateStatus(
         idString: String,
         request: UpdateIdeaStatusRequest,
     ): Either<DomainError, IdeaDto> =
@@ -179,6 +194,23 @@ class IdeaService(
                                     field = "comment",
                                     code = FieldErrorCode.Blank,
                                     message = "Komentarz dla autora jest wymagany przy odrzuceniu pomysłu",
+                                ),
+                            ),
+                    )
+                }
+            }
+            val comment = request.comment
+            if (comment != null) {
+                ensure(comment.trim().length <= MAX_ADMIN_COMMENT_LENGTH) {
+                    DomainError.Validation(
+                        message = "Komentarz dla autora nie może przekraczać $MAX_ADMIN_COMMENT_LENGTH znaków",
+                        details =
+                            listOf(
+                                FieldError(
+                                    field = "comment",
+                                    code = FieldErrorCode.InvalidFormat,
+                                    message =
+                                        "Komentarz dla autora nie może przekraczać $MAX_ADMIN_COMMENT_LENGTH znaków",
                                 ),
                             ),
                     )
@@ -201,8 +233,8 @@ class IdeaService(
                 DomainError.Conflict("Niedozwolona zmiana statusu na: ${request.status}")
             }
 
-            val now = Instant.now()
-            val updated =
+            val now = clock.instant()
+            val before =
                 repository
                     .atomicUpdateStatus(
                         id = objectId,
@@ -213,18 +245,23 @@ class IdeaService(
                     ).mapLeft { it.toDomainError() }
                     .bind()
 
-            if (updated != null) {
+            if (before != null) {
+                val oldStatus = before.status
                 eventPublisher.publish(
                     IdeaStatusChanged(
-                        ideaId = updated.id.toHexString(),
-                        authorId = updated.authorId,
-                        oldStatus = allowedPrevious.first(),
-                        newStatus = updated.status,
-                        adminComment = updated.adminComment,
+                        ideaId = before.id.toHexString(),
+                        authorId = before.authorId,
+                        oldStatus = oldStatus,
+                        newStatus = request.status,
                         occurredAt = now,
                     ),
                 )
-                updated.toDto()
+                val updatedDto =
+                    before.toDto().copy(
+                        status = request.status,
+                        adminComment = request.comment?.trim() ?: before.adminComment,
+                    )
+                updatedDto
             } else {
                 val existing =
                     ensureNotNull(

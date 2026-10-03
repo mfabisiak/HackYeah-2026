@@ -3,6 +3,7 @@ package io.github.mfabisiak.hubmi.di
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
 import io.github.mfabisiak.hubmi.calls.ApplicationRepository
+import io.github.mfabisiak.hubmi.calls.ApplicationService
 import io.github.mfabisiak.hubmi.calls.GrantCallRepository
 import io.github.mfabisiak.hubmi.calls.GrantCallService
 import io.github.mfabisiak.hubmi.challenges.ChallengeRepository
@@ -51,7 +52,8 @@ fun appModule(config: AppConfig) =
         single { InnovationService(get()) }
         single { ChallengeService(get()) }
         single { MaterialService(get()) }
-        single { IdeaService(get(), get()) }
-        single { GrantCallService(get(), get(), get(), get()) }
+        single { IdeaService(get(), get(), get()) }
+        single { GrantCallService(get(), get(), get()) }
+        single { ApplicationService(get(), get(), get(), get()) }
         single { DatabaseSeeder(get<MongoRepository>().database, get()) }
     }

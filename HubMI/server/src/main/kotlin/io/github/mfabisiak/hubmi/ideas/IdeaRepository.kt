@@ -96,13 +96,14 @@ class IdeaRepository(
                     Filters.eq(IdeaItem::id, id),
                     Filters.`in`(IdeaItem::status, allowedPreviousStatuses),
                 )
-            val update =
-                Updates.combine(
+            val updates =
+                listOfNotNull(
                     Updates.set(IdeaItem::status, newStatus),
-                    Updates.set(IdeaItem::adminComment, comment),
+                    comment?.let { Updates.set(IdeaItem::adminComment, it) },
                     Updates.set(IdeaItem::updatedAt, updatedAt),
                 )
-            val options = FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+            val update = Updates.combine(updates)
+            val options = FindOneAndUpdateOptions().returnDocument(ReturnDocument.BEFORE)
             collection.findOneAndUpdate(filter, update, options)
         }
 }

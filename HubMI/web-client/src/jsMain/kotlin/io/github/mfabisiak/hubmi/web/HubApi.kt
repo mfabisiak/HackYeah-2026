@@ -5,6 +5,7 @@ import io.github.mfabisiak.hubmi.api.Health
 import io.github.mfabisiak.hubmi.api.HealthResponse
 import io.github.mfabisiak.hubmi.api.MeResponse
 import io.github.mfabisiak.hubmi.web.admin.AdminApi
+import io.github.mfabisiak.hubmi.web.ideas.ApplicationsApi
 import io.github.mfabisiak.hubmi.web.ideas.CallsApi
 import io.github.mfabisiak.hubmi.web.ideas.IdeasApi
 import io.github.mfabisiak.hubmi.web.innovations.InnovationsApi
@@ -53,6 +54,7 @@ class HubApi(
     val matches = MatchesApi(client, scope)
     val ideas = IdeasApi(client, scope)
     val calls = CallsApi(client, scope)
+    val applications = ApplicationsApi(client, scope)
     val threads = ThreadsApi(client, scope)
     val notifications = NotificationsApi(client, scope)
     val admin = AdminApi(client, scope)
