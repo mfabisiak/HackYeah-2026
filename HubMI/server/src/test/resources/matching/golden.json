@@ -47,6 +47,7 @@
   {"query": "Jak założyć konto w zagranicznym banku i zainwestować w kryptowaluty", "expected": [], "negative": true, "register": "potoczny"},
   {"query": "Kiedy gra reprezentacja Polski w piłkę nożną", "expected": [], "negative": true, "register": "potoczny"},
   {"query": "Potrzebuję tłumacza przysięgłego z języka chińskiego", "expected": [], "negative": true, "register": "urzędowy"},
+  {"query": "Brak transportu dla seniorów i osób niesamodzielnych na wizyty lekarskie i rehabilitację w małych miejscowościach.", "expected": ["transport-door-to-door-dla-niepelnosprawnych", "mobilny-punkt-rehabilitacji-wiejskiej"], "negative": false, "register": "urzędowy"},
   {"query": "Jak zainstalować system Linux na starym laptopie", "expected": [], "negative": true, "register": "potoczny"},
   {"query": "Gdzie kupić bilet na koncert zespołu rockowego", "expected": [], "negative": true, "register": "potoczny"},
   {"query": "Chcę sprzedać mieszkanie i szukam pośrednika nieruchomości", "expected": [], "negative": true, "register": "potoczny"},
