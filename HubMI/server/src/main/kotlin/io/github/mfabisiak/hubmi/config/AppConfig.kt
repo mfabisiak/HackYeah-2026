@@ -29,6 +29,7 @@ data class AppConfig(
     val keycloakJwksUrl: String = "$keycloakIssuer/protocol/openid-connect/certs",
     val mongoUri: String = "mongodb://localhost:27017/?directConnection=true",
     val mongoDatabase: String = "hubmi",
+    val seed: Boolean = false,
 ) {
     companion object {
         fun fromEnv(env: Map<String, String> = System.getenv()): Either<ConfigError, AppConfig> =
@@ -49,6 +50,7 @@ data class AppConfig(
                     keycloakJwksUrl = jwksUrl,
                     mongoUri = env["MONGO_URI"] ?: defaults.mongoUri,
                     mongoDatabase = env["MONGO_DATABASE"] ?: defaults.mongoDatabase,
+                    seed = env["SEED"]?.toBooleanStrictOrNull() ?: defaults.seed,
                 )
             }
     }

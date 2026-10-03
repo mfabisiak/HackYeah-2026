@@ -6,7 +6,7 @@ Założone na GitHubie jako issues [#12–#21](https://github.com/mfabisiak/Hack
 źródłem prawdy o zakresie są issues, ten plik to skrót. Frontend nie czeka na backend: pracuje na mockach HTTP (FE-02), a po gotowości endpointu przełącza się na prawdziwy.
 
 **Stan obecny `web/`:** React 19 + TypeScript + Vite 8, Mantine 9, React Router 7, `keycloak-js` (PKCE, `check-sso`),
-klient `HubApi` z `:web-client` (tylko `health()` i `me()`). Strony: Start, Status systemu, Moje konto. Powłoka z linkiem
+klient `HubApi` z `:web-client` (`health()`, `me()` oraz moduły `innovations`, `challenges`, `materials`, `matches`, `ideas`, `calls`, `threads`, `notifications`, `admin` pokrywające cały kontrakt z [API.md](API.md); backend odpowiada na nie na razie `501`). Strony: Start, Status systemu, Moje konto. Powłoka z linkiem
 „Przejdź do treści", landmarkami i przełącznikiem motywu; ESLint z `jsx-a11y`; bundle ~1,2 MB (~337 KB gzip). Brak testów,
 brak ochrony tras, teksty wpisane na sztywno po polsku.
 

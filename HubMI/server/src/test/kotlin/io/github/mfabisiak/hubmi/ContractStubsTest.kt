@@ -3,6 +3,7 @@ package io.github.mfabisiak.hubmi
 import io.github.mfabisiak.hubmi.api.AdminTrends
 import io.github.mfabisiak.hubmi.api.Api
 import io.github.mfabisiak.hubmi.api.Calls
+import io.github.mfabisiak.hubmi.api.ErrorCode
 import io.github.mfabisiak.hubmi.api.Ideas
 import io.github.mfabisiak.hubmi.api.InnovationStage
 import io.github.mfabisiak.hubmi.api.Innovations
@@ -39,7 +40,7 @@ class ContractStubsTest {
             val response = client.get(Innovations(q = "senior", area = SocialArea.AGING, page = 2, size = 5))
 
             assertEquals(HttpStatusCode.NotImplemented, response.status)
-            assertTrue(response.bodyAsText().contains("not_implemented"))
+            assertTrue(response.bodyAsText().contains(ErrorCode.NOT_IMPLEMENTED.name))
             assertNotNull(InnovationStage.PILOT)
         }
 

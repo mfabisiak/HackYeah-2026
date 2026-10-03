@@ -51,6 +51,38 @@ Test users: `user`/`user`, `admin`/`admin` (realm [keycloak/hubmi-realm.json](ke
 8. Brak `Any`, brak rzutowań (`as`), brak refleksji. `as?` tylko na granicy z biblioteką.
 9. `suspend` wszędzie gdzie IO; **nie blokujemy wątków**, żadnego `runBlocking` poza `main`/testami.
 
+## Idiomatyczny Kotlin – typy zamiast stringów
+
+Typ ma wyrażać znaczenie. Zanim napiszesz literał `"..."`, zapytaj: czy to zamknięty zbiór wartości? Jeśli tak – `enum`.
+
+1. **Zamknięty zbiór = `enum class` (lub `sealed interface`), nigdy `String`.** Dotyczy: ról (`Role`), kodów błędów
+   (`ErrorCode`, `FieldErrorCode`, `Role`), statusów, etapów, obszarów, typów. Porównania `"admin" in roles`, `code = "not_found"`,
+   `status == "OPEN"` są zakazane. Wartości zewnętrzne (nazwa roli w Keycloaku) mapujemy na enum **na granicy**
+   (`Role.fromKeycloakName`); nieznane wartości odrzucamy tam, nie w domenie.
+2. **Wariant z danymi = `sealed interface`, nie enum + osobne pola.** Gdy wartość niesie parametry (limit, zakres),
+   robimy `data class`, a warianty bez danych to `data object`: `FieldErrorCode.MinValue(min)`, `FieldErrorCode.Range(min, max)`,
+   `FieldErrorCode.Blank`. Nie wciskamy parametrów w komunikat tekstowy ani w osobne `String`-pola.
+   Enum zostaje tylko dla wartości bez danych (`ErrorCode`, `Role`). W `:core` każdy wariant ma `@Serializable` i `@SerialName`.
+3. **Enum w kontrakcie API** leci jako nazwa wpisu (`NOT_FOUND`) – tak jak `SocialArea`. Nie dorabiamy równoległych
+   stringów `snake_case`; frontend dostaje `enum.name`.
+4. **Parametry funkcji to typy domenowe**, nie `String`/`Int` „z umowy”: `requireRole(Role.ADMIN)`, nie `requireRole("admin")`.
+5. **Stałe zamiast powtarzanych literałów.** Nazwa używana w ≥ 2 miejscach (kolekcja, claim JWT, klucz konfiguracji)
+   to `const val` w jednym miejscu. Literał tekstowy w kodzie dopuszczamy tylko dla komunikatów użytkownika.
+6. **`when` na enumie/sealed bez `else`** – kompilator ma wymusić obsłużenie nowego przypadku.
+7. **Preferuj `value class` i `data class` nad `Pair`/`Triple`/`Map<String, Any>`.** Wynik z więcej niż jedną wartością
+   dostaje nazwany typ.
+8. **Kolekcje: `map`/`filter`/`mapNotNull`/`associateBy`/`groupBy`/`fold`**, nie pętle z akumulatorem. `buildList` zamiast
+   `MutableList` w zmiennej. Sekwencje (`asSequence()`) dla łańcuchów na dużych listach.
+9. **Referencje do funkcji i właściwości** (`Role::fromKeycloakName`, `SampleItem::slug`) zamiast lambd-wrapperów i stringów.
+10. **Scope functions oszczędnie:** `let` do nullable (`?.let`), `apply`/`also` tylko przy konfiguracji obiektu; zero
+   zagnieżdżonych scope functions. Kolejność: guard clause / `ensure` na górze, brak głębokiego zagnieżdżania.
+11. **Nullable:** `?.`, `?:`, `ensureNotNull`; domyślne wartości parametrów zamiast przeciążeń; named arguments przy
+    ≥ 3 parametrach lub parametrach tego samego typu (`FieldError(field = ..., code = ..., message = ...)`).
+12. **Nie używaj `Document`/`Map<String, Any?>`/`JsonObject` jako modelu domeny.** Dane mają mieć klasę.
+13. **Nieużywany kod usuwamy** (nieużywane importy, typy, parametry, aliasy `typealias` „na zapas”, duplikaty funkcji
+    o tej samej roli). Nie dodajemy abstrakcji i pól „na przyszłość” – także indeksów i kolekcji bez modelu.
+14. Własności wyliczane (`val isAdmin get() = ...`) tylko gdy trywialne; w innym wypadku zwykła funkcja.
+
 ## Architektura serwera (`server/src/main/kotlin/io/github/mfabisiak/hubmi/`)
 
 Układ wzorowany na projekcie `schlafzentrale` (`../../BazyDanychProjekt/schlafzentrale`), z REST zamiast kRPC.
@@ -77,9 +109,11 @@ Przepływ: `route → service → repository`. Warstwa nie woła warstwy nad sob
 - Trasy jako **Ktor Resources** (`@Resource` w `:core/commonMain`), współdzielone przez serwer i klienta mobile; bez OpenAPI.
 - Prefiks `/api`, zasoby w liczbie mnogiej, rzeczowniki: `GET /api/innovations`, `POST /api/ideas`.
 - Metody i statusy zgodnie z semantyką: 200/201 (z `Location`), 204, 400 (walidacja), 401, 403, 404, 409 (konflikt), 5xx.
-- Błąd zawsze jako `ErrorResponse(code, message)`; `code` to stabilny identyfikator maszynowy.
+- Błąd zawsze jako `ErrorResponse(code, message)`; `code` to enum `ErrorCode` z `:core` (a `FieldError.code` to sealed `FieldErrorCode`) –
+  nigdy wolny string. Nowy rodzaj błędu = nowy wpis w enumie.
 - Listy paginowane (`?page=&size=`), filtry w query. Odpowiedzi nigdy nie zwracają modeli Mongo – tylko DTO.
-- Autoryzacja: `authenticate(KEYCLOAK_AUTH)` + `requireRole("admin")`. Role w `realm_access.roles`.
+- Autoryzacja: `authenticate(KEYCLOAK_AUTH)` + `requireRole(Role.ADMIN)`. Role to enum `Role` z `:core`, mapowany z
+  `realm_access.roles` na granicy (nieznane role Keycloaka są pomijane).
   Użytkownik wywołujący pochodzi z tokena (`sub`), nigdy z body żądania.
 
 ### MongoDB
@@ -94,6 +128,21 @@ Przepływ: `route → service → repository`. Warstwa nie woła warstwy nad sob
   unikalnym. Warunki w filtrze (np. `{_id, status: oczekiwany}`) dają optymistyczną współbieżność i maszyny stanów.
   Dane pochodne (agregaty, `lastMessageAt`) są idempotentne i samonaprawiające (przeliczane z danych źródłowych), a nie
   utrzymywane „na styk" w dwóch dokumentach naraz.
+- **Kolekcje są typowane: `MongoCollection<Model>`, nigdy `MongoCollection<Document>`.** Binding nazwa → typ jest w jednym
+  miejscu (`repository/MongoCollections.kt`: `const val ..._COLLECTION` + `val MongoDatabase.samples`). Repozytoria,
+  indeksy, schematy, seedery i testy biorą kolekcję stamtąd, nie wołają `getCollection("nazwa")`.
+- **Kodeki: bson-kotlinx.** Modele w Mongo to `@Serializable data class`; `_id` jako
+  `@SerialName("_id") @Contextual val id: ObjectId`. Enumy, `value class` i `Instant` koduje kodek, nie ręczne mapowanie.
+  Nowy typ niewspierany przez bson-kotlinx = własny `KSerializer`/`Codec` zarejestrowany w jednym miejscu, nie
+  konwersja do `Document` w repozytorium.
+- **Pola przez referencje do właściwości, nie przez stringi:** `Filters.eq(SampleItem::slug, slug)`,
+  `Sorts.descending(SampleItem::id)`, `Indexes.ascending(SampleItem::slug)`, `Updates.set(SampleItem::name, v)`
+  z `com.mongodb.kotlin.client.model.*` (`mongodb-driver-kotlin-extensions`); nazwę pola w ręcznym BSON-ie (np. JSON Schema)
+  bierzemy z `SampleItem::slug.path()`. Zakaz `Filters.eq("slug", ...)`, `"_id"`, `Document("x" to ...)` dla danych.
+- Stałe sterujące zamiast literałów: `ValidationLevel.MODERATE.value`, `ValidationAction.ERROR.value`, `Indexes.text(...)`.
+  `Document` dopuszczalny wyłącznie dla poleceń bazy (`ping`, `collMod`) i fragmentów `$jsonSchema`.
+- Indeksy, schematy i seed powstają razem z modelem i kolekcją, której dotyczą – nie wyprzedzamy kolejnych ticketów.
+- Seed jest idempotentny przez upsert po kluczu naturalnym (np. `slug`), bez pól technicznych w modelu domeny.
 - Connection string z env (`MONGO_URI`, `MONGO_DATABASE`).
 
 ### DI (Koin)
@@ -108,8 +157,18 @@ Przepływ: `route → service → repository`. Warstwa nie woła warstwy nad sob
 - **Granica Kotlin/JS ↔ TS:** w `:web-client` eksportujemy tylko typy przyjazne JS (`String`, `Int`, `Double`, `Boolean`,
   `Array`, nullable) – bez `value class`, `Long`, `List`. Metody `suspend` zwracają `Promise`. Błędy nie są wyjątkami:
   każdy wynik to `ApiResult<T>` (`value` albo `error`); w Kotlinie `Either` mapujemy na `ApiResult` w jednym miejscu (`toResult`).
-- Nowy endpoint: DTO + `@Resource` w `:core` → implementacja w `:server` → metoda w `HubApi` + typ `...Js` w `:web-client`
+- Nowy endpoint: DTO + `@Resource` w `:core` → implementacja w `:server` → metoda w module `...Api` + typ `...Js` w `:web-client`
   → użycie w React. Po zmianie w Kotlinie przebuduj klienta (komenda wyżej).
+- **Układ `:web-client`** (`web/`, podpakiety per moduł: `innovations`, `knowledge`, `matching`, `ideas`, `messaging`, `admin`):
+  `HubApi` trzyma moduły (`hubApi.innovations.list(...)`). W podpakiecie leżą dwa pliki: `XxxApi(s).kt` (klasy `...Api`)
+  oraz `XxxTypes.kt` (wszystkie typy `...Js` modułu razem z mapowaniem DTO ↔ `...Js`). Wspólne helpery HTTP (`Fetch.kt`:
+  `fetch`, `send`, `sendForUnit`), parsowanie enumów (`Arguments.kt`) i typy wspólne (`JsTypes.kt`: `ApiResult`,
+  `ApiErrorJs`, `PageJs`, `EmptyJs`) są w `web/`. Nie mnożymy plików: jeden plik na typ obowiązuje w `:server`, a tu typy
+  `...Js` to cienkie kontenery danych grupowane per moduł.
+- Enumy przechodzą granicę JS jako nazwy (`"AGING"`), a parsuje je `enumOf`/`enumOrNull`/`enumsOf`; nieznana nazwa to
+  `ApiResult` z błędem `INVALID_ARGUMENT` (status `0`), nie wyjątek. `Map` z DTO zamieniamy na tablicę par (`AnswerJs`),
+  odpowiedź `204` to `ApiResult<EmptyJs>`. Kody błędów klienta (`NETWORK_ERROR`, `INVALID_RESPONSE`, `HTTP_<status>`) mają
+  tę samą konwencję `UPPER_SNAKE` co `ErrorCode`.
 - W kodzie TS: `const` zamiast `let`, brak `any`, ESLint z `jsx-a11y` musi przechodzić (`npm run lint`).
 - **WCAG 2.1 AA jest wymaganiem** (20% oceny): semantyczny HTML, obsługa klawiatury, widoczny focus, kontrast ≥ 4.5:1,
   komunikaty błędów tekstem (nie samym kolorem), `aria-live` dla wyników, `lang="pl"`, skalowanie do 200%,
@@ -135,6 +194,8 @@ Przepływ: `route → service → repository`. Warstwa nie woła warstwy nad sob
 ## Czego nie robić
 
 - Nie dodawać `var`, `throw`, `!!`, `lateinit`, `runBlocking`, `GlobalScope`.
+- Nie używać stringów tam, gdzie powinien być enum (role, kody błędów, statusy), ani `MongoCollection<Document>` dla danych.
+- Nie dodawać kodu „na zapas” (indeksy/kolekcje/pola bez modelu i użycia).
 - Nie zwracać encji Mongo z API ani nie logować danych osobowych / tokenów.
 - Nie używać prawdziwych danych osobowych z materiałów ROPS (wymóg wyzwania).
 - Nie wysyłać żadnych danych do zewnętrznych serwisów AI – modele (embeddingi, LLM) działają lokalnie.

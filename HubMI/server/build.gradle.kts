@@ -23,6 +23,7 @@ dependencies {
     implementation(libs.ktor.serializationKotlinxJson)
     implementation(libs.arrow.core)
     implementation(libs.mongodb.driverKotlinCoroutine)
+    implementation(libs.mongodb.driverKotlinExtensions)
     implementation(libs.bson.kotlinx)
     implementation(libs.koin.ktor)
     implementation(libs.koin.loggerSlf4j)
@@ -30,4 +31,5 @@ dependencies {
     testImplementation(libs.ktor.clientContentNegotiation)
     testImplementation(libs.ktor.clientResources)
     testImplementation(libs.kotlin.testJunit)
+    testImplementation(libs.testcontainers.mongodb)
 }

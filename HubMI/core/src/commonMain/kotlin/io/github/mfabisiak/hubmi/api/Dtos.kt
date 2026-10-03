@@ -12,7 +12,7 @@ data class MeResponse(
     val id: String?,
     val username: String?,
     val email: String?,
-    val roles: Set<String>,
+    val roles: Set<Role>,
 )
 
 @Serializable
@@ -21,7 +21,15 @@ data class MessageResponse(
 )
 
 @Serializable
-data class ErrorResponse(
-    val code: String,
+data class FieldError(
+    val field: String,
+    val code: FieldErrorCode,
     val message: String,
+)
+
+@Serializable
+data class ErrorResponse(
+    val code: ErrorCode,
+    val message: String,
+    val details: List<FieldError> = emptyList(),
 )
