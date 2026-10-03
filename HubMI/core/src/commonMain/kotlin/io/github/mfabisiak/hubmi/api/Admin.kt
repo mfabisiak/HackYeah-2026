@@ -126,8 +126,10 @@ data class TrendsDto(
     val byArea: List<AreaTrend>,
     val byMunicipality: List<MunicipalityTrend>,
     val unmatchedNeeds: Int,
-    val series: List<MonthlyTrendPoint> = emptyList(),
-    val topUnmatchedTerms: List<String> = emptyList(),
+    val series: List<MonthlyTrendPoint>,
+    val topUnmatchedTerms: List<String>,
+    /** Municipalities and words backed by fewer needs than this are left out of [byMunicipality]/[topUnmatchedTerms]. */
+    val privacyThreshold: Int,
 )
 
 /** `GET`: admin dashboard counters. */

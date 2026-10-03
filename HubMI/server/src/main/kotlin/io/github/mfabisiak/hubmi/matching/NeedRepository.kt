@@ -4,6 +4,7 @@ import arrow.core.Either
 import com.mongodb.kotlin.client.coroutine.MongoCollection
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import com.mongodb.kotlin.client.model.Filters
+import com.mongodb.kotlin.client.model.Projections
 import com.mongodb.kotlin.client.model.Sorts
 import com.mongodb.kotlin.client.model.Updates
 import io.github.mfabisiak.hubmi.common.RepositoryError
@@ -11,6 +12,7 @@ import io.github.mfabisiak.hubmi.common.mongo.hasElement
 import io.github.mfabisiak.hubmi.common.mongo.mongoCatch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
+import org.bson.conversions.Bson
 import org.bson.types.ObjectId
 
 const val NEEDS_COLLECTION = "needs"
@@ -60,24 +62,30 @@ class NeedRepository(
                 .toList()
         }
 
-    suspend fun findSince(since: String): Either<RepositoryError, List<NeedItem>> =
+    suspend fun findTrendRowsSince(since: String): Either<RepositoryError, List<NeedTrendRow>> =
         mongoCatch {
             collection
-                .find(Filters.gte(NeedItem::createdAt, since))
-                .toList()
+                .find<NeedTrendRow>(Filters.gte(NeedItem::createdAt, since))
+                .projection(
+                    Projections.fields(
+                        Projections.include(NeedItem::areas, NeedItem::municipality, NeedItem::createdAt),
+                        Projections.excludeId(),
+                    ),
+                ).toList()
         }
 
+    suspend fun findUnmatchedSince(since: String): Either<RepositoryError, List<NeedItem>> =
+        mongoCatch { collection.find(unmatchedSince(since)).toList() }
+
     suspend fun countUnmatchedSince(since: String): Either<RepositoryError, Int> =
-        mongoCatch {
-            collection
-                .countDocuments(
-                    Filters.and(
-                        Filters.gte(NeedItem::createdAt, since),
-                        Filters.or(
-                            Filters.eq(NeedItem::noGoodMatch, true),
-                            Filters.size(NeedItem::matchedInnovationIds, 0),
-                        ),
-                    ),
-                ).toInt()
-        }
+        mongoCatch { collection.countDocuments(unmatchedSince(since)).toInt() }
+
+    private fun unmatchedSince(since: String): Bson =
+        Filters.and(
+            Filters.gte(NeedItem::createdAt, since),
+            Filters.or(
+                Filters.eq(NeedItem::noGoodMatch, true),
+                Filters.size(NeedItem::matchedInnovationIds, 0),
+            ),
+        )
 }

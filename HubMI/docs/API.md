@@ -44,7 +44,7 @@ błąd to zawsze `ErrorResponse(code, message)`. Dostęp: 🌐 publiczny · 🔑
 | 5 | `GET`/`POST /api/threads/{id}/messages` | 🔑 | → `List<MessageDto>`; `PostMessageRequest` → `MessageDto` *(zaimplementowane)* |
 | 5 | `GET /api/notifications?unreadOnly&page&size`, `GET /api/notifications/stream` | 🔑 | → `Page<NotificationDto>`; SSE stream *(zaimplementowane)* |
 | 5 | `POST /api/notifications/{id}/read` | 🔑 | → `204` *(zaimplementowane)* |
-| 6 | `GET /api/admin/trends?months` | 🛡️ | → `TrendsDto` *(zaimplementowane)* |
+| 6 | `GET /api/admin/trends?months` | 🛡️ | → `TrendsDto` *(zaimplementowane; `months` 1..60, domyślnie 6, poza zakresem `400`; gminy i frazy poniżej `privacyThreshold` zgłoszeń są pomijane)* |
 | 6 | `GET /api/admin/summary` | 🛡️ | → `AdminSummaryDto` *(zaimplementowane)* |
 | 6 | `GET /api/admin/ideas?status&page&size` | 🛡️ | → `Page<IdeaDto>` *(zaimplementowane)* |
 | 6 | `PATCH /api/admin/ideas/{id}/status` | 🛡️ | `UpdateIdeaStatusRequest` → `IdeaDto` *(zaimplementowane)* |

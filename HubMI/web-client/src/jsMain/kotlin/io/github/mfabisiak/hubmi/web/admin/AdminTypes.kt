@@ -33,6 +33,7 @@ class TrendsJs(
     val unmatchedNeeds: Int,
     val series: Array<MonthlyTrendPointJs>,
     val topUnmatchedTerms: Array<String>,
+    val privacyThreshold: Int,
 )
 
 internal fun MonthlyTrendPoint.toJs(): MonthlyTrendPointJs = MonthlyTrendPointJs(month, count)
@@ -44,6 +45,7 @@ internal fun TrendsDto.toJs(): TrendsJs =
         unmatchedNeeds = unmatchedNeeds,
         series = series.map { it.toJs() }.toTypedArray(),
         topUnmatchedTerms = topUnmatchedTerms.toTypedArray(),
+        privacyThreshold = privacyThreshold,
     )
 
 @JsExport

@@ -247,8 +247,20 @@ class AdminRouteTest {
 
             // 5. Top unmatched terms verification
             // "transport" appears in need4, need5, need6
-            assertTrue(trends.topUnmatchedTerms.isNotEmpty())
             assertTrue("transport" in trends.topUnmatchedTerms.first().lowercase())
+            // words used by fewer than 3 unmatched needs (e.g. "medyczny", in need5 only) must not show up
+            assertTrue(trends.topUnmatchedTerms.none { it.lowercase().startsWith("medycz") })
+            assertEquals(3, trends.privacyThreshold)
+        }
+
+    @Test
+    fun trendsRejectsMonthsOutsideAllowedRange() =
+        withApp { client ->
+            listOf(0, -1, 61).forEach { months ->
+                val response = client.get(AdminTrends(months = months)) { bearerAuth(adminToken) }
+                assertEquals(HttpStatusCode.BadRequest, response.status, "months=$months")
+            }
+            assertEquals(HttpStatusCode.OK, client.get(AdminTrends(months = 60)) { bearerAuth(adminToken) }.status)
         }
 
     @Test

@@ -16,6 +16,7 @@ import io.github.mfabisiak.hubmi.common.toDomainError
 import io.github.mfabisiak.hubmi.ideas.IdeaRepository
 import io.github.mfabisiak.hubmi.matching.NeedItem
 import io.github.mfabisiak.hubmi.matching.NeedRepository
+import io.github.mfabisiak.hubmi.matching.NeedTrendRow
 import io.github.mfabisiak.hubmi.matching.TextAnalyzer
 import io.github.mfabisiak.hubmi.matching.Token
 import io.github.mfabisiak.hubmi.messaging.ThreadRepository
@@ -35,21 +36,24 @@ class AdminDashboardService(
     private val clock: Clock = Clock.systemUTC(),
     private val privacyThreshold: Int = DEFAULT_PRIVACY_THRESHOLD,
 ) {
-    suspend fun getTrends(monthsParam: Int): Either<DomainError, TrendsDto> =
+    suspend fun getTrends(months: TrendsMonths): Either<DomainError, TrendsDto> =
         either {
-            val months = monthsParam.coerceIn(1, 60)
             val currentYearMonth = YearMonth.from(clock.instant().atZone(ZoneOffset.UTC))
-            val currentWindowStart = currentYearMonth.minusMonths(months - 1L).startInstant()
-            val previousWindowStart = currentYearMonth.minusMonths(2L * months - 1).startInstant()
+            val currentWindowStart = currentYearMonth.minusMonths(months.value - 1L).startInstant()
+            val previousWindowStart = currentYearMonth.minusMonths(2L * months.value - 1).startInstant()
 
-            val needs =
+            val rows =
                 needRepository
-                    .findSince(previousWindowStart.toString())
+                    .findTrendRowsSince(previousWindowStart.toString())
+                    .mapLeft { it.toDomainError() }
+                    .bind()
+            val unmatchedNeeds =
+                needRepository
+                    .findUnmatchedSince(currentWindowStart.toString())
                     .mapLeft { it.toDomainError() }
                     .bind()
 
-            val (currentNeeds, previousNeeds) =
-                needs.partition { parseInstantOrEpoch(it.createdAt) >= currentWindowStart }
+            val (currentNeeds, previousNeeds) = rows.partition { it.createdAtInstant() >= currentWindowStart }
 
             val currentAreaCounts = countByArea(currentNeeds)
             val previousAreaCounts = countByArea(previousNeeds)
@@ -72,36 +76,23 @@ class AdminDashboardService(
                     .map { (municipality, count) -> MunicipalityTrend(municipality = municipality, count = count) }
                     .sortedWith(compareByDescending<MunicipalityTrend> { it.count }.thenBy { it.municipality })
 
-            val unmatchedNeedsInWindow = currentNeeds.filter { isUnmatched(it) }
-            val unmatchedNeedsCount = unmatchedNeedsInWindow.size
-
-            val seriesMonths =
-                (0 until months).map { offset ->
-                    currentYearMonth.minusMonths((months - 1 - offset).toLong())
-                }
             val seriesCounts =
                 currentNeeds
-                    .groupingBy { item ->
-                        val instant = parseInstantOrEpoch(item.createdAt)
-                        YearMonth.from(instant.atZone(ZoneOffset.UTC))
-                    }.eachCount()
-
+                    .groupingBy { YearMonth.from(it.createdAtInstant().atZone(ZoneOffset.UTC)) }
+                    .eachCount()
             val series =
-                seriesMonths.map { ym ->
-                    MonthlyTrendPoint(
-                        month = ym.toString(),
-                        count = seriesCounts[ym] ?: 0,
-                    )
+                (months.value - 1 downTo 0).map { monthsAgo ->
+                    val month = currentYearMonth.minusMonths(monthsAgo.toLong())
+                    MonthlyTrendPoint(month = month.toString(), count = seriesCounts[month] ?: 0)
                 }
-
-            val topUnmatchedTerms = extractTopUnmatchedTerms(unmatchedNeedsInWindow)
 
             TrendsDto(
                 byArea = byArea,
                 byMunicipality = byMunicipality,
-                unmatchedNeeds = unmatchedNeedsCount,
+                unmatchedNeeds = unmatchedNeeds.size,
                 series = series,
-                topUnmatchedTerms = topUnmatchedTerms,
+                topUnmatchedTerms = topUnmatchedTerms(unmatchedNeeds),
+                privacyThreshold = privacyThreshold,
             )
         }
 
@@ -142,36 +133,36 @@ class AdminDashboardService(
             )
         }
 
-    private fun countByArea(items: List<NeedItem>): Map<SocialArea, Int> =
-        items
-            .flatMap { item -> item.areas.ifEmpty { listOf(SocialArea.OTHER) } }
+    private fun countByArea(rows: List<NeedTrendRow>): Map<SocialArea, Int> =
+        rows
+            .flatMap { row -> row.areas.ifEmpty { listOf(SocialArea.OTHER) } }
             .groupingBy { it }
             .eachCount()
 
-    private fun isUnmatched(item: NeedItem): Boolean = item.noGoodMatch || item.matchedInnovationIds.isEmpty()
-
-    private fun extractTopUnmatchedTerms(unmatched: List<NeedItem>): List<String> {
-        val allTokens = unmatched.flatMap { textAnalyzer.analyze(it.text) }
-        return allTokens
-            .groupBy { it.stem }
+    /** Only words used in at least [privacyThreshold] different needs, so a single report never shows through. */
+    private fun topUnmatchedTerms(unmatched: List<NeedItem>): List<String> =
+        unmatched
+            .flatMap { need -> textAnalyzer.analyze(need.text).distinctBy(Token::stem) }
+            .groupBy(Token::stem)
+            .filterValues { it.size >= privacyThreshold }
             .entries
             .sortedWith(compareByDescending<Map.Entry<String, List<Token>>> { it.value.size }.thenBy { it.key })
             .take(TOP_TERMS_LIMIT)
-            .map { (_, tokens) ->
-                tokens
-                    .groupingBy { it.surface }
-                    .eachCount()
-                    .entries
-                    .sortedWith(compareByDescending<Map.Entry<String, Int>> { it.value }.thenBy { it.key })
-                    .first()
-                    .key
-            }
-    }
+            .map { mostCommonSurface(it.value) }
+
+    private fun mostCommonSurface(tokens: List<Token>): String =
+        tokens
+            .groupingBy(Token::surface)
+            .eachCount()
+            .entries
+            .minWithOrNull(compareByDescending<Map.Entry<String, Int>> { it.value }.thenBy { it.key })
+            ?.key
+            .orEmpty()
 
     private fun YearMonth.startInstant(): Instant = atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant()
 
-    private fun parseInstantOrEpoch(raw: String): Instant =
-        Either.catch { Instant.parse(raw) }.getOrElse { Instant.EPOCH }
+    private fun NeedTrendRow.createdAtInstant(): Instant =
+        Either.catch { Instant.parse(createdAt) }.getOrElse { Instant.EPOCH }
 
     companion object {
         const val DEFAULT_PRIVACY_THRESHOLD = 3
