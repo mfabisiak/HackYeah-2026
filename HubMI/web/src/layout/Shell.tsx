@@ -4,14 +4,18 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useRef } from 'react'
 import { useAuth } from '../auth/AuthContext'
 
-const links = [
+const baseLinks = [
   { to: '/', label: 'Start' },
   { to: '/status', label: 'Status systemu' },
   { to: '/konto', label: 'Moje konto' },
 ]
 
 export function Shell() {
-  const { ready, authenticated, username, login, logout } = useAuth()
+  const { ready, authenticated, username, login, logout, hasRole } = useAuth()
+  const navLinks = [
+    ...baseLinks,
+    ...(authenticated && hasRole('admin') ? [{ to: '/admin', label: 'Panel admina' }] : []),
+  ]
   const { setColorScheme } = useMantineColorScheme()
   const scheme = useComputedColorScheme('light')
   const mainRef = useRef<HTMLElement>(null)
@@ -35,7 +39,7 @@ export function Shell() {
             </Title>
             <nav aria-label="Główna nawigacja">
               <Group component="ul" gap="md" p={0} m={0} style={{ listStyle: 'none' }}>
-                {links.map((link) => (
+                {navLinks.map((link) => (
                   <li key={link.to}>
                     <Anchor component={NavLink} to={link.to} end underline="hover" fw={500}>
                       {link.label}
