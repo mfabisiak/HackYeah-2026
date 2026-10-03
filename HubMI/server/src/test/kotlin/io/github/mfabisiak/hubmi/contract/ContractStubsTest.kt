@@ -7,6 +7,7 @@ import io.github.mfabisiak.hubmi.api.Calls
 import io.github.mfabisiak.hubmi.api.ErrorCode
 import io.github.mfabisiak.hubmi.api.Ideas
 import io.github.mfabisiak.hubmi.module
+import io.github.mfabisiak.hubmi.offlineConfig
 import io.ktor.client.plugins.resources.Resources
 import io.ktor.client.plugins.resources.delete
 import io.ktor.client.plugins.resources.get
@@ -20,7 +21,7 @@ class ContractStubsTest {
     @Test
     fun publicStubsAnswerNotImplemented() =
         testApplication {
-            application { module() }
+            application { module(offlineConfig) }
             val client = createClient { install(Resources) }
 
             assertEquals(HttpStatusCode.NotImplemented, client.get(Calls()).status)
@@ -30,7 +31,7 @@ class ContractStubsTest {
     @Test
     fun queryParametersAreParsedFromTheContract() =
         testApplication {
-            application { module() }
+            application { module(offlineConfig) }
             val client = createClient { install(Resources) }
 
             val response = client.get(Calls(status = CallStatus.OPEN))
@@ -42,7 +43,7 @@ class ContractStubsTest {
     @Test
     fun authenticatedStubsRequireToken() =
         testApplication {
-            application { module() }
+            application { module(offlineConfig) }
             val client = createClient { install(Resources) }
 
             assertEquals(HttpStatusCode.Unauthorized, client.post(Ideas()).status)
@@ -52,7 +53,7 @@ class ContractStubsTest {
     @Test
     fun adminStubsRequireToken() =
         testApplication {
-            application { module() }
+            application { module(offlineConfig) }
             val client = createClient { install(Resources) }
 
             assertEquals(HttpStatusCode.Unauthorized, client.get(AdminTrends()).status)

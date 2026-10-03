@@ -4,6 +4,7 @@ import io.ktor.resources.Resource
 import kotlinx.serialization.Serializable
 
 // Module 6 (admin panel). Everything under /api/admin requires the `admin` role.
+// It also hosts the admin side of module 4 (innovation tester): feedback and test requests.
 
 /** `GET`: aggregated needs by area and municipality, used to spot trends. */
 @Serializable
@@ -30,6 +31,65 @@ class AdminIdeas(
         val id: String,
     )
 }
+
+/** `GET`: ratings and comments left by testers, newest first; the texts may contain personal data. */
+@Serializable
+@Resource("feedback")
+class AdminFeedback(
+    val parent: Api.Admin = Api.Admin(),
+    val innovationId: String? = null,
+    val page: Int = 0,
+    val size: Int = 20,
+)
+
+/** `GET`: declarations of willingness to test, newest first. */
+@Serializable
+@Resource("test-requests")
+class AdminTestRequests(
+    val parent: Api.Admin = Api.Admin(),
+    val innovationId: String? = null,
+    val status: TestRequestStatus? = null,
+    val page: Int = 0,
+    val size: Int = 20,
+) {
+    /** `PATCH`: accept or decline a `NEW` request; any other transition is a `409`. */
+    @Serializable
+    @Resource("{id}/status")
+    class Status(
+        val parent: AdminTestRequests = AdminTestRequests(),
+        val id: String,
+    )
+}
+
+@Serializable
+data class AdminFeedbackDto(
+    val id: String,
+    val innovationId: String,
+    val innovationTitle: String,
+    val userId: String,
+    val rating: Int,
+    val comment: String?,
+    val suggestion: String?,
+    val createdAt: String,
+    val updatedAt: String,
+)
+
+@Serializable
+data class AdminTestRequestDto(
+    val id: String,
+    val innovationId: String,
+    val innovationTitle: String,
+    val userId: String,
+    val note: String?,
+    val status: TestRequestStatus,
+    val createdAt: String,
+    val updatedAt: String,
+)
+
+@Serializable
+data class UpdateTestRequestStatusRequest(
+    val status: TestRequestStatus,
+)
 
 @Serializable
 data class AreaTrend(
