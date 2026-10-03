@@ -89,7 +89,11 @@ Przepływ: `route → service → repository`. Warstwa nie woła warstwy nad sob
 - Indeksy (w tym tekstowe dla matchmakingu) i JSON Schema tworzone przy starcie (`plugins/Indexes.kt`, `Schemas.kt`) – idempotentnie.
 - Każda metoda repozytorium: `Either.catch { ... }.mapLeft { RepositoryError.DatabaseException(it) }`;
   naruszenie unikalności → `RepositoryError.Conflict`.
-- Wielodokumentowe zmiany w transakcji (`MongoRepository.withTransaction`).
+- **Bez transakcji wielodokumentowych.** Modelujemy dane tak, by agregat mieścił się w jednym dokumencie, a każda
+  mutacja była atomową operacją na jednym dokumencie: `findOneAndUpdate`, `$inc`, `$push`, `$set`, upsert po kluczu
+  unikalnym. Warunki w filtrze (np. `{_id, status: oczekiwany}`) dają optymistyczną współbieżność i maszyny stanów.
+  Dane pochodne (agregaty, `lastMessageAt`) są idempotentne i samonaprawiające (przeliczane z danych źródłowych), a nie
+  utrzymywane „na styk" w dwóch dokumentach naraz.
 - Connection string z env (`MONGO_URI`, `MONGO_DATABASE`).
 
 ### DI (Koin)

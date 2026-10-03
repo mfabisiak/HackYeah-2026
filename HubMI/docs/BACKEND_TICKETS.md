@@ -4,6 +4,9 @@ Powiązane: [ROADMAP.md](ROADMAP.md) · [API.md](API.md) · [MATCHMAKING.md](MAT
 Rozmiary: **S** ≤ 2 h, **M** ≤ pół dnia, **L** ≈ dzień. Każdy ticket kończy się zielonym `./gradlew backendCheck`
 i, jeśli zmienia kontrakt, aktualizacją [API.md](API.md). Zrobione: szkielet serwera, auth, Mongo, kontrakt z atrapami.
 
+> Szczegółowe opisy (kontekst, stan repo, propozycje do zwalidowania, kryteria akceptacji, ryzyka) są w issues
+> [#1–#10](https://github.com/mfabisiak/HackYeah-2026/issues). Ten plik to skrót; źródłem prawdy o zakresie są issues.
+
 | ID    | Tytuł                                                   | Rozm. | Moduł | Zależy od |
 |:------|:--------------------------------------------------------|:-----:|:-----:|:----------|
 | BE-01 | Fundament: błędy, repozytoria, seed, testy z Mongo      |   M   |   –   | –         |
