@@ -1,10 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { initKeycloak, keycloak } from './keycloak'
 
-interface AuthState {
+export interface AuthState {
   ready: boolean
   authenticated: boolean
   username: string | undefined
+  roles: string[]
+  hasRole: (role: string) => boolean
   login: () => void
   logout: () => void
 }
@@ -22,15 +24,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setReady(true))
   }, [])
 
+  const roles = useMemo<string[]>(() => {
+    if (!authenticated) return []
+    const realmRoles = (keycloak.tokenParsed?.realm_access?.roles as string[] | undefined) ?? []
+    return realmRoles
+  }, [authenticated])
+
   const value = useMemo<AuthState>(
     () => ({
       ready,
       authenticated,
       username: keycloak.tokenParsed?.preferred_username as string | undefined,
+      roles,
+      hasRole: (role: string) => roles.includes(role) || (typeof keycloak.hasRealmRole === 'function' ? keycloak.hasRealmRole(role) : false),
       login: () => void keycloak.login({ redirectUri: window.location.href }),
       logout: () => void keycloak.logout({ redirectUri: window.location.origin }),
     }),
-    [ready, authenticated],
+    [ready, authenticated, roles],
   )
 
   return <AuthContext value={value}>{children}</AuthContext>
