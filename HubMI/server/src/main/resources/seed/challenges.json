@@ -1,0 +1,72 @@
+[
+  {
+    "slug": "wyzwanie-mobilnosc-seniorow-wieliczka",
+    "title": "Transport na żądanie dla seniorów z sołectw podmiejskich",
+    "description": "Osoby starsze mieszkające w mniejszych sołectwach mają utrudniony dostęp do placówek ochrony zdrowia, urzędów i domów kultury z powodu rzadkich kursów transportu publicznego.",
+    "area": "AGING",
+    "municipalities": ["Wieliczka", "Niepołomice", "Biskupice"]
+  },
+  {
+    "slug": "wyzwanie-zdrowie-psychiczne-mlodziezy-krakow",
+    "title": "Wsparcie psychologiczne w kryzysie rówieśniczym dla młodzieży",
+    "description": "Rosnąca liczba epizodów depresyjnych i stanów lękowych u młodzieży szkolnej przy jednoczesnym braku dostępnych natychmiastowych bezpłatnych konsultacji psychologicznych w środowisku lokalnym.",
+    "area": "MENTAL_HEALTH",
+    "municipalities": ["Kraków"]
+  },
+  {
+    "slug": "wyzwanie-samotnosc-starszych-tarnow",
+    "title": "Osamotnienie seniorów w osiedlach z wielkiej płyty",
+    "description": "Brak windy i wysokie bariery architektoniczne powodują uwięzienie w domach wielu samotnych seniorów z tarnowskich osiedli mieszkaniowych.",
+    "area": "LONELINESS",
+    "municipalities": ["Tarnów", "Skrzyszów"]
+  },
+  {
+    "slug": "wyzwanie-wykluczenie-cyfrowe-gorlice",
+    "title": "Cyfryzacja spraw urzędowych i e-usług w gminach górskich",
+    "description": "Niski poziom kompetencji cyfrowych mieszkańców wsi utrudnia korzystanie z e-recept, mObywatela i bankowości elektronicznej, szczególnie przy likwidacji placówek stacjonarnych.",
+    "area": "DIGITAL_EXCLUSION",
+    "municipalities": ["Gorlice", "Uście Gorlickie", "Sękowa"]
+  },
+  {
+    "slug": "wyzwanie-dostep-do-rehabilitacji-nowy-sacz",
+    "title": "Trudnodostępna rehabilitacja domowa dla osób z niepełnosprawnościami",
+    "description": "Długie terminy oczekiwania na fizjoterapię i rehabilitację domową dla osób leżących oraz brak sprzętu wypożyczalnianego w pobliżu miejsca zamieszkania.",
+    "area": "SERVICE_ACCESS",
+    "municipalities": ["Nowy Sącz", "Chełmiec", "Stary Sącz"]
+  },
+  {
+    "slug": "wyzwanie-koordynacja-uslug-chrzanow",
+    "title": "Zintegrowana opieka wytchnieniowa dla opiekunów osób zależnych",
+    "description": "Opiekunowie osób starszych i z niepełnosprawnościami zmagają się z chronicznym zmęczeniem i wypaleniem opiekuńczym z powodu braku krótkookresowych miejsc wytchnieniowych.",
+    "area": "COORDINATION",
+    "municipalities": ["Chrzanów", "Trzebinia", "Libiąż"]
+  },
+  {
+    "slug": "wyzwanie-depopulacja-miechow",
+    "title": "Starzenie się wsi i odpływ młodych z północnej Małopolski",
+    "description": "Migracja młodych mieszkańców do aglomeracji krakowskiej skutkuje zamykaniem punktów usługowych, szkół i osłabieniem więzi sąsiedzkich na terenach wiejskich.",
+    "area": "DEPOPULATION",
+    "municipalities": ["Miechów", "Książ Wielki", "Charsznica"]
+  },
+  {
+    "slug": "wyzwanie-aktywizacja-mlodziezy-oswiecim",
+    "title": "Przestrzenie trzeciego miejsca i partycypacja młodzieży",
+    "description": "Młodzi ludzie po zajęciach lekcyjnych nie mają bezpłatnych, bezpiecznych i przyjaznych przestrzeni do rozwijania pasji, wolontariatu i inicjatyw społecznych.",
+    "area": "OTHER",
+    "municipalities": ["Oświęcim", "Kęty", "Brzeszcze"]
+  },
+  {
+    "slug": "wyzwanie-samotnosc-matek-myslenice",
+    "title": "Wsparcie okołoporodowe i przeciwdziałanie izolacji młodych matek",
+    "description": "Poczucie osamotnienia u rodziców małych dzieci w pierwszych latach życia dziecka, brak grup wsparcia i kawiarni rodzinnych z dostępem do porad laktacyjnych i psychologicznych.",
+    "area": "LONELINESS",
+    "municipalities": ["Myślenice", "Dobczyce"]
+  },
+  {
+    "slug": "wyzwanie-dostepnosc-urzedow-podhale",
+    "title": "Likwidacja barier informacyjno-komunikacyjnych w usługach publicznych",
+    "description": "Utrudniony dostęp do urzędów gminnych dla osób głuchych, słabowidzących oraz w spektrum autyzmu ze względu na brak pętli indukcyjnych, tłumaczy PJM i pokoi wyciszenia.",
+    "area": "SERVICE_ACCESS",
+    "municipalities": ["Zakopane", "Nowy Targ", "Czarny Dunajec"]
+  }
+]

@@ -9,6 +9,8 @@ import io.github.mfabisiak.hubmi.plugins.configureSecurity
 import io.github.mfabisiak.hubmi.plugins.configureSerialization
 import io.github.mfabisiak.hubmi.repository.MongoRepository
 import io.github.mfabisiak.hubmi.routes.appRoutes
+import io.github.mfabisiak.hubmi.routes.innovationRoutes
+import io.github.mfabisiak.hubmi.routes.knowledgeRoutes
 import io.github.mfabisiak.hubmi.routes.sampleRoutes
 import io.github.mfabisiak.hubmi.seeding.DatabaseSeeder
 import io.ktor.server.application.*
@@ -52,6 +54,8 @@ fun Application.module(
     routing {
         appRoutes()
         sampleRoutes()
+        innovationRoutes()
+        knowledgeRoutes()
     }
 }
 
