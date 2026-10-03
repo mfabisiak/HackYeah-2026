@@ -56,4 +56,5 @@ TOKEN=$(curl -s -d client_id=hubmi-app -d grant_type=password -d username=admin 
 curl -H "Authorization: Bearer $TOKEN" localhost:8080/api/me
 ```
 
-Config via env: `KEYCLOAK_ISSUER` (must equal the token `iss`), `KEYCLOAK_JWKS_URL`, `PORT`.
+Config via env: `KEYCLOAK_ISSUER` (must equal the token `iss`), `KEYCLOAK_JWKS_URL`, `MONGO_URI`, `MONGO_DATABASE`, `PORT`.
+Mongo runs as a single-node replica set on host port `27017` (override with `MONGO_PORT=27018 docker compose up -d` if taken).

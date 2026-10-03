@@ -3,6 +3,8 @@ FROM eclipse-temurin:21-jdk AS build
 WORKDIR /src
 COPY . .
 # The project also contains Android/iOS modules; only the server distribution is built here.
+# Windows checkouts may bring CRLF line endings, which break the gradlew shebang
+RUN sed -i 's/\r$//' gradlew && chmod +x gradlew
 RUN ./gradlew :server:installDist --no-daemon
 
 FROM eclipse-temurin:21-jre

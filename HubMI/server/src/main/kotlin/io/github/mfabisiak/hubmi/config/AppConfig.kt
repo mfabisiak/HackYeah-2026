@@ -10,6 +10,8 @@ data class AppConfig(
     val port: Int,
     val keycloakIssuer: String,
     val keycloakJwksUrl: String,
+    val mongoUri: String,
+    val mongoDatabase: String,
 ) {
     companion object {
         fun fromEnv(env: Map<String, String> = System.getenv()): AppConfig {
@@ -18,6 +20,8 @@ data class AppConfig(
                 port = env["PORT"]?.toInt() ?: 8080,
                 keycloakIssuer = issuer,
                 keycloakJwksUrl = env["KEYCLOAK_JWKS_URL"] ?: "$issuer/protocol/openid-connect/certs",
+                mongoUri = env["MONGO_URI"] ?: "mongodb://localhost:27017/?directConnection=true",
+                mongoDatabase = env["MONGO_DATABASE"] ?: "hubmi",
             )
         }
     }

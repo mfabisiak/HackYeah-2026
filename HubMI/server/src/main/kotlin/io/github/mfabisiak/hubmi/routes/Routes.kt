@@ -3,7 +3,9 @@ package io.github.mfabisiak.hubmi.routes
 import io.github.mfabisiak.hubmi.plugins.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.plugins.realmRoles
 import io.github.mfabisiak.hubmi.plugins.requireRole
+import io.github.mfabisiak.hubmi.repository.MongoRepository
 import io.github.mfabisiak.hubmi.service.GreetingService
+import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
@@ -27,6 +29,7 @@ data class MessageResponse(val message: String)
 
 fun Route.appRoutes() {
     val greetingService by inject<GreetingService>()
+    val mongo by inject<MongoRepository>()
 
     // Public
     get("/") {
@@ -34,6 +37,12 @@ fun Route.appRoutes() {
     }
     get("/health") {
         call.respond(HealthResponse("UP"))
+    }
+    get("/health/ready") {
+        mongo.ping().fold(
+            ifLeft = { call.respond(HttpStatusCode.ServiceUnavailable, HealthResponse("DOWN")) },
+            ifRight = { call.respond(HealthResponse("UP")) },
+        )
     }
 
     // Requires a valid Keycloak access token
