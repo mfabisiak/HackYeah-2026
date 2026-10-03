@@ -96,6 +96,8 @@ materials/      `XxxId`/`XxxDraft`/value classes (`parse(request)` → `Either`;
 samples/        + `const val ..._COLLECTION` i `MongoDatabase.xxx` w repozytorium), `XxxMappers` (model → DTO),
                 `XxxRepository` (Either<RepositoryError, T>; bez logiki), `XxxService` (Either<DomainError, T>; bez HTTP i Mongo),
                 `XxxRoutes` (cienkie routy: parsowanie → serwis → odpowiedź)
+matching/     dopasowanie potrzeb do innowacji (`POST /api/matches`): silniki (BM25, oczyszczanie danych osobowych, indeks
+                w pamięci – czyste, bez IO poza `InnovationIndex`), `MatchService`, `NeedItem`/`NeedRepository`
 auth/         Keycloak/JWT: `configureSecurity`, `requireRole`, `CurrentUser`, `/api/me`, `/api/admin`
 health/       `/`, `/api/health`, `/api/health/ready`
 contract/     atrapy `501` dla jeszcze niezaimplementowanych zasobów (`ContractStubs.kt`)
@@ -110,7 +112,7 @@ di/           moduły Koin
 ```
 
 Podział jest **domenowy, nie warstwowy**: nowa funkcjonalność = nowy pakiet z własnym `Id`/`Draft`/`Item`/`Repository`/
-`Service`/`Routes`. Domena nie importuje innej domeny; to, co potrzebuje więcej niż jedna, trafia do `common`.
+`Service`/`Routes`. Domeny nie zależą od siebie wzajemnie (wyjątek: `matching` korzysta z `innovations`); to, co potrzebuje więcej niż jedna, trafia do `common`.
 
 W `:core/commonMain` leżą **DTO i żądania/odpowiedzi API** (współdzielone z klientami) – serializowalne,
 niemutowalne, bez zależności od Ktora i Mongo.
@@ -206,7 +208,8 @@ Przepływ: `route (parsowanie do typów domenowych) → service → repository`.
 
 - `kotlin.test` + `ktor-server-test-host`. Każdy endpoint: scenariusz sukcesu, 401, 403, walidacja.
 - Serwisy testujemy z prawdziwym Mongo w kontenerze (Testcontainers) lub z fake'iem repozytorium – nie mockujemy Arrow.
-- Matchmaking: testy trafności na zestawie seedowym (znane problemy → oczekiwane innowacje).
+- Matchmaking: testy trafności na zestawie seedowym (znane problemy → oczekiwane innowacje): `MatchingQualityTest` liczy
+  hit@3 i MRR i pilnuje celów; `WRITE_MATCHING_BASELINE=true ./gradlew :server:test` odświeża `docs/matching-baseline.md`.
 - Asercje na `Either`: `assertIs<Either.Right<*>>` / sprawdzanie typu błędu, nie na tekście komunikatu.
 
 ## Czego nie robić

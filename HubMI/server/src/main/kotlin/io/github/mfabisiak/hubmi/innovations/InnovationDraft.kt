@@ -26,6 +26,7 @@ data class InnovationDraft(
     val stage: InnovationStage,
     val region: Region?,
     val mediaUrls: List<HttpUrl>,
+    val narrative: InnovationNarrative,
 ) {
     companion object {
         fun parse(request: UpsertInnovationRequest): EitherNel<FieldError, InnovationDraft> =
@@ -39,7 +40,8 @@ data class InnovationDraft(
                     .asNel(),
                 request.region.parseOptional(Region::parse).asNel(),
                 request.mediaUrls.parseAll("mediaUrls", HttpUrl::parse),
-            ) { title, summary, description, areas, targetGroups, region, mediaUrls ->
+                InnovationNarrative.parse(request),
+            ) { title, summary, description, areas, targetGroups, region, mediaUrls, narrative ->
                 InnovationDraft(
                     title = title,
                     summary = summary,
@@ -49,6 +51,7 @@ data class InnovationDraft(
                     stage = request.stage,
                     region = region,
                     mediaUrls = mediaUrls,
+                    narrative = narrative,
                 )
             }
     }

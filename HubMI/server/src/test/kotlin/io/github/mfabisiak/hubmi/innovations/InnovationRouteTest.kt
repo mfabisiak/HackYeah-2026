@@ -315,4 +315,78 @@ class InnovationRouteTest {
             assertEquals("Kraków", updated.region)
             assertFalse(updated.title.startsWith(" "))
         }
+
+    @Test
+    fun applicationFormSectionsAreStoredUpdatedAndClearedOnPut() =
+        testApplication {
+            application { module(testModule) }
+            val client = createJsonClient()
+            val adminToken = TestSecurityHelper.generateToken(roles = setOf(Role.ADMIN))
+            val withSections =
+                sampleRequest(title = "Z sekcjami ${System.nanoTime()}").copy(
+                    innovativeness = "  Nowe podejście do transportu  ",
+                    problemDiagnosis = "Starsi mieszkańcy wsi nie mają jak dojechać do lekarza",
+                    audienceDescription = "Seniorzy z małych miejscowości",
+                    expectedChange = "Dojazd do lekarza bez zależności od rodziny",
+                    futureVision = "Można powtórzyć w innych gminach",
+                )
+
+            val created =
+                client
+                    .post(Innovations()) {
+                        contentType(ContentType.Application.Json)
+                        bearerAuth(adminToken)
+                        setBody(withSections)
+                    }.body<InnovationDto>()
+            assertEquals("Nowe podejście do transportu", created.innovativeness)
+            assertEquals("Starsi mieszkańcy wsi nie mają jak dojechać do lekarza", created.problemDiagnosis)
+            assertEquals("Seniorzy z małych miejscowości", created.audienceDescription)
+            assertEquals("Dojazd do lekarza bez zależności od rodziny", created.expectedChange)
+            assertEquals("Można powtórzyć w innych gminach", created.futureVision)
+            assertEquals(created, client.get(Innovations.ById(id = created.id)).body<InnovationDto>())
+
+            val cleared =
+                client
+                    .put(Innovations.ById(id = created.id)) {
+                        contentType(ContentType.Application.Json)
+                        bearerAuth(adminToken)
+                        setBody(
+                            withSections.copy(
+                                innovativeness = null,
+                                problemDiagnosis = "Zmieniona diagnoza",
+                                futureVision = " ",
+                            ),
+                        )
+                    }.body<InnovationDto>()
+            assertNull(cleared.innovativeness)
+            assertEquals("Zmieniona diagnoza", cleared.problemDiagnosis)
+            assertEquals("Seniorzy z małych miejscowości", cleared.audienceDescription)
+            assertNull(cleared.futureVision)
+        }
+
+    @Test
+    fun innovationWithoutSectionsAndOverlongSectionsAreHandled() =
+        testApplication {
+            application { module(testModule) }
+            val client = createJsonClient()
+            val adminToken = TestSecurityHelper.generateToken(roles = setOf(Role.ADMIN))
+
+            val plain =
+                client
+                    .post(Innovations()) {
+                        contentType(ContentType.Application.Json)
+                        bearerAuth(adminToken)
+                        setBody(sampleRequest(title = "Bez sekcji ${System.nanoTime()}"))
+                    }.body<InnovationDto>()
+            assertNull(plain.problemDiagnosis)
+
+            val tooLong =
+                client.post(Innovations()) {
+                    contentType(ContentType.Application.Json)
+                    bearerAuth(adminToken)
+                    setBody(sampleRequest().copy(audienceDescription = "x".repeat(5001)))
+                }
+            assertEquals(HttpStatusCode.BadRequest, tooLong.status)
+            assertTrue(tooLong.body<ErrorResponse>().details.any { it.field == "audienceDescription" })
+        }
 }

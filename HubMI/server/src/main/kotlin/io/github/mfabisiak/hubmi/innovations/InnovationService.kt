@@ -13,10 +13,12 @@ import io.github.mfabisiak.hubmi.api.TargetGroup
 import io.github.mfabisiak.hubmi.common.DomainError
 import io.github.mfabisiak.hubmi.common.SearchQuery
 import io.github.mfabisiak.hubmi.common.toDomainError
+import io.github.mfabisiak.hubmi.matching.InnovationIndex
 import java.time.Instant
 
 class InnovationService(
     private val repository: InnovationRepository,
+    private val matchingIndex: InnovationIndex,
 ) {
     suspend fun list(
         q: SearchQuery?,
@@ -42,7 +44,7 @@ class InnovationService(
         either {
             val item =
                 ensureNotNull(repository.findById(id).mapLeft { it.toDomainError() }.bind()) {
-                    notFound(id)
+                    innovationNotFound(id)
                 }
             item.toDto()
         }
@@ -50,6 +52,7 @@ class InnovationService(
     suspend fun create(draft: InnovationDraft): Either<DomainError, InnovationDto> =
         repository
             .create(draft.toItem(Instant.now().toString()))
+            .onRight { matchingIndex.invalidate() }
             .mapLeft { it.toDomainError() }
             .map { it.toDto() }
 
@@ -61,7 +64,8 @@ class InnovationService(
             val updated =
                 ensureNotNull(
                     repository.update(id, draft, Instant.now().toString()).mapLeft { it.toDomainError() }.bind(),
-                ) { notFound(id) }
+                ) { innovationNotFound(id) }
+            matchingIndex.invalidate()
             updated.toDto()
         }
 
@@ -69,9 +73,7 @@ class InnovationService(
         either {
             val deleted =
                 repository.softDelete(id, Instant.now().toString()).mapLeft { it.toDomainError() }.bind()
-            ensure(deleted) { notFound(id) }
+            ensure(deleted) { innovationNotFound(id) }
+            matchingIndex.invalidate()
         }
-
-    private fun notFound(id: InnovationId) =
-        DomainError.NotFound("Nie znaleziono innowacji o ID: ${id.value.toHexString()}")
 }

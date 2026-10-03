@@ -28,13 +28,10 @@ import io.github.mfabisiak.hubmi.samples.SampleItem
 import io.github.mfabisiak.hubmi.samples.samples
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import org.bson.types.ObjectId
 import org.slf4j.LoggerFactory
-import java.security.MessageDigest
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-private const val OBJECT_ID_BYTES = 12
 private const val SEED_USER_ID = "c0000000-0000-0000-0000-000000000001"
 
 @Serializable
@@ -56,6 +53,11 @@ data class SeedInnovationItem(
     val region: String? = null,
     val keywords: List<String> = emptyList(),
     val mediaUrls: List<String> = emptyList(),
+    val innovativeness: String? = null,
+    val problemDiagnosis: String? = null,
+    val audienceDescription: String? = null,
+    val expectedChange: String? = null,
+    val futureVision: String? = null,
 )
 
 @Serializable
@@ -122,7 +124,7 @@ class DatabaseSeeder(
         val seedItems = loadFromResource<SeedInnovationItem>("seed/innovations.json")
         seedItems.forEach { item ->
             database.innovations.updateOne(
-                Filters.eq(InnovationItem::id, seedId(item.slug)),
+                Filters.eq(InnovationItem::id, seedObjectId(item.slug)),
                 Updates.combine(
                     Updates.setOnInsert(InnovationItem::title, item.title),
                     Updates.setOnInsert(InnovationItem::summary, item.summary),
@@ -133,6 +135,11 @@ class DatabaseSeeder(
                     Updates.setOnInsert(InnovationItem::region, item.region),
                     Updates.setOnInsert(InnovationItem::keywords, item.keywords),
                     Updates.setOnInsert(InnovationItem::mediaUrls, item.mediaUrls),
+                    Updates.setOnInsert(InnovationItem::innovativeness, item.innovativeness),
+                    Updates.setOnInsert(InnovationItem::problemDiagnosis, item.problemDiagnosis),
+                    Updates.setOnInsert(InnovationItem::audienceDescription, item.audienceDescription),
+                    Updates.setOnInsert(InnovationItem::expectedChange, item.expectedChange),
+                    Updates.setOnInsert(InnovationItem::futureVision, item.futureVision),
                     Updates.setOnInsert(InnovationItem::ratingSum, 0),
                     Updates.setOnInsert(InnovationItem::ratingsCount, 0),
                     Updates.setOnInsert(InnovationItem::archived, false),
@@ -149,7 +156,7 @@ class DatabaseSeeder(
         val seedItems = loadFromResource<SeedChallengeItem>("seed/challenges.json")
         seedItems.forEach { item ->
             database.challenges.updateOne(
-                Filters.eq(ChallengeItem::id, seedId(item.slug)),
+                Filters.eq(ChallengeItem::id, seedObjectId(item.slug)),
                 Updates.combine(
                     Updates.setOnInsert(ChallengeItem::title, item.title),
                     Updates.setOnInsert(ChallengeItem::description, item.description),
@@ -169,7 +176,7 @@ class DatabaseSeeder(
         val seedItems = loadFromResource<SeedMaterialItem>("seed/materials.json")
         seedItems.forEach { item ->
             database.materials.updateOne(
-                Filters.eq(MaterialItem::id, seedId(item.slug)),
+                Filters.eq(MaterialItem::id, seedObjectId(item.slug)),
                 Updates.combine(
                     Updates.setOnInsert(MaterialItem::title, item.title),
                     Updates.setOnInsert(MaterialItem::description, item.description),
@@ -323,13 +330,6 @@ class DatabaseSeeder(
             )
         }
     }
-
-    /**
-     * The slug lives only in the seed files: it is hashed into a stable `_id`, so re-running the seeder upserts the same
-     * documents without a technical key in the model. `$setOnInsert` keeps edits and deletions made by admins.
-     */
-    private fun seedId(slug: String): ObjectId =
-        ObjectId(MessageDigest.getInstance("SHA-1").digest(slug.toByteArray()).copyOf(OBJECT_ID_BYTES))
 
     private inline fun <reified T> loadFromResource(resourcePath: String): List<T> {
         val stream = javaClass.classLoader.getResourceAsStream(resourcePath)

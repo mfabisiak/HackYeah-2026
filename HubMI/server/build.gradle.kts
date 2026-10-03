@@ -25,6 +25,7 @@ dependencies {
     implementation(libs.mongodb.driverKotlinCoroutine)
     implementation(libs.mongodb.driverKotlinExtensions)
     implementation(libs.bson.kotlinx)
+    testImplementation(libs.lucene.analysisStempel)
     implementation(libs.koin.ktor)
     implementation(libs.koin.loggerSlf4j)
     testImplementation(libs.ktor.serverTestHost)

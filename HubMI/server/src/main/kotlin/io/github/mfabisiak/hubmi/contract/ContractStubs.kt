@@ -4,7 +4,6 @@ import io.github.mfabisiak.hubmi.api.AdminTrends
 import io.github.mfabisiak.hubmi.api.ErrorCode
 import io.github.mfabisiak.hubmi.api.ErrorResponse
 import io.github.mfabisiak.hubmi.api.Innovations
-import io.github.mfabisiak.hubmi.api.Matches
 import io.github.mfabisiak.hubmi.api.Notifications
 import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.Threads
@@ -33,8 +32,6 @@ fun Route.contractStubs() {
 }
 
 private fun Route.publicStubs() {
-    post<Matches> { notImplemented() }
-    post<Matches.Feedback> { notImplemented() }
 }
 
 private fun Route.authenticatedStubs() {

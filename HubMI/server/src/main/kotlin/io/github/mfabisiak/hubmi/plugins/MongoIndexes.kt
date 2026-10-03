@@ -16,6 +16,8 @@ import io.github.mfabisiak.hubmi.ideas.IdeaItem
 import io.github.mfabisiak.hubmi.ideas.ideas
 import io.github.mfabisiak.hubmi.innovations.InnovationItem
 import io.github.mfabisiak.hubmi.innovations.innovations
+import io.github.mfabisiak.hubmi.matching.NeedItem
+import io.github.mfabisiak.hubmi.matching.needs
 import io.github.mfabisiak.hubmi.materials.MaterialItem
 import io.github.mfabisiak.hubmi.materials.materials
 import io.github.mfabisiak.hubmi.samples.SampleItem
@@ -44,5 +46,6 @@ object MongoIndexes {
                     Indexes.ascending(ApplicationItem::status),
                 ),
             )
+            database.needs.createIndex(Indexes.ascending(NeedItem::matchedInnovationIds))
         }.map { }
 }
