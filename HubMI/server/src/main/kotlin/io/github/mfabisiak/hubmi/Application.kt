@@ -1,16 +1,21 @@
 package io.github.mfabisiak.hubmi
 
+import io.github.mfabisiak.hubmi.auth.authRoutes
+import io.github.mfabisiak.hubmi.auth.configureSecurity
+import io.github.mfabisiak.hubmi.calls.grantCallRoutes
+import io.github.mfabisiak.hubmi.challenges.challengeRoutes
+import io.github.mfabisiak.hubmi.common.mongo.MongoRepository
 import io.github.mfabisiak.hubmi.config.AppConfig
+import io.github.mfabisiak.hubmi.contract.contractStubs
 import io.github.mfabisiak.hubmi.di.appModule
+import io.github.mfabisiak.hubmi.health.healthRoutes
+import io.github.mfabisiak.hubmi.ideas.ideaRoutes
+import io.github.mfabisiak.hubmi.innovations.innovationRoutes
+import io.github.mfabisiak.hubmi.materials.materialRoutes
 import io.github.mfabisiak.hubmi.plugins.MongoIndexes
 import io.github.mfabisiak.hubmi.plugins.configureKoin
-import io.github.mfabisiak.hubmi.plugins.configureSecurity
 import io.github.mfabisiak.hubmi.plugins.configureSerialization
-import io.github.mfabisiak.hubmi.repository.MongoRepository
-import io.github.mfabisiak.hubmi.routes.appRoutes
-import io.github.mfabisiak.hubmi.routes.innovationRoutes
-import io.github.mfabisiak.hubmi.routes.knowledgeRoutes
-import io.github.mfabisiak.hubmi.routes.sampleRoutes
+import io.github.mfabisiak.hubmi.samples.sampleRoutes
 import io.github.mfabisiak.hubmi.seeding.DatabaseSeeder
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -50,10 +55,15 @@ fun Application.module(
     }
 
     routing {
-        appRoutes()
+        healthRoutes()
+        authRoutes()
+        contractStubs()
         sampleRoutes()
         innovationRoutes()
-        knowledgeRoutes()
+        challengeRoutes()
+        materialRoutes()
+        ideaRoutes()
+        grantCallRoutes()
     }
 }
 
