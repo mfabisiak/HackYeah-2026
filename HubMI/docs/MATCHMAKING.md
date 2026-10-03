@@ -37,7 +37,7 @@ Wyniki trybów `keyword` i `hybrid` są deterministyczne, więc nadają się do 
 ## Architektura (`server`)
 
 ```
-service/matching/
+matching/
   MatchingEngine        interface: suspend match(request): Either<MatchError, MatchResult>
   KeywordMatchingEngine BM25 po znormalizowanych polach (polski: własna normalizacja/lematyzacja słownikowa lub stemmer)
   HybridMatchingEngine  deleguje do EmbeddingClient + VectorIndex, fuzja RRF, korekty

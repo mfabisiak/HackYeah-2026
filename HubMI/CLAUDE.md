@@ -43,7 +43,7 @@ Test users: `user`/`user`, `admin`/`admin` (realm [keycloak/hubmi-realm.json](ke
 4. **Zero `null` w domenie tam, gdzie można uniknąć.** `T?` dozwolone dla „brak dokumentu" z repozytorium
    i opcjonalnych pól; wyciągamy przez `ensureNotNull` / `?:` → błąd domenowy. Nigdy `!!`.
 5. **Walidacja przez `either { ensure(...) { Error } }`** z `arrow.core.raise`; wynik łączymy `.bind()`.
-   Dane z żądania parsujemy **na początku requestu** (w routingu) do value classes i `*Draft` z `domain/`
+   Dane z żądania parsujemy **na początku requestu** (w routingu) do value classes i `*Draft` z pakietu domeny
    (`zipOrAccumulate` zbiera wszystkie błędy pól); serwis i repozytorium dostają już tylko typy domenowe.
 6. Dane niemutowalne: `data class` z samymi `val`. Silne typy dla ID w domenie (`@JvmInline value class InnovationId(val value: String)`),
    `enum`/`sealed` zamiast stringów-magic. **Wyjątek: kontrakt API w `:core`** – ID to `String`, czas to ISO-8601 `String`,
@@ -90,17 +90,29 @@ Typ ma wyrażać znaczenie. Zanim napiszesz literał `"..."`, zapytaj: czy to za
 Układ wzorowany na projekcie `schlafzentrale` (`../../BazyDanychProjekt/schlafzentrale`), z REST zamiast kRPC.
 
 ```
+innovations/  pakiety domenowe: wszystko o jednym agregacie w jednym pakiecie
+challenges/     (`Innovation*`, `Challenge*`, `Material*`, `Sample*`):
+materials/      `XxxId`/`XxxDraft`/value classes (`parse(request)` → `Either`; bez Ktora i Mongo), `XxxItem` (dokument Mongo
+samples/        + `const val ..._COLLECTION` i `MongoDatabase.xxx` w repozytorium), `XxxMappers` (model → DTO),
+                `XxxRepository` (Either<RepositoryError, T>; bez logiki), `XxxService` (Either<DomainError, T>; bez HTTP i Mongo),
+                `XxxRoutes` (cienkie routy: parsowanie → serwis → odpowiedź)
+matching/     dopasowanie potrzeb do innowacji (`POST /api/matches`): silniki (BM25, oczyszczanie danych osobowych, indeks
+                w pamięci – czyste, bez IO poza `InnovationIndex`), `MatchService`, `NeedItem`/`NeedRepository`
+auth/         Keycloak/JWT: `configureSecurity`, `requireRole`, `CurrentUser`, `/api/me`, `/api/admin`
+health/       `/`, `/api/health`, `/api/health/ready`
+contract/     atrapy `501` dla jeszcze niezaimplementowanych zasobów (`ContractStubs.kt`)
+common/       współdzielone: `DomainError`, `RepositoryError`, paginacja, parsowanie i value classes używane przez wiele
+                domen (`Title`, `Description`, `HttpUrl`, `SearchQuery`)
+common/mongo/ infrastruktura Mongo: `MongoRepository` (klient), `SoftDeleteRepository`, `catching`/`mongoCatch`, filtry
+common/http/  mapowanie `DomainError` → odpowiedź HTTP (`respondError`, `respondEither`…)
 config/       AppConfig – konfiguracja z env (data class, bez globalnych singletonów)
-plugins/      konfiguracja Ktor: Koin, Serialization, Security, Routing, Indexes
-routes/       cienkie routy per zasób: parsowanie → serwis → odpowiedź
-domain/       value classes (`Title`, `HttpUrl`, `InnovationId`…) i `*Draft`: `parse(request)` → `Either`; bez Ktora i Mongo
-service/      logika domenowa, zwraca Either<DomainError, T>; bez wiedzy o HTTP i Mongo
-  matching/   silniki dopasowania (BM25, oczyszczanie danych osobowych, indeks w pamięci) – czyste, bez IO poza `InnovationIndex`
-repository/   dostęp do Mongo; zwraca Either<RepositoryError, T>; bez logiki biznesowej
-models/       dokumenty Mongo (data class) + Mappers.kt (model → DTO)
+plugins/      konfiguracja Ktor: Koin, Serialization, Indexes
 seeding/      dane przykładowe (żadnych prawdziwych danych osobowych!)
 di/           moduły Koin
 ```
+
+Podział jest **domenowy, nie warstwowy**: nowa funkcjonalność = nowy pakiet z własnym `Id`/`Draft`/`Item`/`Repository`/
+`Service`/`Routes`. Domeny nie zależą od siebie wzajemnie (wyjątek: `matching` korzysta z `innovations`); to, co potrzebuje więcej niż jedna, trafia do `common`.
 
 W `:core/commonMain` leżą **DTO i żądania/odpowiedzi API** (współdzielone z klientami) – serializowalne,
 niemutowalne, bez zależności od Ktora i Mongo.
@@ -109,7 +121,7 @@ Przepływ: `route (parsowanie do typów domenowych) → service → repository`.
 
 ### REST
 
-- Kontrakt API: [docs/API.md](docs/API.md) (zasoby i DTO w `:core/.../api`, atrapy `501` w `routes/ContractStubs.kt`).
+- Kontrakt API: [docs/API.md](docs/API.md) (zasoby i DTO w `:core/.../api`, atrapy `501` w `contract/ContractStubs.kt`).
 - Trasy jako **Ktor Resources** (`@Resource` w `:core/commonMain`), współdzielone przez serwer i klienta mobile; bez OpenAPI.
 - Prefiks `/api`, zasoby w liczbie mnogiej, rzeczowniki: `GET /api/innovations`, `POST /api/ideas`.
 - Metody i statusy zgodnie z semantyką: 200/201 (z `Location`), 204, 400 (walidacja), 401, 403, 404, 409 (konflikt), 5xx.
@@ -125,7 +137,7 @@ Przepływ: `route (parsowanie do typów domenowych) → service → repository`.
 - Jedna kolekcja per agregat; repozytorium per kolekcja: `class InnovationRepository(database: MongoDatabase)`.
 - Modele: `data class` z `@BsonId val id: ObjectId`; ID w DTO jako `String` (hex) opakowany w value class.
 - Indeksy tworzone przy starcie (`plugins/MongoIndexes.kt`) – idempotentnie. **Bez walidatorów JSON Schema w Mongo**: typy
-  pilnują modele `@Serializable`, a dane wejściowe – `domain/`.
+  pilnują modele `@Serializable`, a dane wejściowe – value classes i `*Draft` w pakietach domen.
 - Kolekcje z soft-delete (`archived`) dziedziczą `SoftDeleteRepository` (paginacja, update, archiwizacja); repozytorium
   dodaje tylko filtry i pola swojej kolekcji.
 - Każda metoda repozytorium: `Either.catch { ... }.mapLeft { RepositoryError.DatabaseException(it) }`;
@@ -136,7 +148,7 @@ Przepływ: `route (parsowanie do typów domenowych) → service → repository`.
   Dane pochodne (agregaty, `lastMessageAt`) są idempotentne i samonaprawiające (przeliczane z danych źródłowych), a nie
   utrzymywane „na styk" w dwóch dokumentach naraz.
 - **Kolekcje są typowane: `MongoCollection<Model>`, nigdy `MongoCollection<Document>`.** Binding nazwa → typ jest w jednym
-  miejscu (`repository/MongoCollections.kt`: `const val ..._COLLECTION` + `val MongoDatabase.samples`). Repozytoria,
+  miejscu (w pakiecie domeny, obok repozytorium: `const val ..._COLLECTION` + `val MongoDatabase.samples`). Repozytoria,
   indeksy, schematy, seedery i testy biorą kolekcję stamtąd, nie wołają `getCollection("nazwa")`.
 - **Kodeki: bson-kotlinx.** Modele w Mongo to `@Serializable data class`; `_id` jako
   `@SerialName("_id") @Contextual val id: ObjectId`. Enumy, `value class` i `Instant` koduje kodek, nie ręczne mapowanie.

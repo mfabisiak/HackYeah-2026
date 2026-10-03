@@ -2,7 +2,7 @@
 
 Źródłem prawdy jest kod: trasy to `@Resource` w [core/.../api](../core/src/commonMain/kotlin/io/github/mfabisiak/hubmi/api),
 każdy plik grupuje zasoby i DTO jednego modułu. Serwer na razie odpowiada na nie `501 Not Implemented`
-([ContractStubs.kt](../server/src/main/kotlin/io/github/mfabisiak/hubmi/routes/ContractStubs.kt)), ale **polityka dostępu
+([ContractStubs.kt](../server/src/main/kotlin/io/github/mfabisiak/hubmi/contract/ContractStubs.kt)), ale **polityka dostępu
 jest już egzekwowana** (brak tokena → `401`, brak roli → `403`). Realizując moduł, zastępujemy atrapę prawdziwą trasą.
 
 Konwencje: identyfikatory to `String` (hex), czas to ISO-8601 w `String`, listy paginowane (`page`, `size`),
