@@ -12,6 +12,7 @@ export default function App() {
     <Routes>
       <Route element={<Shell />}>
         <Route index element={<HomePage />} />
+        <Route path="dopasuj" element={<HomePage />} />
         <Route path="status" element={<StatusPage />} />
         <Route
           path="konto"

@@ -178,18 +178,71 @@ export const handlers = [
 
   // Matching
   http.post('/api/matches', async ({ request }) => {
-    const body = (await request.json()) as { description?: string }
+    const body = (await request.json()) as { description?: string; municipality?: string }
+    const desc = body.description?.toLowerCase() ?? ''
+
+    if (desc.includes('brak') || desc.includes('kosmos')) {
+      return HttpResponse.json({
+        needId: 'need-mock-empty',
+        matches: [],
+        similarNeeds: [],
+        noGoodMatch: true,
+      })
+    }
+
     return HttpResponse.json({
       needId: 'need-mock-1',
       matches: [
         {
-          innovation: mockInnovations[0],
-          score: 0.94,
-          justification: 'Innowacja bezpośrednio rozwiązuje problem komunikacji.',
+          innovation: {
+            id: 'inno-001',
+            title: 'Inteligentny asystent komunikacji dla seniorów',
+            summary: 'Aplikacja mobilna upraszczająca kontakt z rodziną i służbami medycznymi.',
+            areas: ['DIGITAL_EXCLUSION', 'AGING'],
+            targetGroups: ['SENIORS'],
+            stage: 'TESTED',
+          },
+          score: 0.88,
+          reasons: [
+            'Innowacja bezpośrednio rozwiązuje problem komunikacji i kontaktu ze służbami zdrowotnymi.',
+            'Rozwiązanie zostało z sukcesem przetestowane w warunkach domowych z seniorami w Małopolsce.',
+          ],
+          matchedTerms: ['senior', 'komunikacja', 'lekarz'],
+        },
+        {
+          innovation: {
+            id: 'inno-002',
+            title: 'Mobilny punkt wsparcia i animacji społecznej dla gmin wiejskich',
+            summary: 'Specjalny bus wyposażony w sprzęt edukacyjny i przestrzeń integracyjną docierający do małych miejscowości.',
+            areas: ['SERVICE_ACCESS', 'LONELINESS'],
+            targetGroups: ['RESIDENTS', 'SENIORS'],
+            stage: 'IMPLEMENTED',
+          },
+          score: 0.64,
+          reasons: [
+            'Model mobilnych usług przeciwdziała wykluczeniu komunikacyjnemu w małych gminach.',
+          ],
+          matchedTerms: ['transport', 'miejscowości'],
         },
       ],
-      userQuery: body.description ?? '',
+      similarNeeds: [
+        {
+          id: 'need-sim-1',
+          excerpt: 'Trudności z dojazdem osób starszych do przychodni rejonowej w gminie wiejskiej',
+          area: 'SERVICE_ACCESS',
+        },
+        {
+          id: 'need-sim-2',
+          excerpt: 'Brak zorganizowanego transportu medycznego dla osób z niepełnosprawnościami',
+          area: 'AGING',
+        },
+      ],
+      noGoodMatch: false,
     })
+  }),
+
+  http.put('/api/matches/:needId/feedback', async () => {
+    return new HttpResponse(null, { status: 204 })
   }),
 
   // Notifications
