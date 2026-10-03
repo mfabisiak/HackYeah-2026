@@ -22,6 +22,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then(setAuthenticated)
       .catch(() => setAuthenticated(false))
       .finally(() => setReady(true))
+
+    keycloak.onAuthLogout = () => {
+      setAuthenticated(false)
+    }
+    keycloak.onAuthRefreshError = () => {
+      setAuthenticated(false)
+    }
   }, [])
 
   const roles = useMemo<string[]>(() => {

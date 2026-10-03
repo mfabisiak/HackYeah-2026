@@ -6,7 +6,9 @@ WORKDIR /src
 COPY . .
 # Windows checkouts may bring CRLF line endings, which break the gradlew shebang
 RUN sed -i 's/\r$//' gradlew && chmod +x gradlew
-RUN ./gradlew :web-client:jsBrowserProductionLibraryDistribution --no-daemon
+# Shared with server/Dockerfile: the Gradle distribution and dependencies are downloaded once
+RUN --mount=type=cache,id=hubmi-gradle,target=/root/.gradle,sharing=locked \
+    ./gradlew :web-client:jsBrowserProductionLibraryDistribution --no-daemon
 
 # 2) React app; it depends on the client through the relative path "file:../web-client/..."
 FROM node:24-alpine AS app
