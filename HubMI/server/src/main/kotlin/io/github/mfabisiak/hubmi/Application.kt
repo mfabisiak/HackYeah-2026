@@ -7,7 +7,6 @@ import io.github.mfabisiak.hubmi.calls.grantCallRoutes
 import io.github.mfabisiak.hubmi.challenges.challengeRoutes
 import io.github.mfabisiak.hubmi.common.mongo.MongoRepository
 import io.github.mfabisiak.hubmi.config.AppConfig
-import io.github.mfabisiak.hubmi.contract.contractStubs
 import io.github.mfabisiak.hubmi.di.appModule
 import io.github.mfabisiak.hubmi.health.healthRoutes
 import io.github.mfabisiak.hubmi.ideas.ideaRoutes
@@ -72,7 +71,6 @@ fun Application.module(
     routing {
         healthRoutes()
         authRoutes()
-        contractStubs()
         sampleRoutes()
         innovationRoutes()
         challengeRoutes()

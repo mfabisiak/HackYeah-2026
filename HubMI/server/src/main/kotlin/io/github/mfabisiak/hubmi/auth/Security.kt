@@ -40,21 +40,7 @@ data class CurrentUser(
     val username: String?,
     val roles: Set<Role>,
     val email: String? = null,
-) {
-    val isAdmin: Boolean get() = Role.ADMIN in roles
-    val isExpert: Boolean get() = Role.EXPERT in roles
-    val isUser: Boolean get() = Role.USER in roles
-
-    fun hasRole(role: Role): Boolean = role in roles
-
-    /** Helper: checks whether this user is the resource owner OR has the specified role. */
-    fun isOwnerOrHasRole(
-        ownerId: String,
-        role: Role,
-    ): Boolean = id == ownerId || role in roles
-
-    fun isOwnerOrAdmin(ownerId: String): Boolean = isOwnerOrHasRole(ownerId, Role.ADMIN)
-}
+)
 
 /**
  * Realm roles assigned in Keycloak (`realm_access.roles` claim); the JWT library exposes claims untyped.

@@ -38,11 +38,9 @@ class AdminDashboardService(
     suspend fun getTrends(monthsParam: Int): Either<DomainError, TrendsDto> =
         either {
             val months = monthsParam.coerceIn(1, 60)
-            val now = clock.instant()
-            val nowUtc = now.atZone(ZoneOffset.UTC)
-
-            val currentWindowStart = nowUtc.minusMonths(months.toLong()).toInstant()
-            val previousWindowStart = nowUtc.minusMonths(2L * months).toInstant()
+            val currentYearMonth = YearMonth.from(clock.instant().atZone(ZoneOffset.UTC))
+            val currentWindowStart = currentYearMonth.minusMonths(months - 1L).startInstant()
+            val previousWindowStart = currentYearMonth.minusMonths(2L * months - 1).startInstant()
 
             val needs =
                 needRepository
@@ -51,19 +49,10 @@ class AdminDashboardService(
                     .bind()
 
             val (currentNeeds, previousNeeds) =
-                needs.partition { item ->
-                    val itemInstant = parseInstantOrEpoch(item.createdAt)
-                    itemInstant >= currentWindowStart && itemInstant <= now
-                }
-
-            val validPreviousNeeds =
-                previousNeeds.filter { item ->
-                    val itemInstant = parseInstantOrEpoch(item.createdAt)
-                    itemInstant >= previousWindowStart && itemInstant < currentWindowStart
-                }
+                needs.partition { parseInstantOrEpoch(it.createdAt) >= currentWindowStart }
 
             val currentAreaCounts = countByArea(currentNeeds)
-            val previousAreaCounts = countByArea(validPreviousNeeds)
+            val previousAreaCounts = countByArea(previousNeeds)
             val byArea =
                 SocialArea.entries
                     .map { area ->
@@ -86,7 +75,6 @@ class AdminDashboardService(
             val unmatchedNeedsInWindow = currentNeeds.filter { isUnmatched(it) }
             val unmatchedNeedsCount = unmatchedNeedsInWindow.size
 
-            val currentYearMonth = YearMonth.from(nowUtc)
             val seriesMonths =
                 (0 until months).map { offset ->
                     currentYearMonth.minusMonths((months - 1 - offset).toLong())
@@ -179,6 +167,8 @@ class AdminDashboardService(
                     .key
             }
     }
+
+    private fun YearMonth.startInstant(): Instant = atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant()
 
     private fun parseInstantOrEpoch(raw: String): Instant =
         Either.catch { Instant.parse(raw) }.getOrElse { Instant.EPOCH }

@@ -7,7 +7,6 @@ import arrow.core.raise.ensureNotNull
 import io.github.mfabisiak.hubmi.api.CreateThreadRequest
 import io.github.mfabisiak.hubmi.api.MessageDto
 import io.github.mfabisiak.hubmi.api.Page
-import io.github.mfabisiak.hubmi.api.PageRequest
 import io.github.mfabisiak.hubmi.api.ParticipantRole
 import io.github.mfabisiak.hubmi.api.PostMessageRequest
 import io.github.mfabisiak.hubmi.api.Role

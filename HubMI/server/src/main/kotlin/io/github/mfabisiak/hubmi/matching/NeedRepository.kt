@@ -8,7 +8,6 @@ import com.mongodb.kotlin.client.model.Sorts
 import com.mongodb.kotlin.client.model.Updates
 import io.github.mfabisiak.hubmi.common.RepositoryError
 import io.github.mfabisiak.hubmi.common.mongo.hasElement
-import io.github.mfabisiak.hubmi.common.mongo.matches
 import io.github.mfabisiak.hubmi.common.mongo.mongoCatch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList

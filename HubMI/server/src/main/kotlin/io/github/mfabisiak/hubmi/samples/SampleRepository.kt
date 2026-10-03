@@ -45,11 +45,6 @@ class SampleRepository(
             collection.find(Filters.eq(SampleItem::id, id)).toList().firstOrNull()
         }
 
-    suspend fun findBySlug(slug: String): Either<RepositoryError, SampleItem?> =
-        mongoCatch {
-            collection.find(Filters.eq(SampleItem::slug, slug)).toList().firstOrNull()
-        }
-
     suspend fun create(item: SampleItem): Either<RepositoryError, SampleItem> =
         mongoCatch {
             collection.insertOne(item)

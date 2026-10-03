@@ -102,7 +102,6 @@ matching/     dopasowanie potrzeb do innowacji (`POST /api/matches`): silniki (B
                 w pamięci – czyste, bez IO poza `InnovationIndex`), `MatchService`, `NeedItem`/`NeedRepository`
 auth/         Keycloak/JWT: `configureSecurity`, `requireRole`, `CurrentUser`, `/api/me`, `/api/admin`
 health/       `/`, `/api/health`, `/api/health/ready`
-contract/     atrapy `501` dla jeszcze niezaimplementowanych zasobów (`ContractStubs.kt`)
 common/       współdzielone: `DomainError`, `RepositoryError`, paginacja, parsowanie i value classes używane przez wiele
                 domen (`Title`, `Description`, `HttpUrl`, `SearchQuery`)
 common/mongo/ infrastruktura Mongo: `MongoRepository` (klient), `SoftDeleteRepository`, `catching`/`mongoCatch`, filtry
@@ -123,7 +122,7 @@ Przepływ: `route (parsowanie do typów domenowych) → service → repository`.
 
 ### REST
 
-- Kontrakt API: [docs/API.md](docs/API.md) (zasoby i DTO w `:core/.../api`, atrapy `501` w `contract/ContractStubs.kt`).
+- Kontrakt API: [docs/API.md](docs/API.md) (zasoby i DTO w `:core/.../api`).
 - Trasy jako **Ktor Resources** (`@Resource` w `:core/commonMain`), współdzielone przez serwer i klienta mobile; bez OpenAPI.
 - Prefiks `/api`, zasoby w liczbie mnogiej, rzeczowniki: `GET /api/innovations`, `POST /api/ideas`.
 - Metody i statusy zgodnie z semantyką: 200/201 (z `Location`), 204, 400 (walidacja), 401, 403, 404, 409 (konflikt), 5xx.

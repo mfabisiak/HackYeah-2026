@@ -5,7 +5,6 @@ import com.auth0.jwk.JwkProvider
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.github.mfabisiak.hubmi.api.Role
-import org.koin.dsl.module
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
@@ -42,11 +41,6 @@ object TestSecurityHelper {
                     "e" to eBytes,
                 ),
             )
-        }
-
-    val testSecurityModule =
-        module {
-            single<JwkProvider> { testJwkProvider }
         }
 
     fun generateToken(

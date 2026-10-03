@@ -3,8 +3,6 @@ package io.github.mfabisiak.hubmi.matching
 import arrow.core.Either
 import io.github.mfabisiak.hubmi.challenges.MunicipalityName
 import io.github.mfabisiak.hubmi.common.DomainError
-import io.github.mfabisiak.hubmi.common.mongo.matches
-import io.github.mfabisiak.hubmi.innovations.innovations
 import kotlin.math.min
 
 /** BM25 over the normalised innovation fields; needs no models, so it is also the fallback of the other engines. */

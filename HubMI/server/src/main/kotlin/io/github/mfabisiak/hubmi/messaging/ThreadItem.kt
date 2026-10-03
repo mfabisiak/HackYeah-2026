@@ -15,7 +15,7 @@ data class ThreadItem(
     val participantIds: Set<String> = setOf(ownerId),
     val lastMessageAt: Instant,
     val lastMessageBy: String,
-    val lastMessageRole: ParticipantRole? = null,
+    val lastMessageRole: ParticipantRole,
     val lastReadAt: Map<String, Instant> = emptyMap(),
     val createdAt: Instant,
     val updatedAt: Instant,

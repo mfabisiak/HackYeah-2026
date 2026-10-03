@@ -28,6 +28,7 @@ import io.ktor.server.testing.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.koin.dsl.module
+import java.time.Instant
 import kotlin.test.*
 
 class NotificationRouteTest {
@@ -170,7 +171,7 @@ class NotificationRouteTest {
                             type = NotificationType.CALL_PUBLISHED,
                             title = "Nowy nabór",
                             body = "Nabór 2026",
-                            createdAt = java.time.Instant.now(),
+                            createdAt = Instant.now(),
                         ),
                     ).getOrNull()!!
 

@@ -16,7 +16,6 @@ import io.github.mfabisiak.hubmi.health.GreetingService
 import io.github.mfabisiak.hubmi.ideas.EventPublisher
 import io.github.mfabisiak.hubmi.ideas.IdeaRepository
 import io.github.mfabisiak.hubmi.ideas.IdeaService
-import io.github.mfabisiak.hubmi.ideas.NoOpEventPublisher
 import io.github.mfabisiak.hubmi.innovations.InnovationRepository
 import io.github.mfabisiak.hubmi.innovations.InnovationService
 import io.github.mfabisiak.hubmi.matching.InnovationIndex

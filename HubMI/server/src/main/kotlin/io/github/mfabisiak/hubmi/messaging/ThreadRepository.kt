@@ -79,21 +79,19 @@ class ThreadRepository(
         lastMessageAt: Instant,
         lastMessageBy: String,
         participantId: String,
-        lastMessageRole: ParticipantRole? = null,
+        lastMessageRole: ParticipantRole,
     ): Either<RepositoryError, Unit> =
         mongoCatch {
-            val updates =
-                listOfNotNull(
+            collection.updateOne(
+                Filters.eq(ThreadItem::id, threadId),
+                Updates.combine(
                     Updates.set(ThreadItem::lastMessageAt, lastMessageAt),
                     Updates.set(ThreadItem::lastMessageBy, lastMessageBy),
-                    lastMessageRole?.let { Updates.set(ThreadItem::lastMessageRole, it) },
+                    Updates.set(ThreadItem::lastMessageRole, lastMessageRole),
                     Updates.addToSet(ThreadItem::participantIds, participantId),
                     Updates.set(ThreadItem::updatedAt, lastMessageAt),
                     JavaUpdates.set("lastReadAt.$participantId", lastMessageAt),
-                )
-            collection.updateOne(
-                Filters.eq(ThreadItem::id, threadId),
-                Updates.combine(updates),
+                ),
             )
         }.map { }
 

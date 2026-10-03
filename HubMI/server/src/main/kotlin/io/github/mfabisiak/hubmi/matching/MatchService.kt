@@ -7,10 +7,8 @@ import arrow.core.raise.ensureNotNull
 import io.github.mfabisiak.hubmi.api.MatchResult
 import io.github.mfabisiak.hubmi.auth.UserId
 import io.github.mfabisiak.hubmi.common.DomainError
-import io.github.mfabisiak.hubmi.common.mongo.matches
 import io.github.mfabisiak.hubmi.common.toDomainError
 import io.github.mfabisiak.hubmi.innovations.InnovationItem
-import io.github.mfabisiak.hubmi.matching.toSimilarNeed
 import java.time.Instant
 
 class MatchService(

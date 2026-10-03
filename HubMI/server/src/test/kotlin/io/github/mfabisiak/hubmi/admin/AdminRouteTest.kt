@@ -22,7 +22,6 @@ import io.github.mfabisiak.hubmi.matching.needs
 import io.github.mfabisiak.hubmi.messaging.ThreadItem
 import io.github.mfabisiak.hubmi.messaging.threads
 import io.github.mfabisiak.hubmi.module
-import io.github.mfabisiak.hubmi.tester.TestRequestDraft
 import io.github.mfabisiak.hubmi.tester.TestRequestItem
 import io.github.mfabisiak.hubmi.tester.testRequests
 import io.ktor.client.HttpClient
@@ -37,6 +36,8 @@ import kotlinx.coroutines.runBlocking
 import org.bson.types.ObjectId
 import org.koin.dsl.module
 import java.time.Instant
+import java.time.YearMonth
+import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import kotlin.test.*
 
@@ -242,12 +243,37 @@ class AdminRouteTest {
 
             // 4. Series verification
             assertEquals(6, trends.series.size)
-            assertTrue(trends.series.sumOf { it.count } == 6)
+            assertEquals(6, trends.series.sumOf { it.count })
 
             // 5. Top unmatched terms verification
             // "transport" appears in need4, need5, need6
             assertTrue(trends.topUnmatchedTerms.isNotEmpty())
             assertTrue("transport" in trends.topUnmatchedTerms.first().lowercase())
+        }
+
+    @Test
+    fun trendsWindowStartsAtBeginningOfOldestMonthSoSeriesMatchesAreaCounts() =
+        withApp { client ->
+            val oldestMonth = YearMonth.now(ZoneOffset.UTC).minusMonths(5)
+            val oldestStart = oldestMonth.atDay(2).atStartOfDay(ZoneOffset.UTC).toInstant()
+            val mongoClient = MongoClient.create(MongoTestEnvironment.connectionString)
+            val db = mongoClient.getDatabase(databaseName)
+            db.needs.insertOne(
+                NeedItem(
+                    text = "Zgłoszenie z początku okna",
+                    areas = listOf(SocialArea.LONELINESS),
+                    matchedInnovationIds = listOf(ObjectId()),
+                    noGoodMatch = false,
+                    createdAt = oldestStart.toString(),
+                ),
+            )
+            mongoClient.close()
+
+            val trends = client.get(AdminTrends(months = 6)) { bearerAuth(adminToken) }.body<TrendsDto>()
+
+            assertEquals(1, trends.byArea.single { it.area == SocialArea.LONELINESS }.count)
+            assertEquals(oldestMonth.toString(), trends.series.first().month)
+            assertEquals(1, trends.series.first().count)
         }
 
     @Test

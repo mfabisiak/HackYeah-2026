@@ -1,6 +1,7 @@
 package io.github.mfabisiak.hubmi.ideas
 
 import io.github.mfabisiak.hubmi.api.IdeaStatus
+import io.github.mfabisiak.hubmi.api.ParticipantRole
 import java.time.Instant
 
 sealed interface DomainEvent {
@@ -27,7 +28,7 @@ data class MessageReceived(
     val messageId: String,
     val senderId: String,
     val senderName: String,
-    val senderRole: io.github.mfabisiak.hubmi.api.ParticipantRole,
+    val senderRole: ParticipantRole,
     val recipientIds: Set<String>,
     val threadSubject: String,
     val text: String,
@@ -48,10 +49,4 @@ data class CallChanged(
 
 interface EventPublisher {
     suspend fun publish(event: DomainEvent)
-}
-
-class NoOpEventPublisher : EventPublisher {
-    override suspend fun publish(event: DomainEvent) {
-        // No-op for now; to be consumed in BE-07
-    }
 }

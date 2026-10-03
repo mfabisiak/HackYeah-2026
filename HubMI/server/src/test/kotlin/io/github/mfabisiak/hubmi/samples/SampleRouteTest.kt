@@ -9,7 +9,6 @@ import io.github.mfabisiak.hubmi.api.Page
 import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.SampleDto
 import io.github.mfabisiak.hubmi.api.Samples
-import io.github.mfabisiak.hubmi.common.Description
 import io.github.mfabisiak.hubmi.config.AppConfig
 import io.github.mfabisiak.hubmi.module
 import io.ktor.client.call.*

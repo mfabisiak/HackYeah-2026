@@ -5,11 +5,13 @@ import io.github.mfabisiak.hubmi.api.Notifications
 import io.github.mfabisiak.hubmi.api.PostMessageRequest
 import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.Threads
+import io.github.mfabisiak.hubmi.auth.CurrentUser
 import io.github.mfabisiak.hubmi.auth.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.auth.currentUser
 import io.github.mfabisiak.hubmi.common.http.respondEither
 import io.github.mfabisiak.hubmi.ideas.CallChanged
 import io.github.mfabisiak.hubmi.ideas.CallPublished
+import io.github.mfabisiak.hubmi.ideas.DomainEvent
 import io.github.mfabisiak.hubmi.ideas.IdeaStatusChanged
 import io.github.mfabisiak.hubmi.ideas.IdeaSubmitted
 import io.github.mfabisiak.hubmi.ideas.MessageReceived
@@ -97,44 +99,33 @@ fun Route.messagingRoutes() {
         }
 
         get("/api/notifications/stream") {
-            val userEither = call.currentUser
-            if (userEither.isLeft()) {
-                call.respond(HttpStatusCode.Unauthorized)
-                return@get
-            }
-            val user = (userEither as arrow.core.Either.Right).value
-            call.response.cacheControl(CacheControl.NoCache(null))
-            call.respondTextWriter(contentType = ContentType.Text.EventStream) {
-                write("retry: 15000\n\n")
-                flush()
-
-                eventBus.events
-                    .filter { event ->
-                        when (event) {
-                            is IdeaSubmitted -> {
-                                Role.ADMIN in user.roles
-                            }
-
-                            is IdeaStatusChanged -> {
-                                event.authorId == user.id
-                            }
-
-                            is MessageReceived -> {
-                                event.recipientIds.contains(user.id) ||
-                                    (event.recipientIds.isEmpty() && Role.ADMIN in user.roles)
-                            }
-
-                            is CallPublished, is CallChanged -> {
-                                true
-                            }
-                        }
-                    }.collect { event ->
-                        val eventName = event::class.simpleName ?: "Notification"
-                        write("event: $eventName\n")
-                        write("data: {\"type\":\"$eventName\",\"occurredAt\":\"${event.occurredAt}\"}\n\n")
+            call.currentUser.fold(
+                ifLeft = { call.respond(HttpStatusCode.Unauthorized) },
+                ifRight = { user ->
+                    call.response.cacheControl(CacheControl.NoCache(null))
+                    call.respondTextWriter(contentType = ContentType.Text.EventStream) {
+                        write("retry: 15000\n\n")
                         flush()
+
+                        eventBus.events
+                            .filter { event -> event.isVisibleTo(user) }
+                            .collect { event ->
+                                val eventName = event::class.simpleName ?: "Notification"
+                                write("event: $eventName\n")
+                                write("data: {\"type\":\"$eventName\",\"occurredAt\":\"${event.occurredAt}\"}\n\n")
+                                flush()
+                            }
                     }
-            }
+                },
+            )
         }
     }
 }
+
+private fun DomainEvent.isVisibleTo(user: CurrentUser): Boolean =
+    when (this) {
+        is IdeaSubmitted -> Role.ADMIN in user.roles
+        is IdeaStatusChanged -> authorId == user.id
+        is MessageReceived -> user.id in recipientIds || (recipientIds.isEmpty() && Role.ADMIN in user.roles)
+        is CallPublished, is CallChanged -> true
+    }

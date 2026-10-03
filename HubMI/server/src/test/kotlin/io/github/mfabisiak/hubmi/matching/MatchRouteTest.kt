@@ -17,9 +17,7 @@ import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.SocialArea
 import io.github.mfabisiak.hubmi.api.TargetGroup
 import io.github.mfabisiak.hubmi.api.UpsertInnovationRequest
-import io.github.mfabisiak.hubmi.common.mongo.matches
 import io.github.mfabisiak.hubmi.config.AppConfig
-import io.github.mfabisiak.hubmi.innovations.Region
 import io.github.mfabisiak.hubmi.module
 import io.ktor.client.HttpClient
 import io.ktor.client.call.*
