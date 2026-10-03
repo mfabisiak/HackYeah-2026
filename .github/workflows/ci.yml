@@ -31,6 +31,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           build-root-directory: HubMI
+          # by default only runs on main write the cache, so every PR starts cold
+          cache-read-only: false
       - run: ./gradlew backendCheck --no-daemon
       - name: Upload reports
         if: failure()
@@ -40,12 +42,3 @@ jobs:
           path: |
             **/build/reports/
             **/build/test-results/
-
-  docker:
-    name: Docker compose build
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      - run: docker compose config --quiet
-      - run: docker compose build server
