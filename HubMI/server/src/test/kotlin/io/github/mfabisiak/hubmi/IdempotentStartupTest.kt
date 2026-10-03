@@ -4,7 +4,6 @@ import arrow.core.Either
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import io.github.mfabisiak.hubmi.config.AppConfig
 import io.github.mfabisiak.hubmi.plugins.MongoIndexes
-import io.github.mfabisiak.hubmi.plugins.MongoSchemas
 import io.github.mfabisiak.hubmi.seeding.DatabaseSeeder
 import kotlinx.coroutines.runBlocking
 import org.junit.AfterClass
@@ -48,18 +47,12 @@ class IdempotentStartupTest {
             val indexes1 = MongoIndexes.configure(database)
             assertTrue(indexes1 is Either.Right, "Pierwsze tworzenie indeksów powinno zakończyć się sukcesem")
 
-            val schemas1 = MongoSchemas.configure(database)
-            assertTrue(schemas1 is Either.Right, "Pierwsza konfiguracja schematów powinna zakończyć się sukcesem")
-
             val seed1 = seeder.seedIfNeeded()
             assertTrue(seed1 is Either.Right, "Pierwsze seedowanie powinno zakończyć się sukcesem")
 
             // Second startup (simulating restart)
             val indexes2 = MongoIndexes.configure(database)
             assertTrue(indexes2 is Either.Right, "Drugie tworzenie indeksów powinno być w pełni idempotentne")
-
-            val schemas2 = MongoSchemas.configure(database)
-            assertTrue(schemas2 is Either.Right, "Druga konfiguracja schematów powinna być w pełni idempotentne")
 
             val seed2 = seeder.seedIfNeeded()
             assertTrue(seed2 is Either.Right, "Drugie seedowanie powinno być w pełni idempotentne")

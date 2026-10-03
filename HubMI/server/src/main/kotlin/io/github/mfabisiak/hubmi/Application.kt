@@ -3,12 +3,13 @@ package io.github.mfabisiak.hubmi
 import io.github.mfabisiak.hubmi.config.AppConfig
 import io.github.mfabisiak.hubmi.di.appModule
 import io.github.mfabisiak.hubmi.plugins.MongoIndexes
-import io.github.mfabisiak.hubmi.plugins.MongoSchemas
 import io.github.mfabisiak.hubmi.plugins.configureKoin
 import io.github.mfabisiak.hubmi.plugins.configureSecurity
 import io.github.mfabisiak.hubmi.plugins.configureSerialization
 import io.github.mfabisiak.hubmi.repository.MongoRepository
 import io.github.mfabisiak.hubmi.routes.appRoutes
+import io.github.mfabisiak.hubmi.routes.innovationRoutes
+import io.github.mfabisiak.hubmi.routes.knowledgeRoutes
 import io.github.mfabisiak.hubmi.routes.sampleRoutes
 import io.github.mfabisiak.hubmi.seeding.DatabaseSeeder
 import io.ktor.server.application.*
@@ -45,13 +46,14 @@ fun Application.module(
     val seeder = get<DatabaseSeeder>()
     launch {
         MongoIndexes.configure(mongo.database)
-        MongoSchemas.configure(mongo.database)
         seeder.seedIfNeeded()
     }
 
     routing {
         appRoutes()
         sampleRoutes()
+        innovationRoutes()
+        knowledgeRoutes()
     }
 }
 

@@ -43,6 +43,8 @@ Test users: `user`/`user`, `admin`/`admin` (realm [keycloak/hubmi-realm.json](ke
 4. **Zero `null` w domenie tam, gdzie można uniknąć.** `T?` dozwolone dla „brak dokumentu" z repozytorium
    i opcjonalnych pól; wyciągamy przez `ensureNotNull` / `?:` → błąd domenowy. Nigdy `!!`.
 5. **Walidacja przez `either { ensure(...) { Error } }`** z `arrow.core.raise`; wynik łączymy `.bind()`.
+   Dane z żądania parsujemy **na początku requestu** (w routingu) do value classes i `*Draft` z `domain/`
+   (`zipOrAccumulate` zbiera wszystkie błędy pól); serwis i repozytorium dostają już tylko typy domenowe.
 6. Dane niemutowalne: `data class` z samymi `val`. Silne typy dla ID w domenie (`@JvmInline value class InnovationId(val value: String)`),
    `enum`/`sealed` zamiast stringów-magic. **Wyjątek: kontrakt API w `:core`** – ID to `String`, czas to ISO-8601 `String`,
    żeby kontrakt dał się wyeksportować do JS.
@@ -89,8 +91,9 @@ Układ wzorowany na projekcie `schlafzentrale` (`../../BazyDanychProjekt/schlafz
 
 ```
 config/       AppConfig – konfiguracja z env (data class, bez globalnych singletonów)
-plugins/      konfiguracja Ktor: Koin, Serialization, Security, Routing, Indexes/Schemas
+plugins/      konfiguracja Ktor: Koin, Serialization, Security, Routing, Indexes
 routes/       cienkie routy per zasób: parsowanie → serwis → odpowiedź
+domain/       value classes (`Title`, `HttpUrl`, `InnovationId`…) i `*Draft`: `parse(request)` → `Either`; bez Ktora i Mongo
 service/      logika domenowa, zwraca Either<DomainError, T>; bez wiedzy o HTTP i Mongo
 repository/   dostęp do Mongo; zwraca Either<RepositoryError, T>; bez logiki biznesowej
 models/       dokumenty Mongo (data class) + Mappers.kt (model → DTO)
@@ -101,7 +104,7 @@ di/           moduły Koin
 W `:core/commonMain` leżą **DTO i żądania/odpowiedzi API** (współdzielone z klientami) – serializowalne,
 niemutowalne, bez zależności od Ktora i Mongo.
 
-Przepływ: `route → service → repository`. Warstwa nie woła warstwy nad sobą. Route nie dotyka repozytorium.
+Przepływ: `route (parsowanie do typów domenowych) → service → repository`. Warstwa nie woła warstwy nad sobą. Route nie dotyka repozytorium.
 
 ### REST
 
@@ -120,7 +123,10 @@ Przepływ: `route → service → repository`. Warstwa nie woła warstwy nad sob
 
 - Jedna kolekcja per agregat; repozytorium per kolekcja: `class InnovationRepository(database: MongoDatabase)`.
 - Modele: `data class` z `@BsonId val id: ObjectId`; ID w DTO jako `String` (hex) opakowany w value class.
-- Indeksy (w tym tekstowe dla matchmakingu) i JSON Schema tworzone przy starcie (`plugins/Indexes.kt`, `Schemas.kt`) – idempotentnie.
+- Indeksy tworzone przy starcie (`plugins/MongoIndexes.kt`) – idempotentnie. **Bez walidatorów JSON Schema w Mongo**: typy
+  pilnują modele `@Serializable`, a dane wejściowe – `domain/`.
+- Kolekcje z soft-delete (`archived`) dziedziczą `SoftDeleteRepository` (paginacja, update, archiwizacja); repozytorium
+  dodaje tylko filtry i pola swojej kolekcji.
 - Każda metoda repozytorium: `Either.catch { ... }.mapLeft { RepositoryError.DatabaseException(it) }`;
   naruszenie unikalności → `RepositoryError.Conflict`.
 - **Bez transakcji wielodokumentowych.** Modelujemy dane tak, by agregat mieścił się w jednym dokumencie, a każda
@@ -137,12 +143,13 @@ Przepływ: `route → service → repository`. Warstwa nie woła warstwy nad sob
   konwersja do `Document` w repozytorium.
 - **Pola przez referencje do właściwości, nie przez stringi:** `Filters.eq(SampleItem::slug, slug)`,
   `Sorts.descending(SampleItem::id)`, `Indexes.ascending(SampleItem::slug)`, `Updates.set(SampleItem::name, v)`
-  z `com.mongodb.kotlin.client.model.*` (`mongodb-driver-kotlin-extensions`); nazwę pola w ręcznym BSON-ie (np. JSON Schema)
+  z `com.mongodb.kotlin.client.model.*` (`mongodb-driver-kotlin-extensions`); nazwę pola w ręcznym BSON-ie
   bierzemy z `SampleItem::slug.path()`. Zakaz `Filters.eq("slug", ...)`, `"_id"`, `Document("x" to ...)` dla danych.
-- Stałe sterujące zamiast literałów: `ValidationLevel.MODERATE.value`, `ValidationAction.ERROR.value`, `Indexes.text(...)`.
-  `Document` dopuszczalny wyłącznie dla poleceń bazy (`ping`, `collMod`) i fragmentów `$jsonSchema`.
-- Indeksy, schematy i seed powstają razem z modelem i kolekcją, której dotyczą – nie wyprzedzamy kolejnych ticketów.
-- Seed jest idempotentny przez upsert po kluczu naturalnym (np. `slug`), bez pól technicznych w modelu domeny.
+- Stałe i buildery z drivera zamiast literałów (`Indexes.text(...)`, `Sorts.descending(...)`).
+  `Document` dopuszczalny wyłącznie dla poleceń bazy (`ping`).
+- Indeksy i seed powstają razem z modelem i kolekcją, której dotyczą – nie wyprzedzamy kolejnych ticketów.
+- Seed jest idempotentny przez upsert po `_id` wyliczonym z klucza naturalnego z pliku seed (`slug` → hash), bez pól
+  technicznych w modelu domeny. `$setOnInsert`: ponowny seed nie nadpisuje edycji ani archiwizacji zrobionych przez admina.
 - Connection string z env (`MONGO_URI`, `MONGO_DATABASE`).
 
 ### DI (Koin)

@@ -13,15 +13,15 @@ błąd to zawsze `ErrorResponse(code, message)`. Dostęp: 🌐 publiczny · 🔑
 | – | `GET /health`, `GET /health/ready` | 🌐 | → `HealthResponse` *(zaimplementowane)* |
 | – | `GET /api/me` | 🔑 | → `MeResponse` *(zaimplementowane)* |
 | – | `GET /api/admin` | 🛡️ | → `MessageResponse` *(zaimplementowane)* |
-| 2 | `GET /api/innovations?q&area&targetGroup&page&size` | 🌐 | → `Page<InnovationSummary>` |
-| 2 | `GET /api/innovations/{id}` | 🌐 | → `InnovationDto` |
-| 2 | `POST /api/innovations` | 🛡️ | `UpsertInnovationRequest` → `InnovationDto` |
-| 2 | `PUT /api/innovations/{id}` | 🛡️ | `UpsertInnovationRequest` → `InnovationDto` |
-| 2 | `DELETE /api/innovations/{id}` | 🛡️ | → `204` |
-| 2 | `GET /api/challenges?area&page&size`, `GET /api/challenges/{id}` | 🌐 | → `Page<ChallengeDto>`, `ChallengeDto` |
-| 2 | `POST /api/challenges`, `PUT`/`DELETE /api/challenges/{id}` | 🛡️ | `UpsertChallengeRequest` → `ChallengeDto` |
-| 2 | `GET /api/materials?q&area&type&page&size`, `GET /api/materials/{id}` | 🌐 | → `Page<MaterialDto>`, `MaterialDto` |
-| 2 | `POST /api/materials`, `PUT`/`DELETE /api/materials/{id}` | 🛡️ | `UpsertMaterialRequest` → `MaterialDto` |
+| 2 | `GET /api/innovations?q&area&targetGroup&page&size` | 🌐 | → `Page<InnovationSummary>` *(zaimplementowane)* |
+| 2 | `GET /api/innovations/{id}` | 🌐 | → `InnovationDto` *(zaimplementowane)* |
+| 2 | `POST /api/innovations` | 🛡️ | `UpsertInnovationRequest` → `InnovationDto` *(zaimplementowane)* |
+| 2 | `PUT /api/innovations/{id}` | 🛡️ | `UpsertInnovationRequest` → `InnovationDto` *(zaimplementowane)* |
+| 2 | `DELETE /api/innovations/{id}` | 🛡️ | → `204` *(zaimplementowane)* |
+| 2 | `GET /api/challenges?area&page&size`, `GET /api/challenges/{id}` | 🌐 | → `Page<ChallengeDto>`, `ChallengeDto` *(zaimplementowane)* |
+| 2 | `POST /api/challenges`, `PUT`/`DELETE /api/challenges/{id}` | 🛡️ | `UpsertChallengeRequest` → `ChallengeDto` *(zaimplementowane)* |
+| 2 | `GET /api/materials?q&area&type&page&size`, `GET /api/materials/{id}` | 🌐 | → `Page<MaterialDto>`, `MaterialDto` *(zaimplementowane)* |
+| 2 | `POST /api/materials`, `PUT`/`DELETE /api/materials/{id}` | 🛡️ | `UpsertMaterialRequest` → `MaterialDto` *(zaimplementowane)* |
 | 1 | `POST /api/matches` | 🌐 | `MatchRequest` → `MatchResult` |
 | 1 | `POST /api/matches/{needId}/feedback` | 🌐 | `MatchFeedbackRequest` → `204` |
 | 3 | `POST /api/ideas` | 🔑 | `CreateIdeaRequest` → `IdeaDto` |

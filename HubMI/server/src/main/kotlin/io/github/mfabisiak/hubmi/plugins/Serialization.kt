@@ -5,6 +5,7 @@ import io.github.mfabisiak.hubmi.api.ErrorResponse
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.resources.Resources
@@ -20,6 +21,15 @@ fun Application.configureSerialization() {
             call.respond(
                 HttpStatusCode.InternalServerError,
                 ErrorResponse(ErrorCode.INTERNAL_ERROR, "Internal server error"),
+            )
+        }
+        exception<BadRequestException> { call, _ ->
+            call.respond(
+                HttpStatusCode.BadRequest,
+                ErrorResponse(
+                    ErrorCode.VALIDATION_FAILED,
+                    "Nieprawidłowe żądanie: brak lub błędny parametr albo treść",
+                ),
             )
         }
         status(HttpStatusCode.Unauthorized) { call, _ ->
