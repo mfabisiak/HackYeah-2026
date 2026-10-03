@@ -5,15 +5,21 @@ import com.mongodb.client.model.UpdateOptions
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import com.mongodb.kotlin.client.model.Filters
 import com.mongodb.kotlin.client.model.Updates
+import io.github.mfabisiak.hubmi.api.CallField
+import io.github.mfabisiak.hubmi.api.IdeaStatus
 import io.github.mfabisiak.hubmi.api.InnovationStage
 import io.github.mfabisiak.hubmi.api.MaterialType
 import io.github.mfabisiak.hubmi.api.SocialArea
 import io.github.mfabisiak.hubmi.api.TargetGroup
+import io.github.mfabisiak.hubmi.calls.GrantCallItem
+import io.github.mfabisiak.hubmi.calls.grantCalls
 import io.github.mfabisiak.hubmi.challenges.ChallengeItem
 import io.github.mfabisiak.hubmi.challenges.challenges
 import io.github.mfabisiak.hubmi.common.RepositoryError
 import io.github.mfabisiak.hubmi.common.mongo.catching
 import io.github.mfabisiak.hubmi.config.AppConfig
+import io.github.mfabisiak.hubmi.ideas.IdeaItem
+import io.github.mfabisiak.hubmi.ideas.ideas
 import io.github.mfabisiak.hubmi.innovations.InnovationItem
 import io.github.mfabisiak.hubmi.innovations.innovations
 import io.github.mfabisiak.hubmi.materials.MaterialItem
@@ -24,6 +30,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 import java.time.Instant
+import java.time.temporal.ChronoUnit
+
+private const val SEED_USER_ID = "c0000000-0000-0000-0000-000000000001"
 
 @Serializable
 data class SeedSampleItem(
@@ -83,13 +92,15 @@ class DatabaseSeeder(
             return Either.Right(Unit)
         }
 
-        logger.info("Running database seeders from resources/seed/ (SEED=true)...")
+        logger.info("Running database seeders (SEED=true)...")
         return catching {
             val now = Instant.now().toString()
             seedSamples()
             seedInnovations(now)
             seedChallenges(now)
             seedMaterials(now)
+            seedGrantCalls()
+            seedIdeas()
             logger.info("Database seeding completed successfully.")
         }
     }
@@ -180,6 +191,144 @@ class DatabaseSeeder(
             )
         }
         logger.info("Seeded ${seedItems.size} material items.")
+    }
+
+    private suspend fun seedGrantCalls() {
+        val now = Instant.now()
+        val calls =
+            listOf(
+                GrantCallItem(
+                    title = "Małopolski Inkubator Innowacji Społecznych – Nabór 2026",
+                    description = "Granty na rozwój i testowanie nowatorskich mikroinnowacji społecznych w Małopolsce.",
+                    opensAt = now.minus(14, ChronoUnit.DAYS),
+                    closesAt = now.plus(45, ChronoUnit.DAYS),
+                    fields =
+                        listOf(
+                            CallField(
+                                key = "opis_problemu",
+                                label = "Opis problemu społecznego",
+                                required = true,
+                            ),
+                            CallField(
+                                key = "grupa_docelowa",
+                                label = "Odbiorcy innowacji",
+                                required = true,
+                            ),
+                            CallField(
+                                key = "budzet",
+                                label = "Szacowany budżet (PLN)",
+                                required = true,
+                            ),
+                            CallField(
+                                key = "partnerzy",
+                                label = "Potencjalni partnerzy",
+                                required = false,
+                            ),
+                        ),
+                    createdAt = now,
+                    updatedAt = now,
+                ),
+                GrantCallItem(
+                    title = "Wsparcie Samodzielności Seniorów – Edycja Wiosna 2027",
+                    description = "Inicjatywy wspierające aktywność i niezależność seniorów w środowisku lokalnym.",
+                    opensAt = now.plus(30, ChronoUnit.DAYS),
+                    closesAt = now.plus(90, ChronoUnit.DAYS),
+                    fields =
+                        listOf(
+                            CallField(
+                                key = "tytul",
+                                label = "Tytuł projektu",
+                                required = true,
+                            ),
+                            CallField(
+                                key = "zalozenia",
+                                label = "Główne założenia usługi opiekuńczej",
+                                required = true,
+                            ),
+                        ),
+                    createdAt = now,
+                    updatedAt = now,
+                ),
+                GrantCallItem(
+                    title = "Pilotaż Innowacji Włączających – 2025",
+                    description =
+                        "Zakończony nabór pilotażowy projektów włączenia społecznego osób z niepełnosprawnościami.",
+                    opensAt = now.minus(180, ChronoUnit.DAYS),
+                    closesAt = now.minus(30, ChronoUnit.DAYS),
+                    fields =
+                        listOf(
+                            CallField(
+                                key = "podsumowanie",
+                                label = "Podsumowanie rezultatów",
+                                required = true,
+                            ),
+                        ),
+                    createdAt = now,
+                    updatedAt = now,
+                ),
+            )
+
+        calls.forEach { call ->
+            database.grantCalls.updateOne(
+                Filters.eq(GrantCallItem::title, call.title),
+                Updates.combine(
+                    Updates.set(GrantCallItem::description, call.description),
+                    Updates.set(GrantCallItem::opensAt, call.opensAt),
+                    Updates.set(GrantCallItem::closesAt, call.closesAt),
+                    Updates.set(GrantCallItem::fields, call.fields),
+                    Updates.set(GrantCallItem::updatedAt, call.updatedAt),
+                    Updates.setOnInsert(GrantCallItem::createdAt, call.createdAt),
+                ),
+                UpdateOptions().upsert(true),
+            )
+        }
+    }
+
+    private suspend fun seedIdeas() {
+        val now = Instant.now()
+        val ideas =
+            listOf(
+                IdeaItem(
+                    authorId = SEED_USER_ID,
+                    title = "Mobilny Asystent Seniora",
+                    essence =
+                        "Aplikacja łącząca wolontariuszy z seniorami potrzebującymi wsparcia w codziennych sprawach.",
+                    targetGroups = listOf(TargetGroup.SENIORS),
+                    stage = InnovationStage.PILOT,
+                    status = IdeaStatus.SUBMITTED,
+                    createdAt = now,
+                    updatedAt = now,
+                ),
+                IdeaItem(
+                    authorId = SEED_USER_ID,
+                    title = "Centrum Równych Szans",
+                    essence =
+                        "Klub rówieśniczy wspierający młodzież z obszarów wiejskich w rozwijaniu pasji i integracji.",
+                    targetGroups = listOf(TargetGroup.YOUTH),
+                    stage = InnovationStage.IDEA,
+                    status = IdeaStatus.IN_REVIEW,
+                    createdAt = now,
+                    updatedAt = now,
+                ),
+            )
+
+        ideas.forEach { idea ->
+            database.ideas.updateOne(
+                Filters.and(
+                    Filters.eq(IdeaItem::authorId, idea.authorId),
+                    Filters.eq(IdeaItem::title, idea.title),
+                ),
+                Updates.combine(
+                    Updates.set(IdeaItem::essence, idea.essence),
+                    Updates.set(IdeaItem::targetGroups, idea.targetGroups),
+                    Updates.set(IdeaItem::stage, idea.stage),
+                    Updates.set(IdeaItem::status, idea.status),
+                    Updates.set(IdeaItem::updatedAt, idea.updatedAt),
+                    Updates.setOnInsert(IdeaItem::createdAt, idea.createdAt),
+                ),
+                UpdateOptions().upsert(true),
+            )
+        }
     }
 
     private inline fun <reified T> loadFromResource(resourcePath: String): List<T> {

@@ -2,12 +2,14 @@ package io.github.mfabisiak.hubmi
 
 import io.github.mfabisiak.hubmi.auth.authRoutes
 import io.github.mfabisiak.hubmi.auth.configureSecurity
+import io.github.mfabisiak.hubmi.calls.grantCallRoutes
 import io.github.mfabisiak.hubmi.challenges.challengeRoutes
 import io.github.mfabisiak.hubmi.common.mongo.MongoRepository
 import io.github.mfabisiak.hubmi.config.AppConfig
 import io.github.mfabisiak.hubmi.contract.contractStubs
 import io.github.mfabisiak.hubmi.di.appModule
 import io.github.mfabisiak.hubmi.health.healthRoutes
+import io.github.mfabisiak.hubmi.ideas.ideaRoutes
 import io.github.mfabisiak.hubmi.innovations.innovationRoutes
 import io.github.mfabisiak.hubmi.matching.matchRoutes
 import io.github.mfabisiak.hubmi.materials.materialRoutes
@@ -62,6 +64,8 @@ fun Application.module(
         challengeRoutes()
         materialRoutes()
         matchRoutes()
+        ideaRoutes()
+        grantCallRoutes()
     }
 }
 

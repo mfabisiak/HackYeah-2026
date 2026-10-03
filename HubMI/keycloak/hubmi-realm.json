@@ -31,6 +31,7 @@
   ],
   "users": [
     {
+      "id": "c0000000-0000-0000-0000-000000000001",
       "username": "user",
       "email": "user@hubmi.local",
       "firstName": "Test",
