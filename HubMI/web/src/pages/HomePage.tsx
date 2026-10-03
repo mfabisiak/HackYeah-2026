@@ -1,16 +1,46 @@
-import { Badge, Card, Container, Divider, Group, SimpleGrid, Stack, Text, Title } from '@mantine/core'
+import {
+  Badge,
+  Button,
+  Card,
+  Container,
+  Divider,
+  Group,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core'
+import { IconArrowRight } from '@tabler/icons-react'
+import { Link } from 'react-router-dom'
 import { MatchmakingView } from '../features/matchmaking/MatchmakingView'
 
 const modules = [
   {
-    title: 'Zasobnik wiedzy',
-    text: 'Biblioteka innowacji społecznych, katalog wyzwań Małopolski oraz materiały i raporty edukacyjne.',
-    soon: true,
+    title: 'Baza innowacji społecznych',
+    text: 'Przeglądaj przetestowane i działające rozwiązania dla osób starszych i mieszkańców Małopolski.',
+    to: '/innowacje',
+    badge: 'Dostępne teraz',
+    badgeColor: 'teal',
   },
   {
-    title: 'Kreator pomysłów',
-    text: 'Zgłoś własny pomysł na innowację społeczną w formie zwięzłej fiszki i ubiegaj się o mikrogrant.',
-    soon: true,
+    title: 'Katalog wyzwań Małopolski',
+    text: 'Zidentyfikowane potrzeby i wyzwania regionalne zebrane z małopolskich gmin i sołectw.',
+    to: '/wyzwania',
+    badge: 'Dostępne teraz',
+    badgeColor: 'teal',
+  },
+  {
+    title: 'Materiały i publikacje',
+    text: 'Praktyczne poradniki krok po kroku, szablony Canva, instruktaże wideo oraz raporty z badań.',
+    to: '/materialy',
+    badge: 'Dostępne teraz',
+    badgeColor: 'teal',
+  },
+  {
+    title: 'Kreator pomysłów na innowacje',
+    text: 'Zgłoś własny pomysł na innowację społeczną w formie zwięzłej fiszki i ubiegaj się o mikrogrant ROPS.',
+    badge: 'W kolejnym module',
+    badgeColor: 'gray',
   },
 ]
 
@@ -44,16 +74,38 @@ export function HomePage() {
             {modules.map((module) => (
               <li key={module.title}>
                 <Card withBorder padding="lg" h="100%">
-                  <Stack gap="sm">
-                    <Group justify="space-between" wrap="nowrap" align="flex-start">
-                      <Title order={3} size="h4">
-                        {module.title}
-                      </Title>
-                      {module.soon && <Badge variant="light">W kolejnych modułach</Badge>}
-                    </Group>
-                    <Text size="sm" c="dimmed">
-                      {module.text}
-                    </Text>
+                  <Stack gap="sm" justify="space-between" h="100%">
+                    <Stack gap="xs">
+                      <Group justify="space-between" wrap="nowrap" align="flex-start">
+                        <Title order={3} size="h4">
+                          {module.title}
+                        </Title>
+                        <Badge variant="light" color={module.badgeColor}>
+                          {module.badge}
+                        </Badge>
+                      </Group>
+                      <Text
+                        size="md"
+                        c="light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0))"
+                        style={{ lineHeight: 1.5 }}
+                      >
+                        {module.text}
+                      </Text>
+                    </Stack>
+
+                    {module.to && (
+                      <Group justify="flex-start" mt="xs">
+                        <Button
+                          component={Link}
+                          to={module.to}
+                          variant="light"
+                          size="md"
+                          rightSection={<IconArrowRight size={18} aria-hidden="true" />}
+                        >
+                          Przejdź do modułu
+                        </Button>
+                      </Group>
+                    )}
                   </Stack>
                 </Card>
               </li>
