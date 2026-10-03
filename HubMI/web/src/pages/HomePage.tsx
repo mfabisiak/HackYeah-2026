@@ -19,7 +19,15 @@ export function HomePage() {
     <Stack gap="xl">
       <MatchmakingView />
 
-      <Divider my="xl" label="Pozostałe obszary platformy" labelPosition="center" />
+      <Divider
+        my="3rem"
+        label={
+          <Text size="xl" fw={700} px="md">
+            Pozostałe obszary platformy
+          </Text>
+        }
+        labelPosition="center"
+      />
 
       <Container size="md" p={0}>
         <Stack gap="md">

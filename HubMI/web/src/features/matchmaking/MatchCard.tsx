@@ -34,13 +34,13 @@ export interface MatchCardProps {
 function getStageIcon(stage: string) {
   switch (stage) {
     case 'IMPLEMENTED':
-      return <IconCheck size={16} aria-hidden="true" />
+      return <IconCheck size={18} aria-hidden="true" />
     case 'TESTED':
-      return <IconFlask size={16} aria-hidden="true" />
+      return <IconFlask size={18} aria-hidden="true" />
     case 'PILOT':
-      return <IconLayersLinked size={16} aria-hidden="true" />
+      return <IconLayersLinked size={18} aria-hidden="true" />
     default:
-      return <IconBulb size={16} aria-hidden="true" />
+      return <IconBulb size={18} aria-hidden="true" />
   }
 }
 
@@ -67,11 +67,16 @@ export function MatchCard({ match }: MatchCardProps) {
           <Badge
             color={quality.color}
             variant="filled"
-            size="lg"
+            size="xl"
             radius="md"
-            leftSection={<IconSparkles size={16} aria-hidden="true" />}
+            leftSection={<IconSparkles size={18} aria-hidden="true" />}
+            style={{
+              height: 38,
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
             styles={{
-              root: { fontSize: '0.875rem', fontWeight: 700, padding: '8px 12px' },
+              label: { fontSize: '0.95rem', fontWeight: 700 },
             }}
           >
             {quality.label}
@@ -80,11 +85,18 @@ export function MatchCard({ match }: MatchCardProps) {
           <Badge
             variant="outline"
             color="gray"
-            size="md"
+            size="xl"
             radius="md"
             leftSection={getStageIcon(innovation.stage)}
+            style={{
+              height: 38,
+              borderWidth: 2,
+              borderColor: 'var(--mantine-color-gray-6)',
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
             styles={{
-              root: { fontSize: '0.875rem' },
+              label: { fontSize: '0.95rem', fontWeight: 600 },
             }}
           >
             {stageName}
@@ -103,25 +115,25 @@ export function MatchCard({ match }: MatchCardProps) {
           </Anchor>
         </Title>
 
-        <Text size="md" c="dark.8" style={{ lineHeight: 1.6, fontSize: '1.05rem' }}>
+        <Text size="md" style={{ lineHeight: 1.6, fontSize: '1.05rem' }}>
           {innovation.summary}
         </Text>
 
         {reasons && reasons.length > 0 && (
           <Stack gap="xs" mt="xs">
-            <Text size="md" fw={700} c="dark.9">
+            <Text size="md" fw={700}>
               Dlaczego to rozwiązanie pasuje do Twojej sytuacji:
             </Text>
             <List
               size="md"
               spacing="xs"
               icon={
-                <ThemeIcon color={quality.color} size={22} radius="xl" variant="light">
-                  <IconCircleCheck size={14} aria-hidden="true" />
+                <ThemeIcon color={quality.color} size={24} radius="xl" variant="light">
+                  <IconCircleCheck size={16} aria-hidden="true" />
                 </ThemeIcon>
               }
               styles={{
-                item: { lineHeight: 1.5, fontSize: '1rem' },
+                item: { lineHeight: 1.5, fontSize: '1.02rem' },
               }}
             >
               {reasons.map((reason, idx) => (
@@ -140,13 +152,13 @@ export function MatchCard({ match }: MatchCardProps) {
               <mark
                 key={idx}
                 style={{
-                  backgroundColor: '#fff3bf',
-                  color: '#5f370e',
-                  border: '1px solid #ffe066',
-                  padding: '3px 8px',
+                  backgroundColor: 'var(--mantine-color-yellow-light)',
+                  color: 'var(--mantine-color-yellow-light-color)',
+                  border: '1px solid var(--mantine-color-yellow-filled)',
+                  padding: '4px 10px',
                   borderRadius: 6,
-                  fontSize: '0.9rem',
-                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  fontWeight: 700,
                 }}
               >
                 <span
@@ -171,9 +183,23 @@ export function MatchCard({ match }: MatchCardProps) {
         )}
 
         {innovation.areas && innovation.areas.length > 0 && (
-          <Group gap="xs" mt="xs" wrap="wrap">
+          <Group gap="sm" mt="xs" wrap="wrap">
             {innovation.areas.map((area) => (
-              <Badge key={area} variant="light" color="blue" size="sm" radius="sm">
+              <Badge
+                key={area}
+                variant="light"
+                color="blue"
+                size="lg"
+                radius="md"
+                style={{
+                  height: 34,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                }}
+                styles={{
+                  label: { fontSize: '0.95rem', fontWeight: 600 },
+                }}
+              >
                 {SOCIAL_AREA_NAMES[area] ?? area}
               </Badge>
             ))}

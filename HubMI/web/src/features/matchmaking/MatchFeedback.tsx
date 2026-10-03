@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Box, Button, Center, Group, Paper, Stack, Text, Title } from '@mantine/core'
+import { Alert, Box, Button, Center, Group, Paper, Stack, Text, Title } from '@mantine/core'
 import { IconCheck, IconHeartHandshake, IconThumbDown, IconThumbUp } from '@tabler/icons-react'
 import { hubApi } from '../../api/hubApi'
 
@@ -101,27 +101,34 @@ export function MatchFeedback({ needId }: MatchFeedbackProps) {
           </Button>
         </Group>
 
-        <Box role="status" aria-live="polite">
+        <Box role="status" aria-live="polite" w="100%" maw={520}>
           {feedbackSent && (
-            <Paper
-              withBorder
-              p="sm"
+            <Alert
+              variant="light"
+              color="teal"
               radius="md"
-              bg="teal.0"
-              style={{ borderColor: 'var(--mantine-color-teal-filled)' }}
+              icon={<IconCheck size={20} aria-hidden="true" />}
+              title="Dziękujemy za opinię!"
+              styles={{
+                title: { fontSize: '1.05rem', fontWeight: 700 },
+                message: { fontSize: '0.95rem' },
+              }}
             >
-              <Group gap="xs" justify="center">
-                <IconCheck size={20} color="var(--mantine-color-teal-filled)" aria-hidden="true" />
-                <Text size="md" fw={600} c="teal.9">
-                  Dziękujemy za opinię! Zapisaliśmy Twoją odpowiedź.
-                </Text>
-              </Group>
-            </Paper>
+              Zapisaliśmy Twoją odpowiedź. Pomaga nam to polecać mieszkańcom coraz lepsze rozwiązania.
+            </Alert>
           )}
           {errorMessage && (
-            <Text size="sm" c="red" fw={500} ta="center">
+            <Alert
+              variant="light"
+              color="red"
+              radius="md"
+              title="Wystąpił błąd"
+              styles={{
+                title: { fontSize: '1rem', fontWeight: 700 },
+              }}
+            >
               {errorMessage}
-            </Text>
+            </Alert>
           )}
         </Box>
       </Stack>

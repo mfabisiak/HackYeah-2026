@@ -36,11 +36,11 @@ export function SimilarNeedsList({ items }: SimilarNeedsListProps) {
             <li key={item.id}>
               <Card withBorder padding="md" radius="md">
                 <Group justify="space-between" align="center" wrap="wrap" gap="sm">
-                  <Text size="md" c="dark.8" style={{ flex: 1, minWidth: 240, fontSize: '1.05rem', lineHeight: 1.5 }}>
+                  <Text size="md" style={{ flex: 1, minWidth: 240, fontSize: '1.05rem', lineHeight: 1.5 }}>
                     „{item.excerpt}”
                   </Text>
                   {item.area && (
-                    <Badge variant="light" color="blue" size="sm" radius="sm">
+                    <Badge variant="light" color="blue" size="md" radius="sm">
                       {SOCIAL_AREA_NAMES[item.area] ?? item.area}
                     </Badge>
                   )}

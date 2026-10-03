@@ -107,7 +107,7 @@ export function MatchmakingView() {
                 Opisz problem, znajdź rozwiązanie
               </Title>
             </Group>
-            <Text size="lg" c="dark.7" style={{ lineHeight: 1.6 }}>
+            <Text size="lg" style={{ lineHeight: 1.6 }}>
               Nasz asystent przeszuka bazę sprawdzonych innowacji społecznych w Małopolsce
               i wskaże rozwiązania najbardziej odpowiadające Twojej sytuacji wraz z prostym wyjaśnieniem.
             </Text>

@@ -132,7 +132,7 @@ export function MatchmakingForm({ isLoading, onSubmit }: MatchmakingFormProps) {
         </Stack>
 
         <Stack gap="xs">
-          <Text size="sm" fw={600} c="dark.7">
+          <Text size="sm" fw={600}>
             Możesz też wybrać gotowy przykład problemu (kliknij, aby wstawić):
           </Text>
           <Group gap="sm" wrap="wrap">
