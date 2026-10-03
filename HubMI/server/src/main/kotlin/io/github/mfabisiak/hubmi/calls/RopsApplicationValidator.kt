@@ -4,8 +4,11 @@ import arrow.core.Either
 import arrow.core.EitherNel
 import arrow.core.Nel
 import arrow.core.NonEmptyList
+import arrow.core.left
+import arrow.core.nonEmptyListOf
 import arrow.core.raise.either
 import arrow.core.raise.ensure
+import arrow.core.toNonEmptyListOrNull
 import io.github.mfabisiak.hubmi.api.DeclarationId
 import io.github.mfabisiak.hubmi.api.FieldError
 import io.github.mfabisiak.hubmi.api.FieldErrorCode
@@ -260,207 +263,208 @@ object RopsApplicationValidator {
         plan: ActionPlanItem?,
         requestedGrantAmountGrosze: Int?,
     ): EitherNel<FieldError, Unit> =
-        either {
-            val errors = mutableListOf<FieldError>()
-
-            if (plan == null) {
-                errors.add(FieldError("plan", FieldErrorCode.Blank, "Harmonogram i budżet projektu są wymagane"))
-            } else {
-                if (plan.preparation.isEmpty()) {
-                    errors.add(
-                        FieldError(
-                            "plan.preparation",
-                            FieldErrorCode.Blank,
-                            "Wymagane jest zdefiniowanie co najmniej jednego zadania w okresie przygotowawczym",
-                        ),
-                    )
-                }
-                if (plan.testingPhase1.isEmpty()) {
-                    errors.add(
-                        FieldError(
-                            "plan.testingPhase1",
-                            FieldErrorCode.Blank,
-                            "Wymagane jest zdefiniowanie co najmniej jednego zadania w Fazie I testowania",
-                        ),
-                    )
-                }
-
-                validateTermsFormat(plan.preparation, "plan.preparation", errors)
-                validateTermsFormat(plan.testingPhase1, "plan.testingPhase1", errors)
-                validateTermsFormat(plan.testingPhase2, "plan.testingPhase2", errors)
-
-                val prepDuration = calculateDuration(plan.preparation)
-                if (prepDuration > MAX_PREPARATION_MONTHS) {
-                    errors.add(
-                        FieldError(
-                            "plan.preparation",
-                            FieldErrorCode.Range(1, MAX_PREPARATION_MONTHS),
-                            "Okres przygotowawczy nie może przekraczać $MAX_PREPARATION_MONTHS miesięcy " +
-                                "(obecnie: $prepDuration)",
-                        ),
-                    )
-                }
-
-                val testDuration = calculateDuration(plan.testingPhase1 + plan.testingPhase2)
-                if (testDuration > MAX_TESTING_MONTHS) {
-                    errors.add(
-                        FieldError(
-                            "plan.testingPhase1",
-                            FieldErrorCode.Range(1, MAX_TESTING_MONTHS),
-                            "Łączny okres testowania (Faza I + Faza II) nie może przekraczać " +
-                                "$MAX_TESTING_MONTHS miesięcy (obecnie: $testDuration)",
-                        ),
-                    )
-                }
-
-                // Sequence validation: preparation precedes testing, phase 1 precedes phase 2
-                validateSequence(plan, errors)
-
-                // Cost limits on individual items
-                validateCosts(plan.preparation, "plan.preparation", errors)
-                validateCosts(plan.testingPhase1, "plan.testingPhase1", errors)
-                validateCosts(plan.testingPhase2, "plan.testingPhase2", errors)
-
-                val totalPlanCostLong =
-                    (plan.preparation + plan.testingPhase1 + plan.testingPhase2).sumOf {
-                        it.costGrosze.toLong()
-                    }
-
-                if (requestedGrantAmountGrosze == null || requestedGrantAmountGrosze <= 0) {
-                    errors.add(
-                        FieldError(
-                            "requestedGrantAmountGrosze",
-                            FieldErrorCode.Blank,
-                            "Wnioskowana kwota grantu jest wymagana i musi być dodatnia",
-                        ),
-                    )
-                } else if (requestedGrantAmountGrosze > MAX_GRANT_AMOUNT_GROSZE) {
-                    errors.add(
-                        FieldError(
-                            "requestedGrantAmountGrosze",
-                            FieldErrorCode.InvalidFormat,
-                            "Wnioskowana kwota grantu nie może przekraczać ${MAX_GRANT_AMOUNT_GROSZE / 100} PLN",
-                        ),
-                    )
-                } else if (totalPlanCostLong != requestedGrantAmountGrosze.toLong()) {
-                    errors.add(
-                        FieldError(
-                            "requestedGrantAmountGrosze",
-                            FieldErrorCode.InvalidFormat,
-                            "Wnioskowana kwota grantu (${requestedGrantAmountGrosze / 100} PLN) musi być równa " +
-                                "sumie kosztów z harmonogramu (${totalPlanCostLong / 100} PLN)",
-                        ),
-                    )
-                }
+        when (plan) {
+            null -> {
+                nonEmptyListOf(
+                    FieldError("plan", FieldErrorCode.Blank, "Harmonogram i budżet projektu są wymagane"),
+                ).left()
             }
 
-            ensure(errors.isEmpty()) {
-                val nel = NonEmptyList(errors.first(), errors.drop(1))
-                raise(nel)
+            else -> {
+                (
+                    planCompletenessErrors(plan) +
+                        planTermsErrors(plan) +
+                        planDurationErrors(plan) +
+                        sequenceErrors(plan) +
+                        planCostErrors(plan) +
+                        grantAmountErrors(plan, requestedGrantAmountGrosze)
+                ).asValidation()
             }
         }
 
-    private fun validateSequence(
-        plan: ActionPlanItem,
-        errors: MutableList<FieldError>,
-    ) {
-        val prepTerms =
-            plan.preparation.mapIndexedNotNull { idx, item ->
-                if (TERM_REGEX.matches(item.term.trim())) idx to item.term.trim() else null
-            }
-        val p1Terms =
-            plan.testingPhase1.mapIndexedNotNull { idx, item ->
-                if (TERM_REGEX.matches(item.term.trim())) idx to item.term.trim() else null
-            }
-        val p2Terms =
-            plan.testingPhase2.mapIndexedNotNull { idx, item ->
-                if (TERM_REGEX.matches(item.term.trim())) idx to item.term.trim() else null
-            }
+    private fun planCompletenessErrors(plan: ActionPlanItem): List<FieldError> =
+        listOfNotNull(
+            FieldError(
+                "plan.preparation",
+                FieldErrorCode.Blank,
+                "Wymagane jest zdefiniowanie co najmniej jednego zadania w okresie przygotowawczym",
+            ).takeIf { plan.preparation.isEmpty() },
+            FieldError(
+                "plan.testingPhase1",
+                FieldErrorCode.Blank,
+                "Wymagane jest zdefiniowanie co najmniej jednego zadania w Fazie I testowania",
+            ).takeIf { plan.testingPhase1.isEmpty() },
+        )
 
-        val minTestingTerm = (p1Terms.map { it.second } + p2Terms.map { it.second }).minOrNull()
-        if (minTestingTerm != null) {
-            prepTerms.forEach { (idx, term) ->
-                if (term >= minTestingTerm) {
-                    errors.add(
-                        FieldError(
-                            field = "plan.preparation[$idx].term",
-                            code = FieldErrorCode.InvalidFormat,
-                            message =
-                                "Okres przygotowawczy ($term) musi poprzedzać okres testowania ($minTestingTerm)",
-                        ),
-                    )
-                }
-            }
-        }
+    private fun planTermsErrors(plan: ActionPlanItem): List<FieldError> =
+        termsFormatErrors(plan.preparation, "plan.preparation") +
+            termsFormatErrors(plan.testingPhase1, "plan.testingPhase1") +
+            termsFormatErrors(plan.testingPhase2, "plan.testingPhase2")
 
-        val minP2Term = p2Terms.map { it.second }.minOrNull()
-        if (minP2Term != null) {
-            p1Terms.forEach { (idx, term) ->
-                if (term > minP2Term) {
-                    errors.add(
-                        FieldError(
-                            field = "plan.testingPhase1[$idx].term",
-                            code = FieldErrorCode.InvalidFormat,
-                            message = "Faza I testowania ($term) musi poprzedzać Fazę II testowania ($minP2Term)",
-                        ),
-                    )
-                }
-            }
-        }
+    private fun planDurationErrors(plan: ActionPlanItem): List<FieldError> {
+        val prepDuration = calculateDuration(plan.preparation)
+        val testDuration = calculateDuration(plan.testingPhase1 + plan.testingPhase2)
+        return listOfNotNull(
+            FieldError(
+                "plan.preparation",
+                FieldErrorCode.Range(1, MAX_PREPARATION_MONTHS),
+                "Okres przygotowawczy nie może przekraczać $MAX_PREPARATION_MONTHS miesięcy (obecnie: $prepDuration)",
+            ).takeIf { prepDuration > MAX_PREPARATION_MONTHS },
+            FieldError(
+                "plan.testingPhase1",
+                FieldErrorCode.Range(1, MAX_TESTING_MONTHS),
+                "Łączny okres testowania (Faza I + Faza II) nie może przekraczać " +
+                    "$MAX_TESTING_MONTHS miesięcy (obecnie: $testDuration)",
+            ).takeIf { testDuration > MAX_TESTING_MONTHS },
+        )
     }
 
-    private fun validateCosts(
+    private data class IndexedTerm(
+        val index: Int,
+        val term: String,
+    )
+
+    private fun wellFormedTerms(items: List<PlanItem>): List<IndexedTerm> =
+        items.mapIndexedNotNull { index, item ->
+            item.term
+                .trim()
+                .takeIf(TERM_REGEX::matches)
+                ?.let { IndexedTerm(index, it) }
+        }
+
+    /** The preparation precedes testing and Phase I precedes Phase II (terms are `YYYY-MM`, so they sort as text). */
+    private fun sequenceErrors(plan: ActionPlanItem): List<FieldError> {
+        val preparation = wellFormedTerms(plan.preparation)
+        val phase1 = wellFormedTerms(plan.testingPhase1)
+        val phase2 = wellFormedTerms(plan.testingPhase2)
+        val firstTestingTerm = (phase1 + phase2).minOfOrNull(IndexedTerm::term)
+        val firstPhase2Term = phase2.minOfOrNull(IndexedTerm::term)
+
+        val preparationErrors =
+            firstTestingTerm
+                ?.let { first ->
+                    preparation
+                        .filter { it.term >= first }
+                        .map {
+                            FieldError(
+                                field = "plan.preparation[${it.index}].term",
+                                code = FieldErrorCode.InvalidFormat,
+                                message = "Okres przygotowawczy (${it.term}) musi poprzedzać okres testowania ($first)",
+                            )
+                        }
+                }.orEmpty()
+        val phase1Errors =
+            firstPhase2Term
+                ?.let { first ->
+                    phase1
+                        .filter { it.term > first }
+                        .map {
+                            FieldError(
+                                field = "plan.testingPhase1[${it.index}].term",
+                                code = FieldErrorCode.InvalidFormat,
+                                message = "Faza I testowania (${it.term}) musi poprzedzać Fazę II testowania ($first)",
+                            )
+                        }
+                }.orEmpty()
+        return preparationErrors + phase1Errors
+    }
+
+    private fun planCostErrors(plan: ActionPlanItem): List<FieldError> =
+        costErrors(plan.preparation, "plan.preparation") +
+            costErrors(plan.testingPhase1, "plan.testingPhase1") +
+            costErrors(plan.testingPhase2, "plan.testingPhase2")
+
+    private fun costErrors(
         items: List<PlanItem>,
         prefix: String,
-        errors: MutableList<FieldError>,
-    ) {
-        items.forEachIndexed { idx, item ->
-            if (item.costGrosze <= 0) {
-                errors.add(
+    ): List<FieldError> =
+        items.mapIndexedNotNull { index, item ->
+            when {
+                item.costGrosze <= 0 -> {
                     FieldError(
-                        "$prefix[$idx].costGrosze",
+                        "$prefix[$index].costGrosze",
                         FieldErrorCode.InvalidFormat,
                         "Koszt zadania musi być większy od zera",
-                    ),
-                )
-            } else if (item.costGrosze.toLong() > MAX_ITEM_COST_GROSZE) {
-                errors.add(
+                    )
+                }
+
+                item.costGrosze.toLong() > MAX_ITEM_COST_GROSZE -> {
                     FieldError(
-                        "$prefix[$idx].costGrosze",
+                        "$prefix[$index].costGrosze",
                         FieldErrorCode.InvalidFormat,
                         "Koszt pojedynczego zadania nie może przekraczać ${MAX_ITEM_COST_GROSZE / 100} PLN",
-                    ),
-                )
+                    )
+                }
+
+                else -> {
+                    null
+                }
             }
         }
+
+    private fun grantAmountErrors(
+        plan: ActionPlanItem,
+        requestedGrantAmountGrosze: Int?,
+    ): List<FieldError> {
+        val totalPlanCost =
+            (plan.preparation + plan.testingPhase1 + plan.testingPhase2).sumOf {
+                it.costGrosze.toLong()
+            }
+        val error =
+            when {
+                requestedGrantAmountGrosze == null || requestedGrantAmountGrosze <= 0 -> {
+                    FieldError(
+                        "requestedGrantAmountGrosze",
+                        FieldErrorCode.Blank,
+                        "Wnioskowana kwota grantu jest wymagana i musi być dodatnia",
+                    )
+                }
+
+                requestedGrantAmountGrosze > MAX_GRANT_AMOUNT_GROSZE -> {
+                    FieldError(
+                        "requestedGrantAmountGrosze",
+                        FieldErrorCode.InvalidFormat,
+                        "Wnioskowana kwota grantu nie może przekraczać ${MAX_GRANT_AMOUNT_GROSZE / 100} PLN",
+                    )
+                }
+
+                totalPlanCost != requestedGrantAmountGrosze.toLong() -> {
+                    FieldError(
+                        "requestedGrantAmountGrosze",
+                        FieldErrorCode.InvalidFormat,
+                        "Wnioskowana kwota grantu (${requestedGrantAmountGrosze / 100} PLN) musi być równa " +
+                            "sumie kosztów z harmonogramu (${totalPlanCost / 100} PLN)",
+                    )
+                }
+
+                else -> {
+                    null
+                }
+            }
+        return listOfNotNull(error)
     }
 
-    private fun validateTermsFormat(
+    private fun termsFormatErrors(
         items: List<PlanItem>,
         prefix: String,
-        errors: MutableList<FieldError>,
-    ) {
-        items.forEachIndexed { idx, item ->
-            if (item.action.isBlank()) {
-                errors.add(
-                    FieldError(
-                        field = "$prefix[$idx].action",
-                        code = FieldErrorCode.Blank,
-                        message = "Opis zadania nie może być pusty",
-                    ),
-                )
-            }
-            if (!TERM_REGEX.matches(item.term.trim())) {
-                errors.add(
-                    FieldError(
-                        "$prefix[$idx].term",
-                        FieldErrorCode.InvalidFormat,
-                        "Termin zadania musi mieć format RRRR-MM (np. 2026-04)",
-                    ),
-                )
-            }
+    ): List<FieldError> =
+        items.flatMapIndexed { index, item ->
+            listOfNotNull(
+                FieldError(
+                    field = "$prefix[$index].action",
+                    code = FieldErrorCode.Blank,
+                    message = "Opis zadania nie może być pusty",
+                ).takeIf { item.action.isBlank() },
+                FieldError(
+                    "$prefix[$index].term",
+                    FieldErrorCode.InvalidFormat,
+                    "Termin zadania musi mieć format RRRR-MM (np. 2026-04)",
+                ).takeIf { !TERM_REGEX.matches(item.term.trim()) },
+            )
         }
-    }
+
+    private fun List<FieldError>.asValidation(): EitherNel<FieldError, Unit> =
+        toNonEmptyListOrNull()?.let { Either.Left(it) } ?: Either.Right(Unit)
 
     private fun calculateDuration(items: List<PlanItem>): Int {
         val validTerms = items.map { it.term.trim() }.filter { TERM_REGEX.matches(it) }
@@ -479,33 +483,27 @@ object RopsApplicationValidator {
         applicant: ApplicantItem?,
         declarations: List<DeclarationId>,
     ): EitherNel<FieldError, Unit> =
-        either {
-            val errors = mutableListOf<FieldError>()
-            if (applicant == null) return@either
-
-            if (declarations.size != declarations.distinct().size) {
-                errors.add(
-                    FieldError("declarations", FieldErrorCode.InvalidFormat, "Lista oświadczeń zawiera duplikaty"),
-                )
+        when (applicant) {
+            null -> {
+                Either.Right(Unit)
             }
 
-            val required = RopsDeclarations.getRequiredIds(applicant.type)
-            val missing = required - declarations.toSet()
-            if (missing.isNotEmpty()) {
-                errors.add(
+            else -> {
+                val missing = RopsDeclarations.getRequiredIds(applicant.type) - declarations.toSet()
+                listOfNotNull(
+                    FieldError(
+                        "declarations",
+                        FieldErrorCode.InvalidFormat,
+                        "Lista oświadczeń zawiera duplikaty",
+                    ).takeIf { declarations.size != declarations.distinct().size },
                     FieldError(
                         field = "declarations",
                         code = FieldErrorCode.Required,
                         message =
                             "Wymagane jest zaakceptowanie wszystkich obowiązkowych oświadczeń. " +
                                 "Brakujące: ${missing.joinToString(", ")}",
-                    ),
-                )
-            }
-
-            ensure(errors.isEmpty()) {
-                val nel = NonEmptyList(errors.first(), errors.drop(1))
-                raise(nel)
+                    ).takeIf { missing.isNotEmpty() },
+                ).asValidation()
             }
         }
 }

@@ -324,89 +324,70 @@ class ApplicationService(
             RopsDeclarations.getDeclarations(applicantType)
         }
 
-    private fun validateDraftPayload(request: SaveApplicationDraftRequest): Either<DomainError.Validation, Unit> =
-        either {
-            val errors = mutableListOf<FieldError>()
+    private fun validateDraftPayload(request: SaveApplicationDraftRequest): Either<DomainError.Validation, Unit> {
+        val errors = draftTitleErrors(request) + draftNarrativeErrors(request) + draftPlanErrors(request)
+        return if (errors.isEmpty()) {
+            Either.Right(Unit)
+        } else {
+            Either.Left(DomainError.Validation("Błędy rozmiaru danych szkicu", errors))
+        }
+    }
 
-            val title = request.title
-            if (title != null && title.length > MAX_TITLE_LENGTH) {
-                errors.add(
+    private fun draftTitleErrors(request: SaveApplicationDraftRequest): List<FieldError> =
+        listOfNotNull(
+            FieldError(
+                "title",
+                FieldErrorCode.InvalidFormat,
+                "Tytuł nie może przekraczać $MAX_TITLE_LENGTH znaków",
+            ).takeIf { (request.title?.length ?: 0) > MAX_TITLE_LENGTH },
+        )
+
+    private fun draftNarrativeErrors(request: SaveApplicationDraftRequest): List<FieldError> =
+        listOf(
+            "description" to request.description,
+            "innovativeness" to request.innovativeness,
+            "problemDiagnosis" to request.problemDiagnosis,
+            "audienceDescription" to request.audienceDescription,
+            "expectedChange" to request.expectedChange,
+            "futureVision" to request.futureVision,
+            "projectTeam" to request.projectTeam,
+        ).mapNotNull { (name, value) ->
+            FieldError(
+                name,
+                FieldErrorCode.InvalidFormat,
+                "Pole '$name' nie może przekraczać $MAX_NARRATIVE_LENGTH znaków",
+            ).takeIf { (value?.length ?: 0) > MAX_NARRATIVE_LENGTH }
+        }
+
+    private fun draftPlanErrors(request: SaveApplicationDraftRequest): List<FieldError> =
+        request.plan
+            ?.let { plan ->
+                listOfNotNull(
                     FieldError(
-                        "title",
-                        FieldErrorCode.InvalidFormat,
-                        "Tytuł nie może przekraczać $MAX_TITLE_LENGTH znaków",
-                    ),
-                )
-            }
-
-            val narrativeFields =
-                listOf(
-                    "description" to request.description,
-                    "innovativeness" to request.innovativeness,
-                    "problemDiagnosis" to request.problemDiagnosis,
-                    "audienceDescription" to request.audienceDescription,
-                    "expectedChange" to request.expectedChange,
-                    "futureVision" to request.futureVision,
-                    "projectTeam" to request.projectTeam,
-                )
-            narrativeFields.forEach { (name, value) ->
-                if (value != null && value.length > MAX_NARRATIVE_LENGTH) {
-                    errors.add(
-                        FieldError(
-                            name,
-                            FieldErrorCode.InvalidFormat,
-                            "Pole '$name' nie może przekraczać $MAX_NARRATIVE_LENGTH znaków",
-                        ),
-                    )
-                }
-            }
-
-            request.plan?.let { plan ->
-                if (plan.preparation.size > MAX_PLAN_ITEMS) {
-                    errors.add(
-                        FieldError(
-                            "plan.preparation",
-                            FieldErrorCode.Range(0, MAX_PLAN_ITEMS),
-                            "Maksymalna liczba zadań w okresie przygotowawczym to $MAX_PLAN_ITEMS",
-                        ),
-                    )
-                }
-                if (plan.testingPhase1.size > MAX_PLAN_ITEMS) {
-                    errors.add(
-                        FieldError(
-                            "plan.testingPhase1",
-                            FieldErrorCode.Range(0, MAX_PLAN_ITEMS),
-                            "Maksymalna liczba zadań w Fazie I to $MAX_PLAN_ITEMS",
-                        ),
-                    )
-                }
-                if (plan.testingPhase2.size > MAX_PLAN_ITEMS) {
-                    errors.add(
-                        FieldError(
-                            "plan.testingPhase2",
-                            FieldErrorCode.Range(0, MAX_PLAN_ITEMS),
-                            "Maksymalna liczba zadań w Fazie II to $MAX_PLAN_ITEMS",
-                        ),
-                    )
-                }
-                val allItems = plan.preparation + plan.testingPhase1 + plan.testingPhase2
-                allItems.forEachIndexed { idx, item ->
-                    if (item.costGrosze < 0 || item.costGrosze > MAX_ITEM_COST_GROSZE) {
-                        errors.add(
+                        "plan.preparation",
+                        FieldErrorCode.Range(0, MAX_PLAN_ITEMS),
+                        "Maksymalna liczba zadań w okresie przygotowawczym to $MAX_PLAN_ITEMS",
+                    ).takeIf { plan.preparation.size > MAX_PLAN_ITEMS },
+                    FieldError(
+                        "plan.testingPhase1",
+                        FieldErrorCode.Range(0, MAX_PLAN_ITEMS),
+                        "Maksymalna liczba zadań w Fazie I to $MAX_PLAN_ITEMS",
+                    ).takeIf { plan.testingPhase1.size > MAX_PLAN_ITEMS },
+                    FieldError(
+                        "plan.testingPhase2",
+                        FieldErrorCode.Range(0, MAX_PLAN_ITEMS),
+                        "Maksymalna liczba zadań w Fazie II to $MAX_PLAN_ITEMS",
+                    ).takeIf { plan.testingPhase2.size > MAX_PLAN_ITEMS },
+                ) +
+                    (plan.preparation + plan.testingPhase1 + plan.testingPhase2)
+                        .mapIndexedNotNull { index, item ->
                             FieldError(
-                                "plan.items[$idx].costGrosze",
+                                "plan.items[$index].costGrosze",
                                 FieldErrorCode.InvalidFormat,
                                 "Koszt zadania musi mieścić się w przedziale 0..${MAX_ITEM_COST_GROSZE / 100} PLN",
-                            ),
-                        )
-                    }
-                }
-            }
-
-            ensure(errors.isEmpty()) {
-                DomainError.Validation("Błędy rozmiaru danych szkicu", errors)
-            }
-        }
+                            ).takeIf { item.costGrosze < 0 || item.costGrosze > MAX_ITEM_COST_GROSZE }
+                        }
+            }.orEmpty()
 
     private fun parseObjectId(idString: String): Either<DomainError.Validation, ObjectId> =
         either {
