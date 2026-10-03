@@ -4,12 +4,14 @@ import io.github.mfabisiak.hubmi.api.AdminIdeas
 import io.github.mfabisiak.hubmi.api.AdminTrends
 import io.github.mfabisiak.hubmi.api.Calls
 import io.github.mfabisiak.hubmi.api.Challenges
+import io.github.mfabisiak.hubmi.api.ErrorCode
 import io.github.mfabisiak.hubmi.api.ErrorResponse
 import io.github.mfabisiak.hubmi.api.Ideas
 import io.github.mfabisiak.hubmi.api.Innovations
 import io.github.mfabisiak.hubmi.api.Matches
 import io.github.mfabisiak.hubmi.api.Materials
 import io.github.mfabisiak.hubmi.api.Notifications
+import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.Threads
 import io.github.mfabisiak.hubmi.plugins.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.plugins.requireRole
@@ -24,7 +26,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 private suspend fun RoutingContext.notImplemented() =
-    call.respond(HttpStatusCode.NotImplemented, ErrorResponse("not_implemented", "Not implemented yet"))
+    call.respond(HttpStatusCode.NotImplemented, ErrorResponse(ErrorCode.NOT_IMPLEMENTED, "Not implemented yet"))
 
 /**
  * Placeholders for the planned API (see docs/API.md). They do nothing yet and answer `501`, but already enforce the
@@ -34,7 +36,7 @@ fun Route.contractStubs() {
     publicStubs()
     authenticate(KEYCLOAK_AUTH) {
         authenticatedStubs()
-        requireRole("admin") { adminStubs() }
+        requireRole(Role.ADMIN) { adminStubs() }
     }
 }
 

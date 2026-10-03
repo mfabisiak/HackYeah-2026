@@ -1,12 +1,10 @@
 [
   {
-    "seedKey": "wzorcowa-innowacja",
     "slug": "wzorcowa-innowacja",
     "name": "Wzorcowa Innowacja Społeczna",
     "description": "Przykładowa innowacja seedowa"
   },
   {
-    "seedKey": "klub-seniora",
     "slug": "klub-seniora",
     "name": "Cyfrowy Klub Seniora",
     "description": "Wsparcie cyfrowe dla seniorów w Małopolsce"

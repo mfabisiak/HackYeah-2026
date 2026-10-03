@@ -3,8 +3,10 @@ package io.github.mfabisiak.hubmi.routes
 import io.github.mfabisiak.hubmi.MongoTestEnvironment
 import io.github.mfabisiak.hubmi.TestSecurityHelper
 import io.github.mfabisiak.hubmi.api.CreateSampleRequest
+import io.github.mfabisiak.hubmi.api.ErrorCode
 import io.github.mfabisiak.hubmi.api.ErrorResponse
 import io.github.mfabisiak.hubmi.api.Page
+import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.SampleDto
 import io.github.mfabisiak.hubmi.api.Samples
 import io.github.mfabisiak.hubmi.config.AppConfig
@@ -81,7 +83,7 @@ class SampleRouteTest {
         testApplication {
             application { module(testModule) }
             val client = createJsonClient()
-            val token = TestSecurityHelper.generateToken(roles = setOf("user"))
+            val token = TestSecurityHelper.generateToken(roles = setOf(Role.USER))
 
             val response =
                 client.post(Samples()) {
@@ -98,7 +100,7 @@ class SampleRouteTest {
 
             assertEquals(HttpStatusCode.BadRequest, response.status)
             val error = response.body<ErrorResponse>()
-            assertEquals("validation_failed", error.code)
+            assertEquals(ErrorCode.VALIDATION_FAILED, error.code)
             assertTrue(error.details.isNotEmpty())
             assertTrue(error.details.any { it.field == "slug" })
             assertTrue(error.details.any { it.field == "name" })
@@ -110,7 +112,7 @@ class SampleRouteTest {
         testApplication {
             application { module(testModule) }
             val client = createJsonClient()
-            val token = TestSecurityHelper.generateToken(roles = setOf("user"))
+            val token = TestSecurityHelper.generateToken(roles = setOf(Role.USER))
             val slug = uniqueSlug("valid-sample")
 
             val response =
@@ -138,7 +140,7 @@ class SampleRouteTest {
         testApplication {
             application { module(testModule) }
             val client = createJsonClient()
-            val token = TestSecurityHelper.generateToken(roles = setOf("user"))
+            val token = TestSecurityHelper.generateToken(roles = setOf(Role.USER))
             val slug = uniqueSlug("conflict-slug")
 
             // First creation
@@ -171,7 +173,7 @@ class SampleRouteTest {
                 }
             assertEquals(HttpStatusCode.Conflict, second.status)
             val error = second.body<ErrorResponse>()
-            assertEquals("conflict", error.code)
+            assertEquals(ErrorCode.CONFLICT, error.code)
         }
 
     @Test
@@ -181,7 +183,7 @@ class SampleRouteTest {
             val client = createJsonClient()
 
             // 1. Create a sample as user
-            val userToken = TestSecurityHelper.generateToken(roles = setOf("user"))
+            val userToken = TestSecurityHelper.generateToken(roles = setOf(Role.USER))
             val slug = uniqueSlug("to-delete")
             val createResponse =
                 client.post(Samples()) {
@@ -206,7 +208,7 @@ class SampleRouteTest {
             assertEquals(HttpStatusCode.Forbidden, forbiddenResponse.status)
 
             // 3. Delete with admin token -> 204 No Content
-            val adminToken = TestSecurityHelper.generateToken(roles = setOf("admin"))
+            val adminToken = TestSecurityHelper.generateToken(roles = setOf(Role.ADMIN))
             val successResponse =
                 client.delete(Samples.ById(id = created.id)) {
                     header(HttpHeaders.Authorization, "Bearer $adminToken")

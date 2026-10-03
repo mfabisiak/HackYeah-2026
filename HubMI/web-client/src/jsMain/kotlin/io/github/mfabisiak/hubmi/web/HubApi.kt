@@ -46,7 +46,7 @@ class HubApi(
     fun me(): Promise<ApiResult<MeJs>> =
         scope.promise {
             client.fetch<Api.Me, MeResponse>(Api.Me()).toResult {
-                MeJs(it.id, it.username, it.email, it.roles.toTypedArray())
+                MeJs(it.id, it.username, it.email, it.roles.map { role -> role.keycloakName }.toTypedArray())
             }
         }
 }

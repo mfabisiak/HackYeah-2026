@@ -2,13 +2,12 @@ package io.github.mfabisiak.hubmi.repository
 
 import arrow.core.Either
 import com.mongodb.client.model.IndexOptions
-import com.mongodb.client.model.Indexes
 import com.mongodb.kotlin.client.coroutine.MongoClient
+import com.mongodb.kotlin.client.model.Indexes
 import io.github.mfabisiak.hubmi.MongoTestEnvironment
 import io.github.mfabisiak.hubmi.api.PageRequest
 import io.github.mfabisiak.hubmi.models.SampleItem
 import kotlinx.coroutines.runBlocking
-import org.bson.Document
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import kotlin.test.*
@@ -27,9 +26,7 @@ class SampleRepositoryTest {
 
             runBlocking {
                 database.drop()
-                database
-                    .getCollection<Document>("samples")
-                    .createIndex(Indexes.ascending("slug"), IndexOptions().unique(true))
+                database.samples.createIndex(Indexes.ascending(SampleItem::slug), IndexOptions().unique(true))
             }
         }
 

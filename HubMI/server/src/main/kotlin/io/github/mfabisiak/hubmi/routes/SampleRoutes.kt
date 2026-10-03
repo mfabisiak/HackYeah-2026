@@ -1,6 +1,7 @@
 package io.github.mfabisiak.hubmi.routes
 
 import io.github.mfabisiak.hubmi.api.CreateSampleRequest
+import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.Samples
 import io.github.mfabisiak.hubmi.plugins.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.plugins.requireRole
@@ -34,7 +35,7 @@ fun Route.sampleRoutes() {
         }
 
         // Admin only
-        requireRole("admin") {
+        requireRole(Role.ADMIN) {
             delete<Samples.ById> { resource ->
                 respondEitherUnit(service.delete(resource.id))
             }

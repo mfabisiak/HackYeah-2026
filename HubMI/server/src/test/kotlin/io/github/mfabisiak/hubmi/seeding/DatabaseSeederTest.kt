@@ -1,13 +1,14 @@
 package io.github.mfabisiak.hubmi.seeding
 
 import arrow.core.Either
-import com.mongodb.client.model.Filters
 import com.mongodb.kotlin.client.coroutine.MongoClient
+import com.mongodb.kotlin.client.model.Filters
 import io.github.mfabisiak.hubmi.MongoTestEnvironment
 import io.github.mfabisiak.hubmi.config.AppConfig
+import io.github.mfabisiak.hubmi.models.SampleItem
+import io.github.mfabisiak.hubmi.repository.samples
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
-import org.bson.Document
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import kotlin.test.*
@@ -47,7 +48,7 @@ class DatabaseSeederTest {
             val result = seeder.seedIfNeeded()
             assertTrue(result is Either.Right)
 
-            val count = database.getCollection<Document>("samples").countDocuments()
+            val count = database.samples.countDocuments()
             assertEquals(0L, count)
         }
 
@@ -70,22 +71,21 @@ class DatabaseSeederTest {
             // First run
             val result1 = seeder.seedIfNeeded()
             assertTrue(result1 is Either.Right)
-            val count1 = database.getCollection<Document>("samples").countDocuments()
+            val count1 = database.samples.countDocuments()
             assertTrue(count1 >= 2L)
 
             // Second run (idempotent upsert)
             val result2 = seeder.seedIfNeeded()
             assertTrue(result2 is Either.Right)
-            val count2 = database.getCollection<Document>("samples").countDocuments()
+            val count2 = database.samples.countDocuments()
             assertEquals(count1, count2)
 
             val sample =
-                database
-                    .getCollection<Document>("samples")
-                    .find(Filters.eq("slug", "wzorcowa-innowacja"))
+                database.samples
+                    .find(Filters.eq(SampleItem::slug, "wzorcowa-innowacja"))
                     .toList()
                     .firstOrNull()
             assertNotNull(sample)
-            assertEquals("Wzorcowa Innowacja Społeczna", sample.getString("name"))
+            assertEquals("Wzorcowa Innowacja Społeczna", sample.name)
         }
 }

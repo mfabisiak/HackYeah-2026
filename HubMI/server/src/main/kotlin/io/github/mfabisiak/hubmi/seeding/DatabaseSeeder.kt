@@ -1,20 +1,21 @@
 package io.github.mfabisiak.hubmi.seeding
 
 import arrow.core.Either
-import com.mongodb.client.model.Filters
-import com.mongodb.client.model.ReplaceOptions
+import com.mongodb.client.model.UpdateOptions
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
+import com.mongodb.kotlin.client.model.Filters
+import com.mongodb.kotlin.client.model.Updates
 import io.github.mfabisiak.hubmi.config.AppConfig
+import io.github.mfabisiak.hubmi.models.SampleItem
 import io.github.mfabisiak.hubmi.repository.RepositoryError
 import io.github.mfabisiak.hubmi.repository.catching
+import io.github.mfabisiak.hubmi.repository.samples
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import org.bson.Document
 import org.slf4j.LoggerFactory
 
 @Serializable
 data class SeedSampleItem(
-    val seedKey: String,
     val slug: String,
     val name: String,
     val description: String,
@@ -35,23 +36,16 @@ class DatabaseSeeder(
 
         logger.info("Running database seeders from resources/seed/ (SEED=true)...")
         return catching {
-            val samplesCollection = database.getCollection<Document>("samples")
             val seedItems = loadSeedSamples()
 
-            for (item in seedItems) {
-                val doc =
-                    Document(
-                        mapOf(
-                            "seedKey" to item.seedKey,
-                            "slug" to item.slug,
-                            "name" to item.name,
-                            "description" to item.description,
-                        ),
-                    )
-                samplesCollection.replaceOne(
-                    Filters.eq("seedKey", item.seedKey),
-                    doc,
-                    ReplaceOptions().upsert(true),
+            seedItems.forEach { item ->
+                database.samples.updateOne(
+                    Filters.eq(SampleItem::slug, item.slug),
+                    Updates.combine(
+                        Updates.set(SampleItem::name, item.name),
+                        Updates.set(SampleItem::description, item.description),
+                    ),
+                    UpdateOptions().upsert(true),
                 )
             }
             logger.info("Seeded ${seedItems.size} sample items successfully.")
@@ -66,7 +60,6 @@ class DatabaseSeeder(
         } else {
             listOf(
                 SeedSampleItem(
-                    seedKey = "wzorcowa-innowacja",
                     slug = "wzorcowa-innowacja",
                     name = "Wzorcowa Innowacja Społeczna",
                     description = "Przykładowa innowacja seedowa",

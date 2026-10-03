@@ -34,7 +34,7 @@ internal suspend inline fun <reified R : Any, reified T> HttpClient.fetch(resour
                                 response.status.description,
                             )
                         },
-                        ifRight = { ApiErrorJs(response.status.value, it.code, it.message) },
+                        ifRight = { ApiErrorJs(response.status.value, it.code.name, it.message) },
                     ).left()
             }
         }

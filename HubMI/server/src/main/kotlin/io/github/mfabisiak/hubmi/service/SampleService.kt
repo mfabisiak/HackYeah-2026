@@ -6,6 +6,7 @@ import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
 import io.github.mfabisiak.hubmi.api.CreateSampleRequest
 import io.github.mfabisiak.hubmi.api.FieldError
+import io.github.mfabisiak.hubmi.api.FieldErrorCode
 import io.github.mfabisiak.hubmi.api.Page
 import io.github.mfabisiak.hubmi.api.SampleDto
 import io.github.mfabisiak.hubmi.models.SampleItem
@@ -55,21 +56,21 @@ class SampleService(
             val fieldErrors =
                 buildList {
                     if (request.slug.isBlank()) {
-                        add(FieldError("slug", "blank", "Pole 'slug' nie może być puste"))
+                        add(FieldError("slug", FieldErrorCode.BLANK, "Pole 'slug' nie może być puste"))
                     } else if (!request.slug.matches(Regex("^[a-z0-9-]+$"))) {
                         add(
                             FieldError(
                                 field = "slug",
-                                code = "invalid_format",
+                                code = FieldErrorCode.INVALID_FORMAT,
                                 message = "Pole 'slug' może zawierać tylko małe litery, cyfry i myślniki",
                             ),
                         )
                     }
                     if (request.name.isBlank()) {
-                        add(FieldError("name", "blank", "Pole 'name' nie może być puste"))
+                        add(FieldError("name", FieldErrorCode.BLANK, "Pole 'name' nie może być puste"))
                     }
                     if (request.description.isBlank()) {
-                        add(FieldError("description", "blank", "Pole 'description' nie może być puste"))
+                        add(FieldError("description", FieldErrorCode.BLANK, "Pole 'description' nie może być puste"))
                     }
                 }
 
@@ -111,7 +112,7 @@ class SampleService(
             ensure(ObjectId.isValid(idString)) {
                 DomainError.Validation(
                     message = "Nieprawidłowy format ID: $idString",
-                    details = listOf(FieldError("id", "invalid_format", "Nieprawidłowy format ObjectId")),
+                    details = listOf(FieldError("id", FieldErrorCode.INVALID_FORMAT, "Nieprawidłowy format ObjectId")),
                 )
             }
             ObjectId(idString)

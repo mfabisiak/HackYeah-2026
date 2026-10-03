@@ -6,37 +6,40 @@ import com.mongodb.client.model.ValidationAction
 import com.mongodb.client.model.ValidationLevel
 import com.mongodb.client.model.ValidationOptions
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
+import com.mongodb.kotlin.client.model.path
+import io.github.mfabisiak.hubmi.models.SampleItem
 import io.github.mfabisiak.hubmi.repository.RepositoryError
+import io.github.mfabisiak.hubmi.repository.SAMPLES_COLLECTION
 import io.github.mfabisiak.hubmi.repository.mongoCatch
 import kotlinx.coroutines.flow.toList
 import org.bson.Document
 
 object MongoSchemas {
+    private val sampleValidator =
+        Document(
+            "\$jsonSchema",
+            Document(
+                mapOf(
+                    "bsonType" to "object",
+                    "required" to listOf(SampleItem::slug.path(), SampleItem::name.path()),
+                    "properties" to
+                        Document(
+                            mapOf(
+                                SampleItem::slug.path() to Document("bsonType", "string"),
+                                SampleItem::name.path() to Document("bsonType", "string"),
+                            ),
+                        ),
+                ),
+            ),
+        )
+
     suspend fun configure(database: MongoDatabase): Either<RepositoryError, Unit> =
         mongoCatch {
             val existingCollections = database.listCollectionNames().toList().toSet()
 
-            val sampleValidator =
-                Document(
-                    "\$jsonSchema",
-                    Document(
-                        mapOf(
-                            "bsonType" to "object",
-                            "required" to listOf("slug", "name"),
-                            "properties" to
-                                Document(
-                                    mapOf(
-                                        "slug" to Document("bsonType", "string"),
-                                        "name" to Document("bsonType", "string"),
-                                    ),
-                                ),
-                        ),
-                    ),
-                )
-
-            if ("samples" !in existingCollections) {
+            if (SAMPLES_COLLECTION !in existingCollections) {
                 database.createCollection(
-                    "samples",
+                    SAMPLES_COLLECTION,
                     CreateCollectionOptions().validationOptions(
                         ValidationOptions()
                             .validator(sampleValidator)
@@ -48,13 +51,13 @@ object MongoSchemas {
                 database.runCommand<Document>(
                     Document(
                         mapOf(
-                            "collMod" to "samples",
+                            "collMod" to SAMPLES_COLLECTION,
                             "validator" to sampleValidator,
-                            "validationLevel" to "moderate",
-                            "validationAction" to "error",
+                            "validationLevel" to ValidationLevel.MODERATE.value,
+                            "validationAction" to ValidationAction.ERROR.value,
                         ),
                     ),
                 )
             }
-        }
+        }.map { }
 }

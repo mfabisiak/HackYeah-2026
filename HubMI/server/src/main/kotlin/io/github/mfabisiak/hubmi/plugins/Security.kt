@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import com.auth0.jwk.JwkProvider
+import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.config.AppConfig
 import io.github.mfabisiak.hubmi.service.DomainError
 import io.ktor.http.*
@@ -37,28 +38,29 @@ fun Application.configureSecurity() {
 data class CurrentUser(
     val id: String,
     val username: String?,
-    val roles: Set<String>,
+    val roles: Set<Role>,
     val email: String? = null,
 ) {
-    val isAdmin: Boolean get() = "admin" in roles
-    val isExpert: Boolean get() = "expert" in roles
-    val isUser: Boolean get() = "user" in roles
+    val isAdmin: Boolean get() = Role.ADMIN in roles
+    val isExpert: Boolean get() = Role.EXPERT in roles
+    val isUser: Boolean get() = Role.USER in roles
 
-    fun hasRole(role: String): Boolean = role in roles
+    fun hasRole(role: Role): Boolean = role in roles
 
     /** Helper: checks whether this user is the resource owner OR has the specified role. */
     fun isOwnerOrHasRole(
         ownerId: String,
-        role: String,
+        role: Role,
     ): Boolean = id == ownerId || role in roles
 
-    fun isOwnerOrAdmin(ownerId: String): Boolean = isOwnerOrHasRole(ownerId, "admin")
+    fun isOwnerOrAdmin(ownerId: String): Boolean = isOwnerOrHasRole(ownerId, Role.ADMIN)
 }
 
-typealias UserContext = CurrentUser
-
-/** Realm roles assigned in Keycloak (`realm_access.roles` claim); the JWT library exposes claims untyped. */
-val JWTPrincipal.realmRoles: Set<String>
+/**
+ * Realm roles assigned in Keycloak (`realm_access.roles` claim); the JWT library exposes claims untyped.
+ * Roles unknown to the platform (e.g. Keycloak's built-in `offline_access`) are dropped.
+ */
+val JWTPrincipal.realmRoles: Set<Role>
     get() =
         payload
             .getClaim("realm_access")
@@ -66,6 +68,7 @@ val JWTPrincipal.realmRoles: Set<String>
             ?.get("roles")
             ?.let { it as? Collection<*> }
             ?.filterIsInstance<String>()
+            ?.mapNotNull(Role::fromKeycloakName)
             ?.toSet()
             .orEmpty()
 
@@ -82,12 +85,9 @@ val ApplicationCall.currentUser: Either<DomainError.Unauthorized, CurrentUser>
         ).right()
     }
 
-val ApplicationCall.userContext: Either<DomainError.Unauthorized, CurrentUser>
-    get() = currentUser
-
 /** Allows the request only if the authenticated user has at least one of [roles]. */
 fun Route.requireAnyRole(
-    vararg roles: String,
+    vararg roles: Role,
     build: Route.() -> Unit,
 ): Route {
     val route =
@@ -100,7 +100,7 @@ fun Route.requireAnyRole(
             },
         )
     route.install(
-        createRouteScopedPlugin("RequireAnyRole-${roles.joinToString("-")}") {
+        createRouteScopedPlugin("RequireAnyRole-${roles.joinToString("-") { it.name }}") {
             on(AuthenticationChecked) { call ->
                 val principal = call.principal<JWTPrincipal>()
                 if (principal == null || roles.none { it in principal.realmRoles }) {
@@ -115,6 +115,6 @@ fun Route.requireAnyRole(
 
 /** Allows the request only if the authenticated user has [role]; use inside an `authenticate { }` block. */
 fun Route.requireRole(
-    role: String,
+    role: Role,
     build: Route.() -> Unit,
 ): Route = requireAnyRole(role, build = build)

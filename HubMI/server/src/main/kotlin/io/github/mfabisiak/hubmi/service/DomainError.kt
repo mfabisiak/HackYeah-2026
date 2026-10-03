@@ -1,51 +1,50 @@
 package io.github.mfabisiak.hubmi.service
 
+import io.github.mfabisiak.hubmi.api.ErrorCode
 import io.github.mfabisiak.hubmi.api.FieldError
 import io.github.mfabisiak.hubmi.repository.RepositoryError
 
 sealed interface DomainError {
-    val code: String
+    val code: ErrorCode
     val message: String
 
     data class NotFound(
         override val message: String,
-        override val code: String = "not_found",
+        override val code: ErrorCode = ErrorCode.NOT_FOUND,
     ) : DomainError
 
     data class Conflict(
         override val message: String,
-        override val code: String = "conflict",
+        override val code: ErrorCode = ErrorCode.CONFLICT,
     ) : DomainError
 
     data class Validation(
         override val message: String,
         val details: List<FieldError> = emptyList(),
-        override val code: String = "validation_failed",
+        override val code: ErrorCode = ErrorCode.VALIDATION_FAILED,
     ) : DomainError
 
     data class Unauthorized(
         override val message: String = "Wymagane uwierzytelnienie",
-        override val code: String = "unauthorized",
+        override val code: ErrorCode = ErrorCode.UNAUTHORIZED,
     ) : DomainError
 
     data class Forbidden(
         override val message: String = "Brak uprawnień do wykonania tej operacji",
-        override val code: String = "forbidden",
+        override val code: ErrorCode = ErrorCode.FORBIDDEN,
     ) : DomainError
 
     data class Unavailable(
         override val message: String = "Usługa chwilowo niedostępna",
-        override val code: String = "service_unavailable",
+        override val code: ErrorCode = ErrorCode.SERVICE_UNAVAILABLE,
     ) : DomainError
 
     data class Internal(
         override val message: String = "Wystąpił wewnętrzny błąd serwera",
         val cause: Throwable? = null,
-        override val code: String = "internal_error",
+        override val code: ErrorCode = ErrorCode.INTERNAL_ERROR,
     ) : DomainError
 }
-
-typealias ValidationFailed = DomainError.Validation
 
 fun RepositoryError.toDomainError(): DomainError =
     when (this) {

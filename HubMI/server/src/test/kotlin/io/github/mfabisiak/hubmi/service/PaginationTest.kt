@@ -1,6 +1,7 @@
 package io.github.mfabisiak.hubmi.service
 
 import arrow.core.Either
+import io.github.mfabisiak.hubmi.api.ErrorCode
 import io.github.mfabisiak.hubmi.api.PageRequest
 import kotlin.test.*
 
@@ -29,14 +30,14 @@ class PaginationTest {
     fun negativePageFailsValidation() {
         val result = validatePageRequest(-1, 10)
         assertTrue(result is Either.Left)
-        assertEquals("validation_failed", result.value.code)
+        assertEquals(ErrorCode.VALIDATION_FAILED, result.value.code)
     }
 
     @Test
     fun zeroOrNegativeSizeFailsValidation() {
         val resultZero = validatePageRequest(0, 0)
         assertTrue(resultZero is Either.Left)
-        assertEquals("validation_failed", resultZero.value.code)
+        assertEquals(ErrorCode.VALIDATION_FAILED, resultZero.value.code)
 
         val resultNegative = validatePageRequest(0, -5)
         assertTrue(resultNegative is Either.Left)
@@ -46,6 +47,6 @@ class PaginationTest {
     fun sizeExceedingMaxFailsValidation() {
         val result = validatePageRequest(0, 101)
         assertTrue(result is Either.Left)
-        assertEquals("validation_failed", result.value.code)
+        assertEquals(ErrorCode.VALIDATION_FAILED, result.value.code)
     }
 }

@@ -23,6 +23,7 @@ dependencies {
     implementation(libs.ktor.serializationKotlinxJson)
     implementation(libs.arrow.core)
     implementation(libs.mongodb.driverKotlinCoroutine)
+    implementation(libs.mongodb.driverKotlinExtensions)
     implementation(libs.bson.kotlinx)
     implementation(libs.koin.ktor)
     implementation(libs.koin.loggerSlf4j)

@@ -1,16 +1,16 @@
 package io.github.mfabisiak.hubmi.models
 
 import io.github.mfabisiak.hubmi.api.SampleDto
-import org.bson.codecs.pojo.annotations.BsonId
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.bson.types.ObjectId
 
-@JvmInline
-value class SampleId(
-    val value: String,
-)
-
+/** Stored in the `samples` collection; encoded by bson-kotlinx (see `MongoCollections.kt`). */
+@Serializable
 data class SampleItem(
-    @BsonId
+    @SerialName("_id")
+    @Contextual
     val id: ObjectId = ObjectId(),
     val slug: String,
     val name: String,

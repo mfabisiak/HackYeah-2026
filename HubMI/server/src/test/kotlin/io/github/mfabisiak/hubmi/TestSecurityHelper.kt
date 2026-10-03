@@ -4,6 +4,7 @@ import com.auth0.jwk.Jwk
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import io.github.mfabisiak.hubmi.api.Role
 import org.koin.dsl.module
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
@@ -52,7 +53,7 @@ object TestSecurityHelper {
         userId: String = "test-user-id",
         username: String = "test-user",
         email: String = "test@hubmi.local",
-        roles: Set<String> = setOf("user"),
+        roles: Set<Role> = setOf(Role.USER),
     ): String =
         JWT
             .create()
@@ -61,7 +62,7 @@ object TestSecurityHelper {
             .withSubject(userId)
             .withClaim("preferred_username", username)
             .withClaim("email", email)
-            .withClaim("realm_access", mapOf("roles" to roles.toList()))
+            .withClaim("realm_access", mapOf("roles" to roles.map { it.keycloakName }))
             .withExpiresAt(Date(System.currentTimeMillis() + 3600_000))
             .sign(Algorithm.RSA256(publicKey, privateKey))
 }

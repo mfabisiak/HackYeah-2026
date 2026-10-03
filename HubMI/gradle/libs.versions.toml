@@ -17,6 +17,7 @@ ktor-serverCore = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor
 ktor-serverNetty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 mongodb-driverKotlinCoroutine = { module = "org.mongodb:mongodb-driver-kotlin-coroutine", version.ref = "mongodb" }
+mongodb-driverKotlinExtensions = { module = "org.mongodb:mongodb-driver-kotlin-extensions", version.ref = "mongodb" }
 bson-kotlinx = { module = "org.mongodb:bson-kotlinx", version.ref = "mongodb" }
 koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
 koin-loggerSlf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koin" }

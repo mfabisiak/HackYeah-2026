@@ -1,5 +1,6 @@
 package io.github.mfabisiak.hubmi.plugins
 
+import io.github.mfabisiak.hubmi.api.ErrorCode
 import io.github.mfabisiak.hubmi.api.ErrorResponse
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -16,13 +17,16 @@ fun Application.configureSerialization() {
         exception<Throwable> { call, cause ->
             call.application.environment.log
                 .error("Unhandled exception", cause)
-            call.respond(HttpStatusCode.InternalServerError, ErrorResponse("internal_error", "Internal server error"))
+            call.respond(
+                HttpStatusCode.InternalServerError,
+                ErrorResponse(ErrorCode.INTERNAL_ERROR, "Internal server error"),
+            )
         }
         status(HttpStatusCode.Unauthorized) { call, _ ->
-            call.respond(HttpStatusCode.Unauthorized, ErrorResponse("unauthorized", "Unauthorized"))
+            call.respond(HttpStatusCode.Unauthorized, ErrorResponse(ErrorCode.UNAUTHORIZED, "Unauthorized"))
         }
         status(HttpStatusCode.Forbidden) { call, _ ->
-            call.respond(HttpStatusCode.Forbidden, ErrorResponse("forbidden", "Forbidden"))
+            call.respond(HttpStatusCode.Forbidden, ErrorResponse(ErrorCode.FORBIDDEN, "Forbidden"))
         }
     }
 }

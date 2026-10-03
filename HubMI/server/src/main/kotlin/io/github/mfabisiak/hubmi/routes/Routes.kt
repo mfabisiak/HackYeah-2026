@@ -4,6 +4,7 @@ import io.github.mfabisiak.hubmi.api.Api
 import io.github.mfabisiak.hubmi.api.Health
 import io.github.mfabisiak.hubmi.api.HealthResponse
 import io.github.mfabisiak.hubmi.api.MessageResponse
+import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.models.toMeResponse
 import io.github.mfabisiak.hubmi.plugins.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.plugins.requireRole
@@ -46,7 +47,7 @@ fun Route.appRoutes() {
                 ?: call.respond(HttpStatusCode.Unauthorized)
         }
 
-        requireRole("admin") {
+        requireRole(Role.ADMIN) {
             get<Api.Admin> {
                 call.respond(MessageResponse("Hello, admin!"))
             }
