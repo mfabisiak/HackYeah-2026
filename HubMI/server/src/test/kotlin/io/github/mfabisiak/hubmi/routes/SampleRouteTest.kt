@@ -99,6 +99,10 @@ class SampleRouteTest {
             assertEquals(HttpStatusCode.BadRequest, response.status)
             val error = response.body<ErrorResponse>()
             assertEquals("validation_failed", error.code)
+            assertTrue(error.details.isNotEmpty())
+            assertTrue(error.details.any { it.field == "slug" })
+            assertTrue(error.details.any { it.field == "name" })
+            assertTrue(error.details.any { it.field == "description" })
         }
 
     @Test

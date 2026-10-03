@@ -21,7 +21,15 @@ data class MessageResponse(
 )
 
 @Serializable
+data class FieldError(
+    val field: String,
+    val code: String,
+    val message: String,
+)
+
+@Serializable
 data class ErrorResponse(
     val code: String,
     val message: String,
+    val details: List<FieldError> = emptyList(),
 )

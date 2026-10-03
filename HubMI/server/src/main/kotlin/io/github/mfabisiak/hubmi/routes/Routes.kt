@@ -50,7 +50,7 @@ fun Route.appRoutes() {
                     val user = userResult.value
                     call.respond(
                         MeResponse(
-                            id = user.userId,
+                            id = user.id,
                             username = user.username,
                             email = user.email,
                             roles = user.roles,

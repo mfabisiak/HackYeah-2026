@@ -33,19 +33,29 @@ fun Application.configureSecurity() {
     }
 }
 
-/** Authenticated user context extracted from JWT claims. */
-data class UserContext(
-    val userId: String,
+/** Authenticated user extracted from JWT claims (`id = sub`, `username`, `roles`). */
+data class CurrentUser(
+    val id: String,
     val username: String?,
-    val email: String?,
     val roles: Set<String>,
+    val email: String? = null,
 ) {
     val isAdmin: Boolean get() = "admin" in roles
     val isExpert: Boolean get() = "expert" in roles
     val isUser: Boolean get() = "user" in roles
 
     fun hasRole(role: String): Boolean = role in roles
+
+    /** Helper: checks whether this user is the resource owner OR has the specified role. */
+    fun isOwnerOrHasRole(
+        ownerId: String,
+        role: String,
+    ): Boolean = id == ownerId || role in roles
+
+    fun isOwnerOrAdmin(ownerId: String): Boolean = isOwnerOrHasRole(ownerId, "admin")
 }
+
+typealias UserContext = CurrentUser
 
 /** Realm roles assigned in Keycloak (`realm_access.roles` claim). */
 val JWTPrincipal.realmRoles: Set<String>
@@ -59,18 +69,21 @@ val JWTPrincipal.realmRoles: Set<String>
             ?.toSet()
             .orEmpty()
 
-/** Extracts the authenticated [UserContext] safely, returning [DomainError.Unauthorized] if missing. */
-val ApplicationCall.userContext: Either<DomainError.Unauthorized, UserContext>
+/** Extracts the authenticated [CurrentUser] safely, returning [DomainError.Unauthorized] if missing. */
+val ApplicationCall.currentUser: Either<DomainError.Unauthorized, CurrentUser>
     get() {
         val principal = principal<JWTPrincipal>() ?: return DomainError.Unauthorized().left()
         val subject = principal.subject ?: return DomainError.Unauthorized().left()
-        return UserContext(
-            userId = subject,
+        return CurrentUser(
+            id = subject,
             username = principal.payload.getClaim("preferred_username").asString(),
             email = principal.payload.getClaim("email").asString(),
             roles = principal.realmRoles,
         ).right()
     }
+
+val ApplicationCall.userContext: Either<DomainError.Unauthorized, CurrentUser>
+    get() = currentUser
 
 /** Allows the request only if the authenticated user has at least one of [roles]. */
 fun Route.requireAnyRole(

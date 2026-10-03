@@ -1,5 +1,6 @@
 package io.github.mfabisiak.hubmi.service
 
+import io.github.mfabisiak.hubmi.api.FieldError
 import io.github.mfabisiak.hubmi.repository.RepositoryError
 
 sealed interface DomainError {
@@ -16,8 +17,9 @@ sealed interface DomainError {
         override val code: String = "conflict",
     ) : DomainError
 
-    data class ValidationFailed(
+    data class Validation(
         override val message: String,
+        val details: List<FieldError> = emptyList(),
         override val code: String = "validation_failed",
     ) : DomainError
 
@@ -31,12 +33,19 @@ sealed interface DomainError {
         override val code: String = "forbidden",
     ) : DomainError
 
+    data class Unavailable(
+        override val message: String = "Usługa chwilowo niedostępna",
+        override val code: String = "service_unavailable",
+    ) : DomainError
+
     data class Internal(
         override val message: String = "Wystąpił wewnętrzny błąd serwera",
         val cause: Throwable? = null,
         override val code: String = "internal_error",
     ) : DomainError
 }
+
+typealias ValidationFailed = DomainError.Validation
 
 fun RepositoryError.toDomainError(): DomainError =
     when (this) {

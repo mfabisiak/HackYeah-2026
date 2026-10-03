@@ -5,6 +5,7 @@ import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
 import io.github.mfabisiak.hubmi.api.CreateSampleRequest
+import io.github.mfabisiak.hubmi.api.FieldError
 import io.github.mfabisiak.hubmi.api.Page
 import io.github.mfabisiak.hubmi.api.SampleDto
 import io.github.mfabisiak.hubmi.models.SampleItem
@@ -51,17 +52,32 @@ class SampleService(
 
     suspend fun create(request: CreateSampleRequest): Either<DomainError, SampleDto> =
         either {
-            ensure(request.slug.isNotBlank()) {
-                DomainError.ValidationFailed("Pole 'slug' nie może być puste")
-            }
-            ensure(request.slug.matches(Regex("^[a-z0-9-]+$"))) {
-                DomainError.ValidationFailed("Pole 'slug' może zawierać tylko małe litery, cyfry i myślniki")
-            }
-            ensure(request.name.isNotBlank()) {
-                DomainError.ValidationFailed("Pole 'name' nie może być puste")
-            }
-            ensure(request.description.isNotBlank()) {
-                DomainError.ValidationFailed("Pole 'description' nie może być puste")
+            val fieldErrors =
+                buildList {
+                    if (request.slug.isBlank()) {
+                        add(FieldError("slug", "blank", "Pole 'slug' nie może być puste"))
+                    } else if (!request.slug.matches(Regex("^[a-z0-9-]+$"))) {
+                        add(
+                            FieldError(
+                                field = "slug",
+                                code = "invalid_format",
+                                message = "Pole 'slug' może zawierać tylko małe litery, cyfry i myślniki",
+                            ),
+                        )
+                    }
+                    if (request.name.isBlank()) {
+                        add(FieldError("name", "blank", "Pole 'name' nie może być puste"))
+                    }
+                    if (request.description.isBlank()) {
+                        add(FieldError("description", "blank", "Pole 'description' nie może być puste"))
+                    }
+                }
+
+            ensure(fieldErrors.isEmpty()) {
+                DomainError.Validation(
+                    message = "Błąd walidacji danych wejściowych",
+                    details = fieldErrors,
+                )
             }
 
             val item =
@@ -90,10 +106,13 @@ class SampleService(
             }
         }
 
-    private fun parseObjectId(idString: String): Either<DomainError.ValidationFailed, ObjectId> =
+    private fun parseObjectId(idString: String): Either<DomainError.Validation, ObjectId> =
         either {
             ensure(ObjectId.isValid(idString)) {
-                DomainError.ValidationFailed("Nieprawidłowy format ID: $idString")
+                DomainError.Validation(
+                    message = "Nieprawidłowy format ID: $idString",
+                    details = listOf(FieldError("id", "invalid_format", "Nieprawidłowy format ObjectId")),
+                )
             }
             ObjectId(idString)
         }

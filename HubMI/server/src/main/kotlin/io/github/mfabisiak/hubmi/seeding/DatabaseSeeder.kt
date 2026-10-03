@@ -6,13 +6,24 @@ import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import io.github.mfabisiak.hubmi.config.AppConfig
 import io.github.mfabisiak.hubmi.repository.RepositoryError
-import io.github.mfabisiak.hubmi.repository.mongoCatch
+import io.github.mfabisiak.hubmi.repository.catching
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.bson.Document
 import org.slf4j.LoggerFactory
+
+@Serializable
+data class SeedSampleItem(
+    val seedKey: String,
+    val slug: String,
+    val name: String,
+    val description: String,
+)
 
 class DatabaseSeeder(
     private val database: MongoDatabase,
     private val config: AppConfig,
+    private val json: Json = Json { ignoreUnknownKeys = true },
 ) {
     private val logger = LoggerFactory.getLogger(DatabaseSeeder::class.java)
 
@@ -22,35 +33,45 @@ class DatabaseSeeder(
             return Either.Right(Unit)
         }
 
-        logger.info("Running database seeders (SEED=true)...")
-        return mongoCatch {
-            val samples = database.getCollection<Document>("samples")
-            val sampleItems =
-                listOf(
-                    Document(
-                        mapOf(
-                            "slug" to "wzorcowa-innowacja",
-                            "name" to "Wzorcowa Innowacja Społeczna",
-                            "description" to "Przykładowa innowacja seedowa",
-                        ),
-                    ),
-                    Document(
-                        mapOf(
-                            "slug" to "klub-seniora",
-                            "name" to "Cyfrowy Klub Seniora",
-                            "description" to "Wsparcie cyfrowe dla seniorów w Małopolsce",
-                        ),
-                    ),
-                )
+        logger.info("Running database seeders from resources/seed/ (SEED=true)...")
+        return catching {
+            val samplesCollection = database.getCollection<Document>("samples")
+            val seedItems = loadSeedSamples()
 
-            for (item in sampleItems) {
-                samples.replaceOne(
-                    Filters.eq("slug", item.getString("slug")),
-                    item,
+            for (item in seedItems) {
+                val doc =
+                    Document(
+                        mapOf(
+                            "seedKey" to item.seedKey,
+                            "slug" to item.slug,
+                            "name" to item.name,
+                            "description" to item.description,
+                        ),
+                    )
+                samplesCollection.replaceOne(
+                    Filters.eq("seedKey", item.seedKey),
+                    doc,
                     ReplaceOptions().upsert(true),
                 )
             }
-            logger.info("Database seeding completed.")
+            logger.info("Seeded ${seedItems.size} sample items successfully.")
+        }
+    }
+
+    private fun loadSeedSamples(): List<SeedSampleItem> {
+        val stream = javaClass.classLoader.getResourceAsStream("seed/samples.json")
+        return if (stream != null) {
+            val text = stream.bufferedReader().use { it.readText() }
+            json.decodeFromString<List<SeedSampleItem>>(text)
+        } else {
+            listOf(
+                SeedSampleItem(
+                    seedKey = "wzorcowa-innowacja",
+                    slug = "wzorcowa-innowacja",
+                    name = "Wzorcowa Innowacja Społeczna",
+                    description = "Przykładowa innowacja seedowa",
+                ),
+            )
         }
     }
 }

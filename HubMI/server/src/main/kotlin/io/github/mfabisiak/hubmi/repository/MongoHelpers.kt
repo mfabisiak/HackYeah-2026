@@ -1,11 +1,13 @@
 package io.github.mfabisiak.hubmi.repository
 
 import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import com.mongodb.ErrorCategory
 import com.mongodb.MongoBulkWriteException
 import com.mongodb.MongoCommandException
 import com.mongodb.MongoWriteException
-import com.mongodb.kotlin.client.coroutine.ClientSession
+import com.mongodb.client.result.UpdateResult
 
 fun Throwable.isDuplicateKey(): Boolean =
     when (this) {
@@ -28,7 +30,7 @@ fun Throwable.isDuplicateKey(): Boolean =
         }
     }
 
-suspend fun <T> mongoCatch(block: suspend () -> T): Either<RepositoryError, T> =
+suspend fun <T> catching(block: suspend () -> T): Either<RepositoryError, T> =
     Either
         .catch { block() }
         .mapLeft { throwable ->
@@ -39,18 +41,14 @@ suspend fun <T> mongoCatch(block: suspend () -> T): Either<RepositoryError, T> =
             }
         }
 
-suspend fun <T> MongoRepository.withTransaction(block: suspend (ClientSession) -> T): Either<RepositoryError, T> =
-    mongoCatch {
-        val session = client.startSession()
-        try {
-            session.startTransaction()
-            val result = block(session)
-            session.commitTransaction()
-            result
-        } catch (t: Throwable) {
-            session.abortTransaction()
-            throw t
-        } finally {
-            session.close()
-        }
+suspend fun <T> mongoCatch(block: suspend () -> T): Either<RepositoryError, T> = catching(block)
+
+/** Ensures that an update matched at least one document; otherwise returns [RepositoryError.Conflict]. */
+fun UpdateResult.requireMatched(): Either<RepositoryError.Conflict, Unit> =
+    if (matchedCount > 0) {
+        Unit.right()
+    } else {
+        RepositoryError
+            .Conflict(IllegalStateException("Warunek optymistycznej współbieżności nie został spełniony"))
+            .left()
     }
