@@ -22,7 +22,7 @@ i, jeśli zmienia kontrakt, aktualizacją [API.md](API.md). Zrobione: szkielet s
 
 ## BE-01 Fundament
 - `DomainError` i jedno miejsce mapowania na HTTP (`respondError`), mapowanie `RepositoryError → DomainError`.
-- Helpery repozytoriów Mongo (`Either.catch`, naruszenie unikalności → `Conflict`), indeksy i JSON Schema przy starcie
+- Helpery repozytoriów Mongo (`Either.catch`, naruszenie unikalności → `Conflict`), indeksy przy starcie
   (idempotentnie), seeder uruchamiany flagą `SEED`.
 - Paginacja (`PageRequest` z walidacją), kontekst zalogowanego użytkownika oraz rola `expert` w realmie.
 - Testy repozytoriów z prawdziwym Mongo (Testcontainers).

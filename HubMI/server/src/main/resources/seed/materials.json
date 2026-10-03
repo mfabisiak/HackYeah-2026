@@ -1,0 +1,122 @@
+[
+  {
+    "slug": "podrecznik-inkubacji-innowacji-rops",
+    "title": "Jak inkubować innowację społeczną – poradnik krok po kroku",
+    "description": "Kompleksowy przewodnik dla animatorów i samorządowców opisujący etapy od diagnozy problemu, przez prototypowanie, aż po testowanie i upowszechnianie innowacji.",
+    "type": "GUIDE",
+    "url": "https://rops.krakow.pl/innowacje/poradnik-inkubacji.pdf",
+    "areas": ["COORDINATION", "OTHER"]
+  },
+  {
+    "slug": "canvas-innowacji-spolecznej-wzorzec",
+    "title": "Model Canvas dla Innowacji Społecznych – szablon pracy",
+    "description": "Narzędzie warsztatowe do projektowania propozycji wartości, grup odbiorców, partnerstw lokalnych i wskaźników wpływu społecznego.",
+    "type": "CANVAS",
+    "url": "https://rops.krakow.pl/materialy/canvas-innowacji.pdf",
+    "areas": ["OTHER"]
+  },
+  {
+    "slug": "raport-mapa-wyzwan-malopolski-2025",
+    "title": "Raport: Mapa Wyzwań Społecznych Małopolski 2025",
+    "description": "Szczegółowa diagnoza demograficzna, ekonomiczna i dostępowa 182 gmin województwa małopolskiego z identyfikacją białych plam usługowych.",
+    "type": "REPORT",
+    "url": "https://rops.krakow.pl/raporty/mapa-wyzwan-malopolski-2025.pdf",
+    "areas": ["AGING", "DEPOPULATION", "SERVICE_ACCESS"]
+  },
+  {
+    "slug": "wideo-dostepnosc-cyfrowa-wcag-urzedy",
+    "title": "Dostępność cyfrowa stron i e-usług wg WCAG 2.1 AA",
+    "description": "Instruktaż wideo dla twórców stron i pracowników jednostek samorządowych: semantyka HTML, nawigacja klawiaturą, pętle indukcyjne i kontrast.",
+    "type": "VIDEO",
+    "url": "https://youtube.com/watch?v=hubmi-wcag-tutorial",
+    "areas": ["DIGITAL_EXCLUSION", "SERVICE_ACCESS"]
+  },
+  {
+    "slug": "poradnik-uslugi-sasiadzkie-samorzad",
+    "title": "Organizacja usług sąsiedzkich w gminie wiejskiej",
+    "description": "Praktyczny poradnik prawny i organizacyjny dla Ośrodków Pomocy Społecznej wdrażających usługi sąsiedzkie zgodnie z ustawą o pomocy społecznej.",
+    "type": "GUIDE",
+    "url": "https://rops.krakow.pl/baza-wiedzy/uslugi-sasiadzkie.pdf",
+    "areas": ["AGING", "LONELINESS"]
+  },
+  {
+    "slug": "wideo-mentoring-mlodziezowy-dobre-praktyki",
+    "title": "Mentoring rówieśniczy w szkole – film instruktażowy",
+    "description": "Relacja z wdrożenia programu wsparcia rówieśniczego w szkołach ponadpodstawowych wraz z komentarzem psychologa dziecięcego.",
+    "type": "VIDEO",
+    "url": "https://youtube.com/watch?v=hubmi-mentoring-film",
+    "areas": ["MENTAL_HEALTH"]
+  },
+  {
+    "slug": "canvas-diagnoza-potrzeb-spolecznosci",
+    "title": "Arkusz Diagnozy Potrzeb Społeczności Lokalnej",
+    "description": "Szablon wywiadów pogłębionych i mapowania zasobów lokalnych dla zespołów badawczych i organizacji pozarządowych.",
+    "type": "CANVAS",
+    "url": "https://rops.krakow.pl/materialy/arkusz-diagnozy.pdf",
+    "areas": ["COORDINATION", "OTHER"]
+  },
+  {
+    "slug": "raport-samotnosc-mlodych-w-malopolsce",
+    "title": "Raport: Poczucie samotności i dobrostan psychiczny młodzieży",
+    "description": "Wyniki badań ankietowych przeprowadzonych wśród 2000 uczniów szkół średnich z terenu Małopolski.",
+    "type": "REPORT",
+    "url": "https://rops.krakow.pl/raporty/samotnosc-mlodych-malopolska.pdf",
+    "areas": ["MENTAL_HEALTH", "LONELINESS"]
+  },
+  {
+    "slug": "poradnik-kluby-cyfrowe-dla-seniorow",
+    "title": "Jak założyć i prowadzić Klub Cyfrowego Seniora",
+    "description": "Gotowe konspekty 12 zajęć z obsługi smartfona, aplikacji bankowych, profilu zaufanego i komunikatorów internetowych.",
+    "type": "GUIDE",
+    "url": "https://rops.krakow.pl/poradniki/klub-cyfrowego-seniora.pdf",
+    "areas": ["DIGITAL_EXCLUSION", "AGING"]
+  },
+  {
+    "slug": "canvas-plan-skalowania-innowacji",
+    "title": "Szablon Planu Skalowania Innowacji Społecznej",
+    "description": "Narzędzie analityczne do oceny gotowości innowacji do replikacji w innych gminach oraz kalkulator kosztów jednostkowych.",
+    "type": "CANVAS",
+    "url": "https://rops.krakow.pl/materialy/plan-skalowania-canvas.pdf",
+    "areas": ["COORDINATION"]
+  },
+  {
+    "slug": "wideo-mieszkania-wspomagane-model",
+    "title": "Mieszkania wspomagane i treningowe – film studyjny",
+    "description": "Prezentacja funkcjonowania mieszkania treningowego dla osób opuszczających pieczę zastępczą i osób z niepełnosprawnościami.",
+    "type": "VIDEO",
+    "url": "https://youtube.com/watch?v=hubmi-mieszkania-treningowe",
+    "areas": ["SERVICE_ACCESS", "OTHER"]
+  },
+  {
+    "slug": "raport-srebrna-gospodarka-malopolska",
+    "title": "Raport: Potencjał Srebrnej Gospodarki w Subregionie Tarnowskim",
+    "description": "Analiza zapotrzebowania na usługi opiekuńcze, rehabilitacyjne i rekreacyjne dla starzejącej się populacji subregionu.",
+    "type": "REPORT",
+    "url": "https://rops.krakow.pl/raporty/srebrna-gospodarka-tarnow.pdf",
+    "areas": ["AGING", "DEPOPULATION"]
+  },
+  {
+    "slug": "poradnik-wolontariat-pracowniczy-dla-ngo",
+    "title": "Wolontariat kompetencyjny – współpraca NGO z biznesem",
+    "description": "Wskazówki dla fundacji i stowarzyszeń, jak pozyskiwać wsparcie specjalistów IT, prawników i marketingowców na zasadzie pro bono.",
+    "type": "GUIDE",
+    "url": "https://rops.krakow.pl/poradniki/wolontariat-kompetencyjny.pdf",
+    "areas": ["COORDINATION"]
+  },
+  {
+    "slug": "wideo-pies-asystujacy-w-terapii",
+    "title": "Dogoterapia i asysta zwierząt w pracy z dziećmi z ASD",
+    "description": "Film edukacyjny pokazujący standardy bezpieczeństwa i metodykę pracy kynoterapeuty w ośrodkach wsparcia dziennego.",
+    "type": "VIDEO",
+    "url": "https://youtube.com/watch?v=hubmi-dogoterapia-metodyka",
+    "areas": ["SERVICE_ACCESS", "MENTAL_HEALTH"]
+  },
+  {
+    "slug": "canvas-model-uslugi-wytchnieniowej",
+    "title": "Arkusz Projektowy Mobilnej Usługi Wytchnieniowej",
+    "description": "Formularz bilansu czasu i potrzeb opiekuna faktycznego do planowania dyżurów asystentów wytchnieniowych w środowisku domowym.",
+    "type": "CANVAS",
+    "url": "https://rops.krakow.pl/materialy/arkusz-opieka-wytchnieniowa.pdf",
+    "areas": ["COORDINATION", "AGING"]
+  }
+]

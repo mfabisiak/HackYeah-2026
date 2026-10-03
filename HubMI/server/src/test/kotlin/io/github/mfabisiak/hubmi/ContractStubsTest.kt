@@ -5,10 +5,7 @@ import io.github.mfabisiak.hubmi.api.Api
 import io.github.mfabisiak.hubmi.api.Calls
 import io.github.mfabisiak.hubmi.api.ErrorCode
 import io.github.mfabisiak.hubmi.api.Ideas
-import io.github.mfabisiak.hubmi.api.InnovationStage
-import io.github.mfabisiak.hubmi.api.Innovations
 import io.github.mfabisiak.hubmi.api.Matches
-import io.github.mfabisiak.hubmi.api.SocialArea
 import io.ktor.client.plugins.resources.Resources
 import io.ktor.client.plugins.resources.delete
 import io.ktor.client.plugins.resources.get
@@ -25,22 +22,20 @@ class ContractStubsTest {
             application { module() }
             val client = createClient { install(Resources) }
 
-            assertEquals(HttpStatusCode.NotImplemented, client.get(Innovations()).status)
-            assertEquals(HttpStatusCode.NotImplemented, client.get(Innovations.ById(id = "abc")).status)
             assertEquals(HttpStatusCode.NotImplemented, client.post(Matches()).status)
+            assertEquals(HttpStatusCode.NotImplemented, client.post(Matches.Feedback(needId = "abc")).status)
         }
 
     @Test
-    fun queryParametersAreParsedFromTheContract() =
+    fun stubAnswersWithNotImplementedErrorCode() =
         testApplication {
             application { module() }
             val client = createClient { install(Resources) }
 
-            val response = client.get(Innovations(q = "senior", area = SocialArea.AGING, page = 2, size = 5))
+            val response = client.post(Matches())
 
             assertEquals(HttpStatusCode.NotImplemented, response.status)
             assertTrue(response.bodyAsText().contains(ErrorCode.NOT_IMPLEMENTED.name))
-            assertNotNull(InnovationStage.PILOT)
         }
 
     @Test
@@ -60,8 +55,8 @@ class ContractStubsTest {
             val client = createClient { install(Resources) }
 
             assertEquals(HttpStatusCode.Unauthorized, client.get(AdminTrends()).status)
-            assertEquals(HttpStatusCode.Unauthorized, client.post(Innovations()).status)
-            assertEquals(HttpStatusCode.Unauthorized, client.delete(Innovations.ById(id = "abc")).status)
+            assertEquals(HttpStatusCode.Unauthorized, client.post(Calls()).status)
+            assertEquals(HttpStatusCode.Unauthorized, client.delete(Calls.ById(id = "abc")).status)
             assertEquals(HttpStatusCode.Unauthorized, client.get(Api.Me()).status)
         }
 }

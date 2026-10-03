@@ -129,7 +129,8 @@ private fun CallFieldJs.toDto(): CallField =
         label = label,
         required = required,
         type =
-            io.github.mfabisiak.hubmi.api.CallFieldType.entries.firstOrNull { it.name == type }
+            io.github.mfabisiak.hubmi.api.CallFieldType.entries
+                .firstOrNull { it.name == type }
                 ?: io.github.mfabisiak.hubmi.api.CallFieldType.TEXT,
         maxLength = maxLength,
         helpText = helpText,

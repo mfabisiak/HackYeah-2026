@@ -1,12 +1,10 @@
 package io.github.mfabisiak.hubmi.routes
 
 import io.github.mfabisiak.hubmi.api.AdminTrends
-import io.github.mfabisiak.hubmi.api.Challenges
 import io.github.mfabisiak.hubmi.api.ErrorCode
 import io.github.mfabisiak.hubmi.api.ErrorResponse
 import io.github.mfabisiak.hubmi.api.Innovations
 import io.github.mfabisiak.hubmi.api.Matches
-import io.github.mfabisiak.hubmi.api.Materials
 import io.github.mfabisiak.hubmi.api.Notifications
 import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.Threads
@@ -14,10 +12,8 @@ import io.github.mfabisiak.hubmi.plugins.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.plugins.requireRole
 import io.ktor.http.*
 import io.ktor.server.auth.*
-import io.ktor.server.resources.delete
 import io.ktor.server.resources.get
 import io.ktor.server.resources.post
-import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
@@ -37,12 +33,6 @@ fun Route.contractStubs() {
 }
 
 private fun Route.publicStubs() {
-    get<Innovations> { notImplemented() }
-    get<Innovations.ById> { notImplemented() }
-    get<Challenges> { notImplemented() }
-    get<Challenges.ById> { notImplemented() }
-    get<Materials> { notImplemented() }
-    get<Materials.ById> { notImplemented() }
     post<Matches> { notImplemented() }
     post<Matches.Feedback> { notImplemented() }
 }
@@ -59,14 +49,5 @@ private fun Route.authenticatedStubs() {
 }
 
 private fun Route.adminStubs() {
-    post<Innovations> { notImplemented() }
-    put<Innovations.ById> { notImplemented() }
-    delete<Innovations.ById> { notImplemented() }
-    post<Challenges> { notImplemented() }
-    put<Challenges.ById> { notImplemented() }
-    delete<Challenges.ById> { notImplemented() }
-    post<Materials> { notImplemented() }
-    put<Materials.ById> { notImplemented() }
-    delete<Materials.ById> { notImplemented() }
     get<AdminTrends> { notImplemented() }
 }
