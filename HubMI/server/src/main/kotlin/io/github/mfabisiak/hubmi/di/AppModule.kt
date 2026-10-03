@@ -6,9 +6,9 @@ import io.github.mfabisiak.hubmi.service.GreetingService
 import org.koin.dsl.module
 import org.koin.dsl.onClose
 
-val appModule =
+fun appModule(config: AppConfig) =
     module {
-        single { AppConfig.fromEnv() }
+        single { config }
         single { MongoRepository(get()) } onClose { it?.close() }
         single { GreetingService() }
     }

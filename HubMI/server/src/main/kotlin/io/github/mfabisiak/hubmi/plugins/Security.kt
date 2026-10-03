@@ -8,10 +8,6 @@ import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import org.koin.ktor.ext.inject
 import java.net.URI
 import java.util.concurrent.TimeUnit
@@ -21,7 +17,7 @@ const val KEYCLOAK_AUTH = "keycloak"
 fun Application.configureSecurity() {
     val config by inject<AppConfig>()
 
-    // Signing keys are fetched lazily from Keycloak on the first token, so the server can start before Keycloak.
+    // The JWKS URL is validated when the configuration is loaded. Signing keys are fetched lazily from Keycloak on the first token, so the server can start before Keycloak.
     val jwkProvider =
         JwkProviderBuilder(URI(config.keycloakJwksUrl).toURL())
             .cached(10, 24, TimeUnit.HOURS)
@@ -41,7 +37,7 @@ fun Application.configureSecurity() {
     }
 }
 
-/** Realm roles assigned in Keycloak (`realm_access.roles` claim). */
+/** Realm roles assigned in Keycloak (`realm_access.roles` claim); the JWT library exposes claims untyped. */
 val JWTPrincipal.realmRoles: Set<String>
     get() =
         payload

@@ -3,10 +3,9 @@ package io.github.mfabisiak.hubmi.routes
 import io.github.mfabisiak.hubmi.api.Api
 import io.github.mfabisiak.hubmi.api.Health
 import io.github.mfabisiak.hubmi.api.HealthResponse
-import io.github.mfabisiak.hubmi.api.MeResponse
 import io.github.mfabisiak.hubmi.api.MessageResponse
+import io.github.mfabisiak.hubmi.models.toMeResponse
 import io.github.mfabisiak.hubmi.plugins.KEYCLOAK_AUTH
-import io.github.mfabisiak.hubmi.plugins.realmRoles
 import io.github.mfabisiak.hubmi.plugins.requireRole
 import io.github.mfabisiak.hubmi.repository.MongoRepository
 import io.github.mfabisiak.hubmi.service.GreetingService
@@ -41,15 +40,10 @@ fun Route.appRoutes() {
     // Requires a valid Keycloak access token
     authenticate(KEYCLOAK_AUTH) {
         get<Api.Me> {
-            val principal = call.principal<JWTPrincipal>()!!
-            call.respond(
-                MeResponse(
-                    id = principal.subject,
-                    username = principal.payload.getClaim("preferred_username").asString(),
-                    email = principal.payload.getClaim("email").asString(),
-                    roles = principal.realmRoles,
-                ),
-            )
+            call
+                .principal<JWTPrincipal>()
+                ?.let { call.respond(it.toMeResponse()) }
+                ?: call.respond(HttpStatusCode.Unauthorized)
         }
 
         requireRole("admin") {
