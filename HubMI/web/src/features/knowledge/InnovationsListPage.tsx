@@ -216,7 +216,8 @@ export function InnovationsListPage() {
                 size="md"
                 radius="md"
                 styles={{
-                  label: { fontSize: '0.95rem', fontWeight: 600, marginBottom: 4 },
+                  label: { fontSize: '1.05rem', fontWeight: 600, marginBottom: 6 },
+                  input: { fontSize: '1.05rem' },
                 }}
               />
               <Select
@@ -231,7 +232,8 @@ export function InnovationsListPage() {
                 size="md"
                 radius="md"
                 styles={{
-                  label: { fontSize: '0.95rem', fontWeight: 600, marginBottom: 4 },
+                  label: { fontSize: '1.05rem', fontWeight: 600, marginBottom: 6 },
+                  input: { fontSize: '1.05rem' },
                 }}
               />
             </SimpleGrid>
@@ -365,16 +367,33 @@ export function InnovationsListPage() {
                     )}
 
                     {item.targetGroups && item.targetGroups.length > 0 && (
-                      <Group gap="xs" wrap="wrap">
+                      <Group gap="sm" wrap="wrap" align="center" mt="xs">
                         <Text
-                          size="sm"
-                          fw={600}
-                          c="light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0))"
+                          style={{
+                            fontSize: '1.15rem',
+                            fontWeight: 700,
+                          }}
+                          c="light-dark(var(--mantine-color-gray-8), var(--mantine-color-dark-0))"
                         >
                           Dla kogo:
                         </Text>
                         {item.targetGroups.map((tg) => (
-                          <Badge key={tg} variant="light" color="teal" size="md" radius="sm">
+                          <Badge
+                            key={tg}
+                            variant="light"
+                            color="teal"
+                            size="xl"
+                            radius="md"
+                            style={{
+                              height: 38,
+                              border: '1.5px solid var(--mantine-color-teal-light-color)',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                            }}
+                            styles={{
+                              label: { fontSize: '1.05rem', fontWeight: 600 },
+                            }}
+                          >
                             {TARGET_GROUP_NAMES[tg] ?? tg}
                           </Badge>
                         ))}

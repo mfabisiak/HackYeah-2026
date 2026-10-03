@@ -237,8 +237,8 @@ export function InnovationDetailPage() {
 
           {innovation.targetGroups && innovation.targetGroups.length > 0 && (
             <Stack gap="xs">
-              <Text size="md" fw={700}>
-                Grupy odbiorców i uczestników:
+              <Text size="lg" fw={700} style={{ fontSize: '1.15rem' }}>
+                Grupy odbiorców i uczestników (Dla kogo):
               </Text>
               <Group gap="sm" wrap="wrap">
                 {innovation.targetGroups.map((tg) => (
@@ -246,10 +246,16 @@ export function InnovationDetailPage() {
                     key={tg}
                     variant="light"
                     color="teal"
-                    size="lg"
+                    size="xl"
                     radius="md"
+                    style={{
+                      height: 38,
+                      border: '1.5px solid var(--mantine-color-teal-light-color)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                    }}
                     styles={{
-                      label: { fontSize: '0.95rem', fontWeight: 600 },
+                      label: { fontSize: '1.05rem', fontWeight: 600 },
                     }}
                   >
                     {TARGET_GROUP_NAMES[tg] ?? tg}

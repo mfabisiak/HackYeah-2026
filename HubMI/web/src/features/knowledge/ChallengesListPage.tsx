@@ -179,7 +179,8 @@ export function ChallengesListPage() {
               size="md"
               radius="md"
               styles={{
-                label: { fontSize: '0.95rem', fontWeight: 600, marginBottom: 4 },
+                label: { fontSize: '1.05rem', fontWeight: 600, marginBottom: 6 },
+                input: { fontSize: '1.05rem' },
               }}
             />
             <Select
@@ -194,7 +195,8 @@ export function ChallengesListPage() {
               size="md"
               radius="md"
               styles={{
-                label: { fontSize: '0.95rem', fontWeight: 600, marginBottom: 4 },
+                label: { fontSize: '1.05rem', fontWeight: 600, marginBottom: 6 },
+                input: { fontSize: '1.05rem' },
               }}
             />
           </SimpleGrid>
@@ -293,23 +295,40 @@ export function ChallengesListPage() {
                     </Text>
 
                     {challenge.municipalities && challenge.municipalities.length > 0 && (
-                      <Stack gap="xs">
+                      <Stack gap="xs" mt="xs">
                         <Text
-                          size="sm"
-                          fw={600}
-                          c="light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0))"
+                          style={{
+                            fontSize: '1.15rem',
+                            fontWeight: 700,
+                          }}
+                          c="light-dark(var(--mantine-color-gray-8), var(--mantine-color-dark-0))"
                         >
                           Zgłoszone z gmin:
                         </Text>
-                        <Group gap="xs" wrap="wrap">
+                        <Group gap="sm" wrap="wrap">
                           {challenge.municipalities.map((muni) => (
                             <Badge
                               key={muni}
-                              variant="light"
+                              variant="outline"
                               color="gray"
-                              size="md"
-                              radius="sm"
-                              leftSection={<IconMapPin size={14} aria-hidden="true" />}
+                              size="xl"
+                              radius="md"
+                              leftSection={<IconMapPin size={18} aria-hidden="true" />}
+                              style={{
+                                height: 38,
+                                borderWidth: 2,
+                                borderColor: 'light-dark(var(--mantine-color-gray-5), var(--mantine-color-dark-4))',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                backgroundColor: 'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6))',
+                              }}
+                              styles={{
+                                label: {
+                                  fontSize: '1.05rem',
+                                  fontWeight: 600,
+                                  color: 'light-dark(var(--mantine-color-gray-9), var(--mantine-color-dark-0))',
+                                },
+                              }}
                             >
                               {muni}
                             </Badge>
