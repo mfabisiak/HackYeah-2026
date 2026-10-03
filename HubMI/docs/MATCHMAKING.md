@@ -135,6 +135,11 @@ pokazywać fragment tekstu, czy tylko obszar i liczbę.
   osadza ponownie tylko zmienione teksty, jednym wywołaniem. Dla kilkuset innowacji to ułamek sekundy, a odpada pole
   w modelu, migracja i rozjazd wektora z tekstem. Zimny start (36 innowacji) to ~6 s, dlatego serwer rozgrzewa wektory
   w tle zaraz po starcie (`MatchingEngine.warmUp`), a pierwszy użytkownik nie czeka.
+  Teksty idą do Ollamy porcjami po 4, a ukończone porcje zostają zapamiętane nawet po błędzie: na samym CPU
+  (pomiar: M1 Pro z `num_gpu: 0`, ok. 1 s na tekst) jedno żądanie dla całego katalogu trwałoby ~41 s i za każdym razem
+  przekraczałoby timeout klienta (30 s), więc zimny start nigdy by się nie udał. Przy porcjach każda próba robi
+  postęp. Ograniczenie: żądania przychodzące w trakcie pierwszego budowania czekają na jego koniec (na GPU ~6 s,
+  na CPU do ~40 s); nie przechodzą wtedy na słowa kluczowe.
 - **Trafność** = `(1 − w)·semantyka + w·tekst`, gdzie `w` = 0,4, a semantyka to cosinus przeskalowany z 0,35 (0) do
   0,75 (1). Zamiast RRF (z ticketu) łączymy skalibrowane wyniki. Pomiar na zestawie złotym (hit@3 wszędzie 100%):
   MRR 0,955 dla blendu, 0,934–0,938 dla RRF (k = 10 i 60), 0,944 dla samej semantyki, czyli różnice w rankingu są małe,
@@ -147,6 +152,10 @@ pokazywać fragment tekstu, czy tylko obszar i liczbę.
 - **Awaria Ollamy nie psuje demo:** `FallbackEngine` przy `Unavailable` przechodzi na `KeywordMatchingEngine` i przez 30 s
   nie pyta uszkodzonego silnika (jedno nieudane wywołanie zamiast timeoutu na każdym żądaniu); potem sam wraca do
   hybrydy. Zweryfikowane na żywo: zatrzymana Ollama → `200` w ~10–40 ms z wynikami słownymi.
+- **Ollama w Dockerze:** profil `ollama` w `docker-compose.yml` (kontener `ollama` + jednorazowy `ollama-pull` z modelem w
+  wolumenie `ollama-data`), uruchamiany `OLLAMA_URL=http://ollama:11434 docker compose --profile ollama up -d`. Tylko
+  CPU (Docker na Macu nie ma dostępu do Metala), więc natywna Ollama na hoście jest szybsza. Konfigurację sprawdziłem
+  przez `docker compose config`; samego kontenera i pobrania modelu w nim nie uruchamiałem.
 - Konfiguracja: `MATCHING_MODE` (`keyword` | `hybrid`; `hybrid+llm` nie jest zaimplementowany), `OLLAMA_URL`,
   `EMBEDDING_MODEL`. `AppConfig()` budowany ręcznie (testy) ma `keyword`; serwer z env domyślnie `hybrid`.
 - Pomiar: sekcja „Silnik hybrydowy” w [matching-baseline.md](matching-baseline.md). Wektory zestawu złotego są nagrane

@@ -15,15 +15,18 @@ class FakeEmbeddingClient(
     private val concepts: List<Set<String>>,
 ) : EmbeddingClient {
     val down = AtomicBoolean(false)
+
+    /** Calls after this many succeed no more, like an embedder that is too slow for the client timeout. */
+    val failAfterCalls = AtomicInteger(Int.MAX_VALUE)
     val calls = AtomicInteger(0)
     val embeddedTexts = AtomicInteger(0)
 
     override suspend fun embed(texts: List<String>): Either<EmbeddingError, List<Embedding>> {
-        calls.incrementAndGet()
-        embeddedTexts.addAndGet(texts.size)
-        return if (down.get()) {
+        val call = calls.incrementAndGet()
+        return if (down.get() || call > failAfterCalls.get()) {
             EmbeddingError.Unavailable(detail = "fake is down").left()
         } else {
+            embeddedTexts.addAndGet(texts.size)
             texts.map(::embedding).right()
         }
     }

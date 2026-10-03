@@ -73,6 +73,23 @@ class VectorIndexTest {
     }
 
     @Test
+    fun textsAreEmbeddedInBatchesAndAFailureKeepsTheFinishedBatches() {
+        val many = (1..6).map { HybridTestFixtures.innovation("Innowacja $it", "Dowóz numer $it") }
+        val bulk = HybridTestFixtures.engines(Catalogue(many))
+        val vectors = VectorIndex(bulk.embedder, batchSize = 4)
+        val source = assertIs<Either.Right<InnovationIndex.Snapshot>>(runBlocking { bulk.index.snapshot() }).value
+        bulk.embedder.failAfterCalls.set(1)
+
+        assertIs<EmbeddingError.Unavailable>(runBlocking { vectors.snapshotFor(source) }.leftOrNull())
+        assertEquals(4, bulk.embedder.embeddedTexts.get(), "the first batch of four was finished")
+
+        bulk.embedder.failAfterCalls.set(Int.MAX_VALUE)
+        assertIs<Either.Right<VectorIndex.Snapshot>>(runBlocking { vectors.snapshotFor(source) })
+
+        assertEquals(6, bulk.embedder.embeddedTexts.get(), "the retry embedded only the remaining two")
+    }
+
+    @Test
     fun ranksByCosineWithTheClosestFirst() {
         val query =
             engines.embedder

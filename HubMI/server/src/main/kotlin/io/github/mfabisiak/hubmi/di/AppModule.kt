@@ -54,7 +54,7 @@ import java.time.Clock
 import java.util.concurrent.TimeUnit
 
 private const val OLLAMA_CONNECT_TIMEOUT_MILLIS = 2_000L
-private const val OLLAMA_REQUEST_TIMEOUT_MILLIS = 15_000L
+private const val OLLAMA_REQUEST_TIMEOUT_MILLIS = 30_000L
 
 fun appModule(config: AppConfig) =
     module {
