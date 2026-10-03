@@ -19,6 +19,7 @@ import io.github.mfabisiak.hubmi.seeding.DatabaseSeeder
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.routing.*
 import kotlinx.coroutines.launch
 import org.koin.core.module.Module
@@ -42,6 +43,7 @@ fun Application.module(
     config: AppConfig,
     vararg extraModules: Module,
 ) {
+    install(CallLogging)
     configureKoin(appModule(config), *extraModules)
     configureSerialization()
     configureSecurity()

@@ -20,6 +20,7 @@ dependencies {
     implementation(libs.ktor.serverAuthJwt)
     implementation(libs.ktor.serverContentNegotiation)
     implementation(libs.ktor.serverStatusPages)
+    implementation(libs.ktor.serverCallLogging)
     implementation(libs.ktor.serializationKotlinxJson)
     implementation(libs.arrow.core)
     implementation(libs.mongodb.driverKotlinCoroutine)
