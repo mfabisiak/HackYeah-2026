@@ -9,7 +9,12 @@
     "stage": "IMPLEMENTED",
     "region": "Kraków - Podgórze",
     "keywords": ["samotny senior", "zakupy", "pomoc sąsiedzka", "wolontariat", "izolacja"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/sasiad-dla-seniora.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/sasiad-dla-seniora.pdf"],
+    "innovativeness": "W odróżnieniu od klasycznych usług opiekuńczych rozwiązanie opiera się na zaufaniu i bliskości, a nie na etatach i wizytach według sztywnego grafiku. Pomoc jest drobna, szybka i pochodzi od ludzi, których senior mija na klatce schodowej. Nowością jest też lokalny koordynator, który łączy pary i pilnuje bezpieczeństwa, dzięki czemu sąsiedzka życzliwość zyskuje uporządkowaną, powtarzalną formę.",
+    "problemDiagnosis": "Starsi ludzie mieszkający samotnie w blokach i kamienicach często nie mają kogo poprosić o zrobienie zakupów, wymianę żarówki czy wyniesienie śmieci. Nie chcą nikomu zawracać głowy, a rodzina mieszka daleko albo pracuje. Z czasem ograniczają wychodzenie z domu, rezygnują z drobnych czynności i coraz bardziej się izolują, choć wystarczyłaby zwykła, życzliwa pomoc z sąsiedztwa.",
+    "audienceDescription": "Odbiorcami są osoby starsze mieszkające samotnie, które radzą sobie na co dzień, ale potrzebują wsparcia w czynnościach wymagających siły, sprawności lub wyjścia z domu. Obok nich uczestniczą mieszkańcy gotowi poświęcić kilka godzin miesięcznie. Seniorzy są zagrożeni wykluczeniem, bo ich krąg znajomych kurczy się z wiekiem, a brak kontaktów szybko przekłada się na pogorszenie zdrowia i samopoczucia.",
+    "expectedChange": "Senior zyskuje poczucie, że ktoś o nim pamięta i że może liczyć na pomoc bez upokarzającego proszenia obcych. Drobne zadania przestają być barierą, a regularne odwiedziny przerywają samotność. Po stronie sąsiadów rośnie zaufanie i odpowiedzialność za wspólne otoczenie, co wzmacnia więzi w całej okolicy i zmniejsza ryzyko, że ktoś zostanie niezauważony w kryzysie.",
+    "futureVision": "Model jest tani i prosty do powtórzenia w każdej dzielnicy, osiedlu czy małej miejscowości, bo wymaga głównie koordynatora i kilku zasad bezpieczeństwa. Można go uruchomić w bibliotece, domu kultury, parafii lub świetlicy. Z czasem sieć może objąć także osoby z niepełnosprawnościami, rodziny w kryzysie czy nowych mieszkańców, a doświadczenia z jednej okolicy posłużą kolejnym."
   },
   {
     "slug": "cyfrowy-przewodnik-pokolen",
@@ -21,7 +26,12 @@
     "stage": "IMPLEMENTED",
     "region": "Tarnów",
     "keywords": ["smartfon dla seniora", "mobywatel", "komputer", "e-recepta", "bezpieczeństwo w sieci"],
-    "mediaUrls": ["https://youtube.com/watch?v=cyfrowy-senior-tarnow"]
+    "mediaUrls": ["https://youtube.com/watch?v=cyfrowy-senior-tarnow"],
+    "innovativeness": "Zamiast zajęć w dużej grupie z prowadzącym rozwiązanie stawia na indywidualne spotkania, w których to młodzi są ekspertami. Dzięki temu senior uczy się na własnym telefonie i własnych sprawach, a nie na przykładach z prezentacji. Nowa jest odwrócona rola pokoleń: młodzież zdobywa doświadczenie w tłumaczeniu i odpowiedzialności, a starsi nie wstydzą się pytać o rzeczy oczywiste.",
+    "problemDiagnosis": "Wielu starszych ludzi boi się smartfona, bo łatwo coś zepsuć, a nie ma kogo cierpliwie zapytać. Dzieci i wnuki nie mają czasu, a kursy bywają za szybkie i za ogólne. Przez to seniorzy nie umówią wizyty przez internet, nie odbiorą recepty w telefonie, nie załatwią sprawy w urzędzie bez wychodzenia z domu i łatwiej padają ofiarą internetowych oszustów.",
+    "audienceDescription": "Główną grupą są osoby po sześćdziesiątym piątym roku życia, które mają telefon, ale używają go tylko do rozmów, oraz młodzież szkolna i studencka chętna do pomagania. Seniorów wyróżnia nieufność wobec technologii i lęk przed kompromitacją. Są zagrożeni wykluczeniem cyfrowym, bo coraz więcej usług zdrowotnych i urzędowych przenosi się do sieci, a oni zostają bez dostępu do nich.",
+    "expectedChange": "Senior zyskuje samodzielność: sam sprawdza wyniki badań, umawia wizyty, rozmawia z rodziną przez wideo i potrafi rozpoznać podejrzaną wiadomość. Rośnie jego pewność siebie i poczucie sprawczości. Młodzież uczy się empatii i cierpliwości, a obie grupy nawiązują relacje, które trwają dłużej niż sam cykl spotkań, osłabiając podziały między pokoleniami.",
+    "futureVision": "Program można prowadzić w każdej szkole, bibliotece czy klubie seniora, bo wymaga jedynie sali, kilku telefonów i krótkiego przygotowania młodych mentorów. Zestaw tematów łatwo dostosować do lokalnych potrzeb, a model da się rozszerzyć na inne grupy, na przykład osoby z niepełnosprawnościami czy migrantów. Wdrożenie jest tanie i szybko przynosi widoczne efekty."
   },
   {
     "slug": "mobilny-punkt-rehabilitacji-wiejskiej",
@@ -33,7 +43,12 @@
     "stage": "TESTED",
     "region": "Powiat Gorlicki",
     "keywords": ["rehabilitacja domowa", "fizjoterapia", "dojazd do chorego", "brak transportu", "wieś"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/mobilna-rehabilitacja.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/mobilna-rehabilitacja.pdf"],
+    "innovativeness": "Zamiast czekać, aż pacjent dotrze do gabinetu, rozwiązanie przenosi rehabilitację tam, gdzie mieszka chory. Wyposażony pojazd łączy sprzęt do ćwiczeń i zabiegów z wizytami domowymi oraz zajęciami grupowymi w świetlicach. Dzięki stałemu rytmowi wizyt w tych samych miejscowościach terapia jest regularna, a nie okazjonalna, co w rehabilitacji decyduje o skuteczności.",
+    "problemDiagnosis": "Mieszkańcy wsi po udarze, urazach czy z chorobami stawów mają bardzo trudny dostęp do rehabilitacji. Najbliższy gabinet jest daleko, autobusy kursują rzadko, a rodzina nie zawsze może wozić chorego kilka razy w tygodniu. Wiele osób rezygnuje z terapii, a ich sprawność się pogarsza, przez co stają się coraz bardziej zależne od opiekunów.",
+    "audienceDescription": "Odbiorcami są osoby starsze oraz osoby z dysfunkcjami narządu ruchu mieszkające w małych, oddalonych miejscowościach, w tym chorzy leżący w domach. Wyróżnia ich ograniczona mobilność i zależność od pomocy innych. Grozi im wykluczenie, bo bez transportu nie mogą skorzystać z usług zdrowotnych dostępnych w mieście, a koszty dojazdu obciążają skromne budżety rodzin.",
+    "expectedChange": "Pacjenci mogą kontynuować terapię bez wielogodzinnych dojazdów, dzięki czemu szybciej odzyskują sprawność lub dłużej ją utrzymują. Mniej osób staje się całkowicie zależnych od opieki, a rodziny zyskują ulgę. Zajęcia grupowe w świetlicach dodatkowo wyprowadzają ludzi z domów, dając im kontakt z sąsiadami i poczucie, że o ich zdrowie ktoś dba.",
+    "futureVision": "Rozwiązanie można powielić w kolejnych powiatach, zwiększając liczbę pojazdów i dostosowując trasy do lokalnych potrzeb. Ten sam model sprawdzi się przy innych usługach zdrowotnych, takich jak badania profilaktyczne czy poradnictwo. Jego wdrożenie wymaga porozumienia z gminami i dostępu do wyposażonego pojazdu, ale nie wymaga budowy nowej infrastruktury."
   },
   {
     "slug": "bezpieczna-przystan-mlodziezy",
@@ -45,7 +60,12 @@
     "stage": "PILOT",
     "region": "Nowy Sącz",
     "keywords": ["depresja u młodzieży", "kryzys psychiczny", "stres szkolny", "lęki", "pomoc rówieśnicza"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/bezpieczna-przystan.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/bezpieczna-przystan.pdf"],
+    "innovativeness": "Wsparcie psychologiczne trafia do młodzieży tam, gdzie młodzi naprawdę szukają pomocy: u rówieśników, a nie od razu u dorosłych specjalistów. Przeszkoleni liderzy pełnią rolę pierwszego, nieoceniającego kontaktu, a psycholog czuwa nad bezpieczeństwem całego systemu. Anonimowy czat obniża próg zgłoszenia się, bo nastolatek nie musi się tłumaczyć ani narażać na etykietowanie przez klasę.",
+    "problemDiagnosis": "Wielu nastolatków przeżywa lęki, przygnębienie i napięcie związane ze szkołą, relacjami i presją, ale nie mówi o tym dorosłym. Boją się wstydu, nie wiedzą, do kogo pójść, a na wizytę u psychologa trzeba długo czekać. Problemy narastają w ukryciu i potrafią kończyć się poważnym kryzysem, zanim ktokolwiek zauważy sygnały ostrzegawcze.",
+    "audienceDescription": "Odbiorcami są uczniowie szkół, którzy przeżywają trudne emocje, oraz młodzi liderzy gotowi wspierać rówieśników. To grupa wrażliwa, w której wiele osób woli rozmawiać z równolatkami niż z dorosłymi. Młodzież jest narażona na wykluczenie, bo problemy psychiczne prowadzą do wycofania z życia klasy, a brak wsparcia pogłębia samotność i obniża wyniki w nauce.",
+    "expectedChange": "Młodzi mają miejsce, w którym mogą szybko porozmawiać i usłyszeć, że nie są sami. Trudności są zauważane wcześniej, a osoby w kryzysie szybciej trafiają do specjalisty. Szkoła staje się bezpieczniejsza i bardziej otwarta na rozmowę o emocjach, a liderzy zdobywają kompetencje i poczucie odpowiedzialności, które procentują także w dorosłym życiu.",
+    "futureVision": "Model można wdrożyć w każdej szkole średniej, a także w domach kultury, ośrodkach młodzieżowych i na uczelniach. Potrzebne są wyszkoleni liderzy, wyznaczona przestrzeń i dostęp do psychologa na dyżurach. Szkolenia da się prowadzić cyklicznie, a sprawdzone procedury kontaktu z dorosłymi w sytuacji zagrożenia można przekazywać kolejnym placówkom."
   },
   {
     "slug": "wytchnieniowa-przystan-opiekuna",
@@ -57,7 +77,12 @@
     "stage": "TESTED",
     "region": "Kraków - Krowodrza",
     "keywords": ["opieka wytchnieniowa", "alzheimer", "demencja", "zmęczenie opiekuna", "pomoc w domu"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/wytchnienie.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/wytchnienie.pdf"],
+    "innovativeness": "Opieka wytchnieniowa jest tu dowożona do domu chorego, a nie wymaga przenoszenia go do placówki, co dla osób z zaburzeniami pamięci bywa bardzo stresujące. Stała, przewidywalna pula godzin pozwala opiekunowi planować odpoczynek i sprawy własne. Asystenci znają metody pracy z osobami z otępieniem, więc zastępstwo nie jest zwykłym dyżurem, lecz świadomym wsparciem terapeutycznym.",
+    "problemDiagnosis": "Osoby, które całą dobę opiekują się bliskim z chorobą otępienną, są skrajnie zmęczone i często nie mają nawet godziny dla siebie. Nie mogą pójść do lekarza, załatwić sprawy w urzędzie ani odpocząć, bo nie ma kto zostać z chorym. Wypalenie, problemy zdrowotne i izolacja opiekuna prowadzą w końcu do tego, że cała rodzina traci siły.",
+    "audienceDescription": "Odbiorcami są opiekunowie rodzinni, najczęściej dorosłe dzieci lub współmałżonkowie, oraz osoby starsze z demencją, które wymagają stałego nadzoru. Opiekunowie często rezygnują z pracy i życia towarzyskiego, a sami bywają w podeszłym wieku. Grozi im wykluczenie, ponieważ całkowite zaangażowanie w opiekę odbiera czas, pieniądze i energię potrzebne do funkcjonowania w społeczeństwie.",
+    "expectedChange": "Opiekunowie odzyskują czas na odpoczynek, zdrowie i własne sprawy, dzięki czemu dłużej wytrzymują trudną sytuację bez wyczerpania. Podopieczny pozostaje w znajomym otoczeniu, a kontakt z przeszkolonym asystentem poprawia jego samopoczucie. Rodziny rzadziej szukają miejsca w placówce w sytuacji kryzysowej, a osoby opiekujące się bliskimi czują, że nie są z tym sami.",
+    "futureVision": "Rozwiązanie można rozszerzyć na opiekunów osób z innymi chorobami przewlekłymi i niepełnosprawnościami, a także na kolejne miasta i gminy. Wymaga wyszkolonej kadry asystentów i koordynacji zgłoszeń, ale nie budowy nowych budynków. Wdrożenie może wspierać samorząd lub organizacja pozarządowa, a rosnąca liczba starzejących się mieszkańców sprawia, że zapotrzebowanie będzie tylko rosło."
   },
   {
     "slug": "kolorowe-ogrody-spolecznosciowe",
@@ -69,7 +94,12 @@
     "stage": "IMPLEMENTED",
     "region": "Wieliczka",
     "keywords": ["ogród społeczny", "hortiterapia", "zieleń miejska", "spotkania mieszkańców", "aktywizacja"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/ogrody-spoleczne.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/ogrody-spoleczne.pdf"],
+    "innovativeness": "Ogrody łączą w jednym miejscu grupy, które zwykle nie mają okazji się spotkać: starszych mieszkańców, dzieci i osoby z niepełnosprawnościami. Przestrzeń jest od początku projektowana tak, by każdy mógł w niej pracować, także na wózku, dzięki podwyższonym grządkom i zmysłowym ścieżkom. Wspólna uprawa staje się pretekstem do rozmowy, nauki i budowania relacji, a nie tylko sposobem na zieleń w mieście.",
+    "problemDiagnosis": "W miastach brakuje miejsc, w których można się po prostu spotkać z innymi ludźmi bez wydawania pieniędzy. Seniorzy siedzą w mieszkaniach, osoby z niepełnosprawnościami mają utrudniony dostęp do wielu przestrzeni, a dzieci z trudnych środowisk rzadko poznają starszych, życzliwych dorosłych. Nieużytki stoją puste, a mieszkańcy pozostają obok siebie, nie ze sobą.",
+    "audienceDescription": "Odbiorcami są starsi mieszkańcy, osoby z niepełnosprawnościami oraz dzieci i młodzież, w tym te bez stabilnego rodzinnego wsparcia. Łączy ich potrzeba kontaktu, zajęcia i poczucia, że są potrzebni. Każda z tych grup jest zagrożona wykluczeniem: seniorzy samotnością, osoby z niepełnosprawnościami barierami przestrzennymi, a dzieci brakiem pozytywnych wzorców i okazji do rozwoju.",
+    "expectedChange": "Uczestnicy zyskują regularne zajęcie na świeżym powietrzu, kontakt z przyrodą i grono ludzi, z którymi mogą się spotykać. Zmniejsza się poczucie samotności, rośnie aktywność i sprawczość, a różne pokolenia uczą się od siebie nawzajem. Okolica zyskuje zadbaną, bezpieczną przestrzeń, a mieszkańcy zaczynają się znać, co wzmacnia wspólnotę i poczucie przynależności.",
+    "futureVision": "Pomysł można wdrożyć na każdym wolnym skrawku ziemi w mieście lub miasteczku, od podwórka po teren przy szkole czy domu opieki. Koszty są niewielkie, a zaangażowanie mieszkańców buduje trwałość projektu. Ogrody można rozbudować o zajęcia terapeutyczne, kulinarne i edukacyjne, a doświadczenia jednego miejsca łatwo przenieść do innych gmin."
   },
   {
     "slug": "wiejski-hub-uslug-wspolnych",
@@ -81,7 +111,12 @@
     "stage": "PILOT",
     "region": "Gmina Miechów",
     "keywords": ["remiza osp", "wieś", "telemedycyna", "świetlica", "integracja wsi"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/wiejski-hub.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/wiejski-hub.pdf"],
+    "innovativeness": "Zamiast budować nowe obiekty, rozwiązanie wykorzystuje budynki, które już stoją i są dobrze znane mieszkańcom. Jedno miejsce łączy usługi zdrowotne na odległość, dostęp do książek i komputerów, zajęcia dla dzieci oraz spotkania lokalnej społeczności. Dzięki temu wieś zyskuje coś, czego nie miała: centrum codziennych spraw, które działa w zasięgu spaceru, a nie wymaga wyjazdu do miasta.",
+    "problemDiagnosis": "Z małych miejscowości stopniowo znikają sklepy, szkoły, filie bibliotek i przychodnie. Ludzie muszą jeździć kilkanaście kilometrów do lekarza czy urzędu, a młodzi wyjeżdżają i nie wracają. Starsi mieszkańcy zostają bez wsparcia, a wspólne budynki stoją puste i niszczeją, więc wieś traci miejsca, w których ludzie mogliby się spotykać.",
+    "audienceDescription": "Odbiorcami są mieszkańcy małych miejscowości, w tym osoby starsze, rodziny z dziećmi i osoby bez własnego samochodu, a także samorządy szukające sposobu na utrzymanie usług. Mieszkańców wyróżnia dłuższa droga do wszystkich instytucji i słabszy dostęp do szybkiego internetu. Są zagrożeni wykluczeniem, bo odległość i brak transportu odcinają ich od zdrowia, edukacji i kontaktów społecznych.",
+    "expectedChange": "Mieszkańcy załatwiają część spraw na miejscu: konsultują się z lekarzem, pożyczają książki, korzystają z komputera i spotykają się z sąsiadami. Dzieci mają bezpieczne miejsce zabaw, a starsi dostają pomoc w obsłudze nowych usług. Wieś odzyskuje wspólną przestrzeń, rośnie jej atrakcyjność, a poczucie izolacji słabnie, co zachęca do pozostania w miejscowości.",
+    "futureVision": "Model można przenieść do dowolnej gminy, która dysponuje wspólnym budynkiem, na przykład remizą, świetlicą czy dawną szkołą. Zestaw usług dobiera się do lokalnych potrzeb, a koszty adaptacji są umiarkowane. Kluczowe jest dobre partnerstwo samorządu i lokalnych organizacji, a z czasem hub może przejmować kolejne usługi publiczne dostępne dotąd tylko w mieście."
   },
   {
     "slug": "kawiarnia-z-sercem-zatrudnienie-wspomagane",
@@ -93,7 +128,12 @@
     "stage": "IMPLEMENTED",
     "region": "Kraków - Stare Miasto",
     "keywords": ["praca dla niepełnosprawnych", "zespół downa", "ekonomia społeczna", "trener pracy", "zatrudnienie"],
-    "mediaUrls": ["https://youtube.com/watch?v=kawiarnia-z-sercem"]
+    "mediaUrls": ["https://youtube.com/watch?v=kawiarnia-z-sercem"],
+    "innovativeness": "Kawiarnia pokazuje, że osoby z niepełnosprawnością intelektualną mogą pracować w zwykłym miejscu obsługi klienta, jeśli stanowisko zostanie do nich dopasowane. Piktogramy, uproszczone receptury i stała obecność trenera pracy zastępują wymaganie, by to pracownik dostosował się do systemu. Innowacją jest też to, że miejsce pracy jednocześnie zmienia nastawienie gości, którzy poznają pracowników na równych zasadach.",
+    "problemDiagnosis": "Młodzi dorośli z niepełnosprawnością intelektualną rzadko znajdują stałą pracę. Pracodawcy obawiają się trudności i nie wiedzą, jak dostosować obowiązki, a system wsparcia kończy się często po szkole. Efekt jest taki, że młodzi ludzie zostają w domach, zależą finansowo od rodziców i nie mają okazji, by pokazać, co potrafią, ani budować samodzielnego życia.",
+    "audienceDescription": "Odbiorcami są młodzi dorośli z niepełnosprawnością intelektualną, w tym z zespołem Downa, oraz organizacje, które chcą wdrażać zatrudnienie wspomagane. Osoby te mają potencjał do pracy, ale potrzebują jasnych instrukcji, cierpliwości i stałego wsparcia. Są zagrożone wykluczeniem zawodowym i społecznym, ponieważ rynek pracy nie jest przygotowany na ich potrzeby, a stereotypy ograniczają szanse.",
+    "expectedChange": "Pracownicy zyskują zarobek, nowe umiejętności i poczucie, że są potrzebni, co zwiększa ich samodzielność i pewność siebie. Rodziny widzą, że dorosłe dziecko może pracować i się rozwijać. Goście kawiarni oswajają się z niepełnosprawnością, a stereotypy słabną, co przekłada się na większą otwartość lokalnej społeczności i pracodawców.",
+    "futureVision": "Model można odtworzyć w innych miastach i w innych branżach, takich jak pralnia, piekarnia, ogrodnictwo czy usługi biurowe. Wymaga lokalu, wyszkolonego trenera pracy i lokalnej organizacji prowadzącej przedsiębiorstwo społeczne. Sprawdzone narzędzia, jak piktogramy i uproszczone instrukcje, można przekazywać innym pracodawcom, zachęcając ich do zatrudniania osób z niepełnosprawnościami."
   },
   {
     "slug": "telefon-zaufania-dla-seniora-srebrna-linia",
@@ -105,7 +145,12 @@
     "stage": "IMPLEMENTED",
     "region": "Małopolska Zachodnia",
     "keywords": ["samotność", "telefon do seniora", "pogawędka", "rozmowa telefoniczna", "izolacja domowa"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/srebrna-linia.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/srebrna-linia.pdf"],
+    "innovativeness": "Wsparcie nie czeka na to, aż samotna osoba sama zadzwoni i poprosi o pomoc, tylko dociera do niej o stałej porze, co buduje relację i poczucie bezpieczeństwa. Rozwiązanie jest dostosowane do osób bez internetu, bo korzysta wyłącznie ze zwykłego telefonu. Rozmowa ma charakter życzliwej pogawędki, a nie formalnej porady, ale w razie niepokojących sygnałów uruchamia lokalne wsparcie.",
+    "problemDiagnosis": "Wielu starszych ludzi mieszka samotnie i przez cały dzień nie rozmawia z nikim. Rodzina jest daleko, znajomi odeszli, a oni sami nie korzystają z internetu ani komunikatorów. Brak rozmowy przekłada się na przygnębienie, utratę zainteresowań i zaniedbywanie siebie, a gdy dzieje się coś złego, nikt tego od razu nie zauważa.",
+    "audienceDescription": "Odbiorcami są osoby starsze, które mieszkają same, nie mają dostępu do internetu lub nie umieją z niego korzystać, a dzień spędzają bez kontaktu z drugim człowiekiem. Wielu z nich ma ograniczoną sprawność i rzadko wychodzi z domu. Grozi im poważna izolacja, bo ich otoczenie nie dostrzega ich potrzeb, a tradycyjne formy pomocy wymagają samodzielnego zgłoszenia się.",
+    "expectedChange": "Seniorzy zyskują stały, przewidywalny kontakt, na który mogą czekać, co poprawia ich nastrój i poczucie wartości. Wolontariusze wychwytują wczesne oznaki problemów i mogą szybko wezwać pomoc. Samotność przestaje być niewidoczna, a osoby starsze czują, że ktoś się nimi interesuje i że są częścią wspólnoty, nawet gdy rzadko wychodzą z domu.",
+    "futureVision": "Linia może działać w dowolnym regionie, bo potrzebuje tylko telefonów, przeszkolonych wolontariuszy i współpracy z lokalnym ośrodkiem pomocy. Model łatwo skalować, zwiększając liczbę dyżurujących i godzin. Z czasem można go rozszerzyć o inne grupy narażone na izolację, takie jak osoby przewlekle chore czy opiekunowie, a rozmowy uzupełnić o czytanie, ćwiczenia pamięci czy informacje o lokalnych wydarzeniach."
   },
   {
     "slug": "miejska-wypozyczalnia-sprzetu-rehabilitacyjnego",
@@ -117,7 +162,12 @@
     "stage": "TESTED",
     "region": "Powiat Oświęcimski",
     "keywords": ["wózek inwalidzki", "łóżko rehabilitacyjne", "balkonik", "wypożyczalnia sprzętu", "darmowy sprzęt"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/e-wypozyczalnia.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/e-wypozyczalnia.pdf"],
+    "innovativeness": "Zwykłe wypożyczalnie sprzętu medycznego działają w jednym punkcie, często płatnie i w godzinach pracy urzędu. Tutaj sprzęt jest bezpłatny, zamawia się go prostym formularzem albo telefonicznie, a ekipa przywozi go, montuje i uczy rodzinę bezpiecznego obchodzenia się z chorym. Nowością jest połączenie logistyki, instruktażu i wspólnej obsługi kilku gmin w jednym systemie.",
+    "problemDiagnosis": "Kiedy ktoś bliski wraca ze szpitala do domu, rodzina nie ma łóżka ani wózka i nie wie, gdzie je zdobyć. Kupno jest drogie, a sprzęt bywa potrzebny tylko na kilka tygodni. Opiekunowie często nie umieją bezpiecznie przenosić chorego, więc sami nabawiają się kontuzji. Do tego do punktu wypożyczeń trudno dojechać z małej miejscowości, a bez samochodu jest to wręcz niemożliwe.",
+    "audienceDescription": "Odbiorcami są osoby po wypadkach, udarach i zabiegach oraz osoby z niepełnosprawnością, a także ich rodziny, które nagle zostają opiekunami. Często są to małżonkowie albo dorosłe dzieci pracujące zawodowo, bez przygotowania medycznego i bez wolnych pieniędzy. Zagraża im wykluczenie, bo brak sprzętu zamyka chorego w jednym pokoju, a opiekuna odcina od pracy i kontaktów.",
+    "expectedChange": "Chory wraca do domu bezpieczniej, szybciej zaczyna rehabilitację i może normalniej funkcjonować w swoim otoczeniu. Rodzina nie musi zadłużać się na sprzęt ani rezygnować z pracy, żeby sobie poradzić. Opiekunowie zyskują pewność, wiedzą jak pomagać bez szkody dla zdrowia, dzięki czemu rzadziej trafiają do kryzysu i mniej osób trafia do placówek całodobowych.",
+    "futureVision": "Model łatwo przenieść do kolejnych powiatów, bo opiera się na wspólnym magazynie, prostym katalogu internetowym i niewielkiej ekipie technicznej. Gminy mogą dzielić koszty i wymieniać się sprzętem. Rozwiązanie da się rozszerzyć o sprzęt dla dzieci, pomoce słuchowe czy wypożyczalnię dla seniorów, a w przyszłości o wymianę używanego sprzętu między mieszkańcami."
   },
   {
     "slug": "mieszkanie-treningowe-start-w-doroslosc",
@@ -129,7 +179,12 @@
     "stage": "IMPLEMENTED",
     "region": "Tarnów",
     "keywords": ["dom dziecka", "piecza zastępcza", "usamodzielnienie", "mieszkanie treningowe", "młodzi dorośli"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/start-w-doroslosc.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/start-w-doroslosc.pdf"],
+    "innovativeness": "Zwykle usamodzielnienie sprowadza się do jednorazowego wsparcia i przeprowadzki, po której młody człowiek zostaje sam. Tutaj dostaje czas na próbę dorosłego życia w bezpiecznych warunkach, a obok mentora, który nie ocenia, tylko towarzyszy. Wartością dodaną jest przejście od teorii do praktyki: prawdziwy budżet, prawdziwe rachunki, prawdziwe sprawy w urzędzie, ale z siatką bezpieczeństwa.",
+    "problemDiagnosis": "Młodzi ludzie, którzy kończą pobyt w pieczy zastępczej albo w domu dziecka, w dniu osiemnastych urodzin muszą nagle radzić sobie sami. Nie mają rodziny, do której mogliby wrócić, mało oszczędności i nikogo, kto pokaże, jak opłacić rachunki czy znaleźć pracę. Wielu z nich wpada w długi, traci mieszkanie i ląduje na ulicy, bo nikt ich nie nauczył, jak prowadzić dom.",
+    "audienceDescription": "Odbiorcami są młodzi dorośli opuszczający pieczę zastępczą, zwykle w wieku kilkunastu i dwudziestu kilku lat. Mają za sobą trudne doświadczenia rodzinne, często przerwane relacje i niskie poczucie bezpieczeństwa. Brakuje im dorosłego, na którego mogliby liczyć w kryzysie, co czyni ich jedną z grup najbardziej narażonych na bezdomność, bezrobocie i uzależnienia.",
+    "expectedChange": "Po kilku miesiącach młody człowiek umie zaplanować wydatki, ugotować posiłek, napisać CV i załatwić sprawę w urzędzie. Zyskuje wiarę w siebie i kogoś zaufanego, kto zostaje w jego życiu dłużej niż sam projekt. Daje to realną szansę na stabilne mieszkanie, pracę i niezależność, zamiast powrotu do systemu pomocy kryzysowej.",
+    "futureVision": "Rozwiązanie można powielić w każdym mieście, które ma choćby jedno wolne mieszkanie komunalne i chętnych mentorów, a koszty są niewielkie w porównaniu z kosztami bezdomności. Model sprawdzi się też dla innych grup w przejściu do samodzielności, na przykład osób po opuszczeniu zakładu karnego albo młodzieży z placówek opiekuńczych. Ważna jest współpraca z gminą i organizacjami pozarządowymi."
   },
   {
     "slug": "animator-spolecznosci-wiejskich-mobilny-mentor",
@@ -141,7 +196,12 @@
     "stage": "TESTED",
     "region": "Powiat Proszowicki",
     "keywords": ["animacja lokalna", "wieś", "koło gospodyń", "granty sołeckie", "wyludnienie wsi"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/mobilny-animator.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/mobilny-animator.pdf"],
+    "innovativeness": "Większość programów dla wsi zakłada, że lokalna organizacja już istnieje i potrafi napisać wniosek. Tutaj ktoś przychodzi do mieszkańców na kilka miesięcy, razem z nimi odkrywa, co we wsi działa, i uczy ich organizować się od zera. Nowością jest to, że animator nie realizuje projektu za ludzi, tylko zostawia po sobie umiejętności i pierwsze wspólne doświadczenie sukcesu.",
+    "problemDiagnosis": "W wielu małych wsiach młodzi wyjeżdżają, sklep i świetlica się zamykają, a ludzie przestają się spotykać. Mieszkańcy mówią, że nic się tu nie dzieje i nikt nic nie zrobi, bo nie ma kto. Nie znają źródeł finansowania, boją się papierów i nie wierzą, że ich pomysł mógłby zostać dofinansowany. Z czasem wieś pustoszeje i traci poczucie wspólnoty.",
+    "audienceDescription": "Odbiorcami są mieszkańcy małych sołectw, w których nie działa żadna organizacja pozarządowa: starsze gospodynie, rolnicy, sołtysi, kilka osób młodszych, które zostały. Są to ludzie z dużym potencjałem i lokalną wiedzą, ale bez doświadczenia w pisaniu wniosków i prowadzeniu zebrań. Zagraża im izolacja, bo wieś jest daleko od miast i usług, a wspólnota zanika.",
+    "expectedChange": "Mieszkańcy zaczynają się spotykać, zakładają koło, klub albo grupę nieformalną i przekonują się, że razem mogą coś zmienić. Pierwszy zrealizowany mini-projekt, taki jak plac zabaw, daje dumę i chęć do kolejnych działań. Wzrasta zaufanie między sąsiadami, a wieś zyskuje głos wobec gminy i staje się miejscem, gdzie chce się zostać.",
+    "futureVision": "Jeden animator może obsłużyć w ciągu roku kilka wsi, więc model skaluje się niskim kosztem na cały region. Można go powielić w gminach o podobnym profilu, a doświadczeni mieszkańcy po pewnym czasie sami zostają lokalnymi liderami i wspierają kolejne sołectwa. Rozwiązanie świetnie uzupełnia działania gmin, bibliotek i ośrodków kultury."
   },
   {
     "slug": "sensoryczny-pokoj-wyciszenia-w-szkole",
@@ -153,7 +213,12 @@
     "stage": "IMPLEMENTED",
     "region": "Chrzanów",
     "keywords": ["autyzm", "spektrum autyzmu", "nadwrażliwość", "sala sensoryczna", "wyciszenie w szkole"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/strefa-harmonii.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/strefa-harmonii.pdf"],
+    "innovativeness": "Sale sensoryczne zwykle istnieją w specjalistycznych ośrodkach i są zindywidualizowane, a w zwykłej szkole dziecko w kryzysie najczęściej zostaje w klasie albo na korytarzu. Tutaj proponowany jest standaryzowany, gotowy do wdrożenia moduł, razem z instrukcją dla nauczycieli, jak reagować na przebodźcowanie. Dzięki temu pomoc jest dostępna na miejscu, a nie tylko w odległej placówce.",
+    "problemDiagnosis": "Dzieci z nadwrażliwością sensoryczną w szkole są codziennie bombardowane hałasem, światłem i tłokiem. W pewnym momencie nie wytrzymują: zaczynają płakać, krzyczeć albo uciekać, a nauczyciel często nie wie, co robić i traktuje to jak złe zachowanie. Rodzice słyszą, że dziecko sprawia problemy, a ono po prostu nie ma gdzie odpocząć od nadmiaru bodźców.",
+    "audienceDescription": "Odbiorcami są uczniowie w spektrum autyzmu i inne dzieci z nadwrażliwością na bodźce, a także ich rodziny i nauczyciele. Dzieci te często są bardzo zdolne, ale szybko się męczą i potrzebują przewidywalności oraz ciszy. Grozi im wykluczenie z grupy rówieśniczej, nauka w domu albo częste nieobecności, bo szkoła zamiast wspierać, jest dla nich źródłem stresu.",
+    "expectedChange": "Dziecko dostaje bezpieczne miejsce, gdzie w kilka minut się uspokaja i wraca na lekcję, zamiast cierpieć albo wybuchać. Maleje liczba kryzysów, a nauczyciele czują się pewniej, bo znają metody pracy. Rodzice widzą, że szkoła ich rozumie, więc dzieci chętniej chodzą na zajęcia, lepiej się uczą i łatwiej nawiązują kontakty z rówieśnikami.",
+    "futureVision": "Ponieważ moduł jest zestandaryzowany, może powstać w każdej szkole, a koszty wyposażenia są umiarkowane. Pokój mogą wykorzystywać też dzieci z lękiem, po traumie albo z ADHD, a w mniejszych placówkach pełni on funkcję dzielonej przestrzeni dla kilku klas. Rozwiązanie można rozszerzyć o szkolenia dla kadry i materiały dla rodziców."
   },
   {
     "slug": "transport-door-to-door-dla-niepelnosprawnych",
@@ -165,7 +230,12 @@
     "stage": "IMPLEMENTED",
     "region": "Nowy Targ",
     "keywords": ["transport door to door", "przewóz niepełnosprawnych", "wózek inwalidzki", "dojazd do lekarza", "asystent"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/door-to-door.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/door-to-door.pdf"],
+    "innovativeness": "Zwykły transport publiczny kończy się na przystanku, a specjalistyczne busy często jeżdżą tylko na wybranych trasach. Tutaj kierowca jest asystentem: wchodzi do mieszkania, pomaga zejść po schodach i towarzyszy aż do drzwi gabinetu lub urzędu. Pojazd z windą i obsługa dopasowana do potrzeb pasażera sprawiają, że podróż naprawdę jest dostępna, a nie tylko teoretycznie możliwa.",
+    "problemDiagnosis": "Osoba na wózku albo starsza osoba z trudnościami w chodzeniu często nie jest w stanie sama dojechać do lekarza, pracy czy urzędu. Autobus jest za wysoki, przystanek daleko, a taksówka za droga i bez windy. Ludzie rezygnują z wizyt, odkładają leczenie i zostają w domu. Rodzina musi brać wolne, żeby ich zawieźć, a gdy jej nie ma, nie ma nikogo.",
+    "audienceDescription": "Odbiorcami są osoby z niepełnosprawnością ruchową i seniorzy o ograniczonej mobilności, mieszkający w mieście i w okolicznych wsiach. Często żyją samotnie albo z rodziną, która nie ma samochodu dostosowanego do wózka. Zagraża im izolacja, bo bez transportu tracą dostęp do opieki zdrowotnej, zatrudnienia i życia towarzyskiego.",
+    "expectedChange": "Pasażerowie regularnie docierają na wizyty lekarskie, rehabilitację, do pracy i do urzędów, nie prosząc nikogo o pomoc. Zyskują niezależność i poczucie, że mogą sami decydować o swoim dniu. Rodziny są odciążone, a osoby z niepełnosprawnością mogą aktywniej uczestniczyć w życiu lokalnym, co zmniejsza ich osamotnienie.",
+    "futureVision": "Usługę można uruchomić w każdej gminie, która ma choćby jeden przystosowany pojazd i przeszkolonego kierowcę, a kilka sąsiednich gmin może dzielić koszty. Z czasem system można połączyć z elektronicznym zamawianiem kursów i transportem do szkół lub dziennych domów pomocy. Dobrze sprawdzi się też na terenach górskich i wiejskich, gdzie komunikacji publicznej prawie nie ma."
   },
   {
     "slug": "eko-dzielnia-lodowka-spoleczna-z-warsztatami",
@@ -177,7 +247,12 @@
     "stage": "IMPLEMENTED",
     "region": "Kraków - Nowa Huta",
     "keywords": ["jadłodzielnia", "lodówka społeczna", "zero waste", "pomoc żywnościowa", "ubóstwo"],
-    "mediaUrls": ["https://youtube.com/watch?v=ekodzielnia-nowa-huta"]
+    "mediaUrls": ["https://youtube.com/watch?v=ekodzielnia-nowa-huta"],
+    "innovativeness": "Zwykła jadłodzielnia tylko wydaje jedzenie, a punkt pomocy żywnościowej często zostawia człowieka samego z paczką. Tutaj ocalone warzywa są wspólnie przetwarzane w kuchni warsztatowej, a wolontariusze i osoby w trudnej sytuacji pracują obok siebie. Łączy to walkę z marnowaniem żywności z budowaniem relacji i uczy praktycznych umiejętności kulinarnych.",
+    "problemDiagnosis": "Z jednej strony wyrzuca się dużo dobrego jedzenia z targów i sklepów, a z drugiej ludzie nie mają co jeść i wstydzą się o to prosić. Osoby w kryzysie bezdomności albo samotne nie mają kuchni, pieniędzy ani towarzystwa do wspólnego posiłku. Pomoc w formie suchej paczki rozwiązuje problem na jeden dzień, ale nie przełamuje wstydu i samotności.",
+    "audienceDescription": "Odbiorcami są mieszkańcy dzielnicy, w tym osoby ubogie, w kryzysie bezdomności, samotne oraz rodziny z małymi dochodami, a także wolontariusze chcący ograniczać marnowanie żywności. To grupa bardzo różnorodna, połączona wspólną potrzebą jedzenia i kontaktu z drugim człowiekiem. Zagraża im niedożywienie, stygmatyzacja i zamknięcie się w domu z powodu wstydu.",
+    "expectedChange": "Ludzie mają dostęp do zdrowych posiłków, uczą się gotować z tego, co jest pod ręką, i bez skrępowania korzystają z pomocy. Wspólna kuchnia zmniejsza samotność i buduje sąsiedzkie więzi, a osoby zwykle tylko otrzymujące wsparcie stają się współtwórcami. Jednocześnie mniej jedzenia trafia do kosza, co zmienia podejście całej okolicy.",
+    "futureVision": "Pomysł łatwo powtórzyć w innych dzielnicach i miastach, bo wymaga lodówki, niewielkiej kuchni i grupy wolontariuszy. Można go rozwinąć o współpracę ze szkołami, sklepami i lokalnymi ogrodami. Podobny model sprawdzi się też w małych miejscowościach, gdzie targowisko i parafia mogłyby stać się miejscami ratowania żywności i spotkań."
   },
   {
     "slug": "klub-ojca-edukacja-i-wsparcie-taty",
@@ -189,7 +264,12 @@
     "stage": "TESTED",
     "region": "Wadowice",
     "keywords": ["klub ojca", "tata z dzieckiem", "relacje w rodzinie", "wychowanie", "męskie wsparcie"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/klub-ojca.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/klub-ojca.pdf"],
+    "innovativeness": "Większość oferty wsparcia rodziny jest kierowana do matek, a ojcowie rzadko mają miejsce, gdzie mogą szczerze porozmawiać o trudnościach. Tutaj spotkania opierają się na wspólnym działaniu, takim jak majsterkowanie i wyprawy do lasu, które ułatwiają otwarcie się nawet tym, którzy nie lubią mówić o uczuciach. Innowacją jest nietypowa forma i zaproszenie ojców jako równorzędnych partnerów w wychowaniu.",
+    "problemDiagnosis": "Wielu ojców nie wie, jak rozmawiać z dziećmi, i nie ma z kim podzielić się kłopotami, bo mężczyźnie nie wypada narzekać. Zostają sami z napięciem, pracą i obowiązkami, a w kryzysie rodzinnym często się wycofują albo wybuchają. Dzieci tęsknią za uwagą taty, ale ich relacja jest chłodna. Brakuje miejsc, w których można się uczyć rodzicielstwa bez oceniania.",
+    "audienceDescription": "Odbiorcami są ojcowie z małych miejscowości i miast, w różnym wieku, także samotnie wychowujący dzieci lub przeżywający rozwód. Są to często mężczyźni wychowani w przekonaniu, że emocje trzeba chować, i niechętnie korzystający z poradni. Zagraża im osamotnienie i utrata kontaktu z dziećmi, co odbija się na całej rodzinie.",
+    "expectedChange": "Ojcowie czują się wspierani i zaczynają lepiej rozumieć własne emocje i potrzeby dzieci. Relacje w rodzinie stają się cieplejsze, a konflikty łagodniejsze, bo tata potrafi rozmawiać i spędzać z dzieckiem czas. Powstaje też grupa kolegów, do których można zadzwonić w trudnej chwili, co zmniejsza ryzyko kryzysu w domu.",
+    "futureVision": "Klub można założyć w każdej gminie, w świetlicy, bibliotece lub szkole, bo potrzebuje tylko prowadzącego i kilku chętnych. Formułę można dopasować do dziadków, opiekunów i ojców z niepełnosprawnymi dziećmi. Dobrym kierunkiem jest współpraca z ośrodkami pomocy rodzinie, które mogą kierować do klubu tych, którzy potrzebują wsparcia."
   },
   {
     "slug": "bank-czasu-dla-studentow-i-seniorow",
@@ -201,7 +281,12 @@
     "stage": "TESTED",
     "region": "Kraków - Miasteczko Studenckie",
     "keywords": ["bank czasu", "wymiana usług", "międzypokoleniowe", "student i senior", "pomoc wzajemna"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/bank-czasu.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/bank-czasu.pdf"],
+    "innovativeness": "Banki czasu zazwyczaj łączą rówieśników, a tutaj świadomie spotykają się dwa pokolenia, które rzadko mają okazję do kontaktu. Walutą jest czas, więc każdy, niezależnie od zasobności portfela, może coś dać i coś otrzymać. Zamiast pomocy w jedną stronę powstaje wzajemna wymiana, która daje poczucie godności i wzajemnego szacunku.",
+    "problemDiagnosis": "Starsi ludzie żyją samotnie i nie mają komu pomóc ani z kim porozmawiać, a studenci z drugiej strony są daleko od domu i ledwo wiążą koniec z końcem. Jedni potrzebują drobnej pomocy przy zakupach czy naprawie, drudzy nauki gotowania i towarzystwa. Obie grupy mają to, czego druga potrzebuje, ale się nie znają i nie mają sposobu, żeby się spotkać.",
+    "audienceDescription": "Odbiorcami są seniorzy mieszkający w okolicy akademików oraz studenci i młodzi dorośli, także ci z innych miast i krajów. Seniorzy często mają mało kontaktów i skromne dochody, ale bogate doświadczenie i umiejętności. Studenci mają energię i wiedzę, lecz brakuje im domowej atmosfery i oszczędności. Obie grupy narażone są na samotność i poczucie bycia niepotrzebnym.",
+    "expectedChange": "Powstają przyjaźnie ponad podziałami wieku, a seniorzy czują, że są potrzebni i szanowani. Studenci zyskują wsparcie, domowe jedzenie i poczucie przynależności do miejsca. Obie strony mniej wydają na usługi, uczą się od siebie i razem tworzą bardziej życzliwe sąsiedztwo, w którym nikt nie zostaje sam.",
+    "futureVision": "Bank czasu może działać w każdym mieście z uczelnią, a także w mniejszych miejscowościach z liceum i klubem seniora. Można go rozszerzyć o inne grupy, na przykład rodziców małych dzieci lub osoby z niepełnosprawnością. Do wdrożenia potrzeba prostego rejestru wymiany i koordynatora, który dba o bezpieczeństwo i zaufanie uczestników."
   },
   {
     "slug": "wirtualna-przychodnia-dla-seniora",
@@ -213,7 +298,12 @@
     "stage": "PILOT",
     "region": "Gorlice",
     "keywords": ["opaska sos", "teleopieka", "zasłabnięcie", "czujnik upadku", "samotny starszy człowiek"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/senior-online.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/senior-online.pdf"],
+    "innovativeness": "Typowe aplikacje i zegarki zdrowotne wymagają obsługi i są trudne dla osób starszych. Tutaj urządzenie ma jeden duży przycisk, a opaska sama wykrywa upadek i zasłabnięcie, więc nie trzeba o niczym pamiętać. Pomoc jest uruchamiana jednocześnie u operatora, pielęgniarki i sąsiada, co skraca czas reakcji i włącza w opiekę lokalną społeczność.",
+    "problemDiagnosis": "Starsza osoba mieszkająca sama może się przewrócić albo zasłabnąć i leżeć godzinami, zanim ktoś się zorientuje. Dzieci mieszkają daleko, sąsiedzi nie wiedzą, że coś się stało, a telefon bywa poza zasięgiem ręki. Seniorzy z chorobami przewlekłymi boją się być sami, ale nie chcą wyprowadzać się z domu. Wizyta u lekarza też bywa kłopotem.",
+    "audienceDescription": "Odbiorcami są samotni seniorzy z chorobami przewlekłymi, mieszkający w małych miastach i na wsiach, oraz ich rodziny, które martwią się o bezpieczeństwo bliskich. Często nie mają doświadczenia z nowoczesną technologią i obawiają się jej. Zagraża im nagłe pogorszenie zdrowia bez pomocy, a także wykluczenie cyfrowe i osamotnienie.",
+    "expectedChange": "Senior czuje się bezpiecznie w swoim domu, bo wie, że w razie potrzeby pomoc nadejdzie szybko. Rodzina śpi spokojniej, a pielęgniarka środowiskowa szybciej dostrzega pogarszający się stan zdrowia. Dzięki temu starsi ludzie mogą dłużej mieszkać samodzielnie, a poważne skutki upadków i zasłabnięć zdarzają się rzadziej.",
+    "futureVision": "Po pilotażu rozwiązanie można wdrożyć w innych gminach, jeśli powstanie lokalne centrum operatorskie z dostępem do pielęgniarek i sąsiedzkich wolontariuszy. System da się rozbudować o przypominanie o lekach, krótkie rozmowy wideo z lekarzem i kontakt z opiekunem. Szczególnie przydatny będzie na terenach odległych od przychodni."
   },
   {
     "slug": "spacery-nordic-walking-na-depresje",
@@ -225,7 +315,12 @@
     "stage": "IMPLEMENTED",
     "region": "Zakopane",
     "keywords": ["spacery w lesie", "depresja", "leczenie lęków", "nordic walking", "terapia ruchem"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/krok-po-kroku.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/krok-po-kroku.pdf"],
+    "innovativeness": "Większość oferty dla osób z obniżonym nastrojem to rozmowy w gabinecie albo leki, a ruch na świeżym powietrzu zostaje poza systemem wsparcia. Tutaj ten sam spacer jest jednocześnie treningiem, spotkaniem w grupie i spokojną sesją z terapeutą. Nowością jest to, że o rozmowie decyduje rytm marszu: nikt nie musi siedzieć naprzeciw obcego człowieka, a trudne tematy wychodzą łatwiej, gdy idzie się obok siebie.",
+    "problemDiagnosis": "Wielu mieszkańców mówi, że od miesięcy czują się przygaszeni, nie mają siły wychodzić z domu i boją się, że w poradni zobaczą ich znajomi. Kolejki do psychiatry i psychologa są długie, a w mniejszych miejscowościach specjalistów jest po prostu mało. Do tego dochodzi wstyd i przekonanie, że trzeba sobie radzić samemu, więc ludzie z początkowymi objawami depresji i lęku latami zostają bez żadnej pomocy.",
+    "audienceDescription": "To zwykli mieszkańcy, często w średnim wieku, którzy nie mają diagnozy lub nie chcą być traktowani jak pacjenci. Zmagają się z przewlekłym zmęczeniem, lękiem, izolacją po stracie pracy albo bliskiej osoby. Są zagrożeni wykluczeniem, bo wycofują się z życia towarzystwa, zawodowego i rodzinnego, a tradycyjne formy leczenia bywają dla nich zbyt odległe lub stygmatyzujące.",
+    "expectedChange": "Uczestnicy zyskują stały, bezpieczny rytm tygodnia, kontakt z ludźmi, którzy rozumieją ich sytuację, i pierwsze doświadczenie, że ruch pomaga w lepszym samopoczuciu. Z czasem łatwiej im wyjść z domu, wrócić do codziennych obowiązków, a część z nich decyduje się na dalszą terapię. Zmniejsza się poczucie osamotnienia, a wsparcie psychologiczne przestaje być czymś wstydliwym.",
+    "futureVision": "Model jest prosty i tani, bo potrzebuje tylko lasu lub parku, kijów, instruktora i terapeuty, więc można go powtórzyć w niemal każdej gminie z terenami zielonymi. Można go rozszerzyć o grupy dla młodzieży, seniorów albo osób w żałobie. Dobrym kierunkiem jest współpraca z poradniami i lekarzami rodzinnymi, którzy skierowaliby osoby z początkowymi objawami na takie spacery."
   },
   {
     "slug": "cyfrowy-wolontariusz-dla-ngo",
@@ -237,7 +332,12 @@
     "stage": "TESTED",
     "region": "Kraków",
     "keywords": ["programiści pro bono", "strona dla fundacji", "it dla ngo", "cyberbezpieczeństwo", "dostępność stron"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/tech-dla-dobra.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/tech-dla-dobra.pdf"],
+    "innovativeness": "Zamiast jednorazowych akcji, w których informatycy pomagają bez dalszego kontaktu, powstaje stały hub dopasowujący umiejętności wolontariuszy do konkretnych potrzeb organizacji. Wolontariusz dostaje jasno opisane zadanie, a stowarzyszenie wie, czego może oczekiwać i kto zadba o bezpieczeństwo danych. Nowym elementem jest wbudowana troska o dostępność i ochronę danych, o której małe organizacje zwykle w ogóle nie myślą.",
+    "problemDiagnosis": "Małe stowarzyszenia i fundacje, zwłaszcza na wsi, nie mają pieniędzy na profesjonalną stronę, bezpieczne przechowywanie list podopiecznych ani wygodne przyjmowanie darowizn. Zazwyczaj ktoś z zarządu robi to po godzinach i bez wiedzy, więc strony są nieaktualne, niedostępne dla osób z niepełnosprawnościami, a dane bywają przechowywane w arkuszach wysyłanych mailem. Przez to organizacje tracą darczyńców i zaufanie.",
+    "audienceDescription": "Odbiorcami są niewielkie organizacje pozarządowe, koła gospodyń, stowarzyszenia sąsiedzkie i fundacje prowadzone przez kilka osób. Działają z pasji, mają bliski kontakt z mieszkańcami, ale ograniczone zasoby i brak specjalistów od technologii. Są zagrożone wykluczeniem cyfrowym, bo bez nowoczesnych narzędzi trudniej im pozyskiwać środki, docierać do ludzi i spełniać wymogi prawne.",
+    "expectedChange": "Organizacje zyskują działającą stronę, bezpieczną bazę danych i prosty sposób zbierania wpłat, bez kosztów, na które nie mogłyby sobie pozwolić. Zarząd przestaje tracić czas na walkę z technologią i może skupić się na swoich podopiecznych. Mieszkańcy, także osoby z niepełnosprawnościami, łatwiej znajdują ofertę i korzystają z niej, więc rośnie zasięg i wiarygodność lokalnej pomocy.",
+    "futureVision": "Rozwiązanie łatwo przenieść do każdego regionu, bo wymaga głównie platformy i społeczności ludzi chętnych do pomagania. Można je rozbudować o szablony stron, wzorcowe dokumenty ochrony danych i szkolenia dla organizacji. Naturalnym krokiem jest współpraca z uczelniami i firmami technologicznymi, które mogłyby traktować takie zaangażowanie jako część swojej odpowiedzialności społecznej."
   },
   {
     "slug": "pokoj-ciszy-dla-urzedu-gminy",
@@ -249,7 +349,12 @@
     "stage": "IMPLEMENTED",
     "region": "Wieliczka",
     "keywords": ["dostępność urzędu", "pokój wyciszenia", "pętla indukcyjna", "ciche godziny", "piktogramy"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/urzad-przyjazny.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/urzad-przyjazny.pdf"],
+    "innovativeness": "Dostępność urzędów kojarzy się zwykle z podjazdami i windami, a potrzeby sensoryczne i komunikacyjne są pomijane. To rozwiązanie traktuje urząd jako przestrzeń, która może przytłaczać światłem, hałasem i pośpiechem, i proponuje spójny zestaw zmian w architekturze oraz w sposobie obsługi. Nowością jest połączenie rozwiązań dla osób w spektrum autyzmu, z lękiem społecznym i niesłyszących w jednym, łatwym do powielenia standardzie.",
+    "problemDiagnosis": "Wiele osób unika załatwiania spraw w urzędzie, bo hałas, tłok i szybkie tempo rozmowy są dla nich nie do zniesienia. Ktoś, kto nie słyszy, często nie wie, czy urzędnik w ogóle go zrozumiał, a osoba w spektrum autyzmu potrafi wyjść bez załatwienia sprawy po kilku minutach. Skutkiem są niezałatwione wnioski, zaległości i poczucie, że urząd nie jest dla nich.",
+    "audienceDescription": "To osoby neuroatypowe, w tym w spektrum autyzmu, z fobią społeczną, a także osoby głuche i słabosłyszące oraz ich opiekunowie. Łączy je to, że standardowa obsługa jest dla nich zbyt głośna, szybka lub niezrozumiała. Są zagrożone wykluczeniem, bo omijają instytucje publiczne i nie korzystają z przysługujących im świadczeń i usług.",
+    "expectedChange": "Mieszkańcy mogą załatwić sprawę w spokoju, z możliwością odpoczynku i komunikacji w formie, która im odpowiada. Urzędnicy zyskują proste narzędzia i wiedzę, jak rozmawiać z osobami o różnych potrzebach, więc ubywa nieporozumień. Dzięki temu rośnie zaufanie do instytucji, a osoby dotąd nieobecne w urzędzie zaczynają z niego korzystać na równych zasadach.",
+    "futureVision": "Wdrożenie jest niedrogie, bo opiera się na przystosowaniu jednego pomieszczenia, kilku urządzeniach i zmianie organizacji pracy, więc może je zastosować każda gmina. Standard można przenieść do przychodni, szkół, bibliotek i ośrodków pomocy społecznej. Dobrym uzupełnieniem byłaby wymiana doświadczeń między samorządami i krótkie szkolenia dla pracowników obsługi."
   },
   {
     "slug": "mobilna-kuchnia-integracji-miedzypokoleniowej",
@@ -261,7 +366,12 @@
     "stage": "PILOT",
     "region": "Tarnów",
     "keywords": ["gotowanie z seniorem", "kuchnia tradycyjna", "warsztaty kulinarne", "integracja na placu", "przepisy"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/zupa-na-rogu.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/zupa-na-rogu.pdf"],
+    "innovativeness": "Spotkania międzypokoleniowe zwykle odbywają się w sali i mają formę prelekcji lub zajęć, a tu spotkanie dzieje się na ulicy, przy wspólnej pracy z konkretnym efektem. Mobilna kuchnia przychodzi do ludzi, więc nie trzeba się nigdzie zapisywać, żeby dołączyć. Wartością jest to, że seniorki są prawdziwymi ekspertkami i nauczycielkami, a młodzi uczą się od nich, zamiast być jedynie opiekunami czy wolontariuszami.",
+    "problemDiagnosis": "Starsze osoby często siedzą same w domu, bo dzieci wyjechały, a sąsiedzi się nie znają, i nikt nie zapyta ich o zdanie ani o wiedzę. Młodzi z kolei nie mają okazji porozmawiać z kimś starszym i coraz słabiej znają lokalne tradycje oraz podstawowe umiejętności gotowania. W efekcie obie grupy czują się nieistotne, a w dzielnicy brakuje miejsc, w których można się po prostu spotkać.",
+    "audienceDescription": "Odbiorcami są seniorzy, zwłaszcza kobiety, które mają bogatą wiedzę kulinarną i dużo czasu, ale mało okazji do kontaktu z innymi, oraz młodzież szukająca praktycznych umiejętności i ciekawych zajęć. Dołączają także zwykli mieszkańcy przechodzący przez targ lub park. Grupa jest zagrożona wykluczeniem, bo samotność u starszych i brak więzi z rodzicami i dziadkami u młodych często idą w parze.",
+    "expectedChange": "Seniorzy odzyskują poczucie bycia potrzebnym i mają regularny powód, żeby wyjść z domu. Młodzi uczą się gotować i poznają historię miejsca, a przy okazji wychodzą z ról, w których zwykle się ich ustawia. W dzielnicy powstają nowe znajomości, a wspólne jedzenie pomaga ograniczać marnowanie żywności i przełamywać nieufność między pokoleniami.",
+    "futureVision": "Pomysł można łatwo powielić w innych miastach i wsiach, bo potrzebuje tylko wózka, podstawowego wyposażenia i grupy chętnych. Receptury i opowieści można zbierać w lokalne książki kucharskie lub wydarzenia sezonowe. Rozwiązanie sprawdzi się też w pracy z innymi grupami, na przykład z osobami z niepełnosprawnościami czy przybyłymi z zagranicy."
   },
   {
     "slug": "wsparcie-rady-seniorow-w-malej-gminie",
@@ -273,7 +383,12 @@
     "stage": "IMPLEMENTED",
     "region": "Gmina Miechów",
     "keywords": ["rada seniorów", "partycypacja obywatelska", "konsultacje społeczne", "samorząd lokalny", "głos seniora"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/srebrny-glos.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/srebrny-glos.pdf"],
+    "innovativeness": "Rady seniorów często powstają formalnie, ale potem nie wiedzą, jak działać, i kończą jako ciało reprezentacyjne. Tu seniorzy dostają gotowy zestaw narzędzi: praktyczną wiedzę, jak skorzystać z budżetu obywatelskiego i konsultacji, oraz proste metody sprawdzania, czy w gminie nie ma barier. Nowością jest ustawienie seniorów w roli partnerów samorządu, a nie tylko odbiorców jego decyzji.",
+    "problemDiagnosis": "Starsi mieszkańcy małych gmin mówią, że nikt ich nie pyta o zdanie, a chodniki, przystanki i urzędy są dla nich niewygodne albo niedostępne. Nie wiedzą, jak zgłosić problem, kogo prosić o pomoc ani jak działają konsultacje. Z drugiej strony wójt chciałby słuchać tej grupy, ale nie ma z kim rozmawiać, bo seniorzy nie są zorganizowani.",
+    "audienceDescription": "Odbiorcami są osoby starsze mieszkające na terenach wiejskich i w małych miasteczkach, często aktywne i doświadczone, lecz pozbawione dostępu do informacji i wpływu na decyzje. Do tego dochodzą urzędnicy gminy, którzy potrzebują sposobu na dialog z tą grupą. Seniorzy są zagrożeni wykluczeniem, bo ich potrzeby rzadko trafiają do planów inwestycyjnych i budżetów lokalnych.",
+    "expectedChange": "Seniorzy zaczynają zabierać głos, zgłaszać konkretne propozycje i sprawdzać, co zmieniło się w ich okolicy. Gmina dostaje stałego partnera do rozmowy i lepiej planuje usługi, drogi i transport. Wzrasta poczucie sprawczości starszych mieszkańców, a ich wiedza i czas stają się zasobem lokalnej społeczności.",
+    "futureVision": "Pakiet narzędzi można powielić w każdej gminie, szczególnie wiejskiej, bo opiera się na szkoleniach, prostych wzorach dokumentów i wsparciu doradczym. Może być punktem wyjścia dla podobnych ciał doradczych młodzieży czy osób z niepełnosprawnościami. Dobrym rozwiązaniem byłaby sieć wymiany doświadczeń między radami z różnych miejscowości."
   },
   {
     "slug": "edukacja-emocjonalna-dla-przedszkolakow",
@@ -285,7 +400,12 @@
     "stage": "IMPLEMENTED",
     "region": "Nowy Sącz",
     "keywords": ["złość u dziecka", "regulacja emocji", "przedszkole", "bajkoterapia", "trudne emocje"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/kraina-uczuc.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/kraina-uczuc.pdf"],
+    "innovativeness": "Zwykle uczy się dzieci, że złość jest zła, i prosi się je, żeby się uspokoiły, a nikt nie pokazuje im, jak to zrobić. Zestaw zamienia emocje w coś, co można zobaczyć, dotknąć i przećwiczyć ciałem: maskotki, maty, bajki i prosty wskaźnik napięcia. Nowością jest to, że ta sama metoda działa w przedszkolu i w domu, więc dziecko słyszy podobny język u nauczycielki i u rodziców.",
+    "problemDiagnosis": "Rodzice mówią, że ich dziecko krzyczy, bije lub zamyka się w sobie, a oni nie wiedzą, co robić, bo nikt ich tego nie uczył. Maluchy nie mają słów na to, co czują, więc napięcie wybucha w najmniej odpowiednich momentach. Przedszkola często nie mają ani czasu, ani narzędzi, żeby systematycznie uczyć rozpoznawania uczuć, a dostęp do psychologa dziecięcego bywa trudny.",
+    "audienceDescription": "Główną grupą są małe dzieci w wieku przedszkolnym oraz ich rodzice i nauczyciele. Dzieci w tym wieku dopiero uczą się mówić o swoich odczuciach i najlepiej przyswajają wiedzę przez zabawę. Zagrożone wykluczeniem są szczególnie dzieci z rodzin przeciążonych lub z mniejszych miejscowości, gdzie nie ma łatwego dostępu do specjalistów, a trudne zachowania bywają błędnie traktowane jako złe wychowanie.",
+    "expectedChange": "Dzieci uczą się nazywać emocje i bezpiecznie je wyrażać, więc rzadziej dochodzi do wybuchów i konfliktów z rówieśnikami. Rodzice zyskują pewność i konkretne sposoby reagowania na trudne chwile, a nauczyciele spokojniejszą grupę. W dłuższej perspektywie dzieci lepiej wchodzą w szkołę i relacje z innymi, a ich problemy emocjonalne są wcześniej zauważane.",
+    "futureVision": "Zestaw można łatwo powielać, bo składa się z gotowych pomocy i krótkiego przewodnika dla dorosłych, więc trafi do każdego przedszkola, żłobka czy świetlicy. Dobrym kierunkiem są wersje dla starszych dzieci, dla dzieci z niepełnosprawnościami i dla rodzin, które potrzebują wsparcia w domu. Można też przygotować krótkie szkolenia dla wychowawców i bibliotek."
   },
   {
     "slug": "platforma-mikrodotacji-dla-grup-nieformalnych",
@@ -297,7 +417,12 @@
     "stage": "IMPLEMENTED",
     "region": "Oświęcim",
     "keywords": ["minigranty", "fundusz sąsiedzki", "inicjatywa lokalna", "pieniądze na projekt", "aktywizacja"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/iskra-sasiedzka.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/iskra-sasiedzka.pdf"],
+    "innovativeness": "Tradycyjne dotacje wymagają skomplikowanych wniosków, kosztorysów i faktur, co skutecznie zniechęca zwykłych mieszkańców. Tu wystarczy krótki opis pomysłu, a decyzję podejmują sąsiedzi, a nie komisja ekspertów. Nowością jest zaufanie jako zasada: rozliczeniem jest dowód, że coś się wydarzyło, a nie stos dokumentów.",
+    "problemDiagnosis": "Mieszkańcy mają pomysły, jak ulepszyć swoją ulicę czy osiedle, ale nie mają formalnej organizacji, a o pieniądze trzeba ubiegać się w sposób, który ich przerasta. Zwykle zrażają się już przy pierwszym formularzu i rezygnują, więc dobre inicjatywy w ogóle nie powstają. Wielu ludzi czuje, że wszystko wymaga papierów i stowarzyszenia, a ich pomoc sąsiadom nikogo nie obchodzi.",
+    "audienceDescription": "Odbiorcami są nieformalne grupy sąsiedzkie, osoby działające społecznie bez formalnej struktury, małe organizacje oraz samorządy szukające prostego sposobu wspierania lokalności. Wyróżnia je energia i znajomość potrzeb otoczenia, ale brak doświadczenia w pisaniu wniosków. Są zagrożone wykluczeniem z finansowania publicznego, bo konkursy są pisane z myślą o organizacjach z kadrą i księgowością.",
+    "expectedChange": "Więcej drobnych inicjatyw dochodzi do skutku, a mieszkańcy przekonują się, że ich pomysł ma znaczenie. Sąsiedzi poznają się przy wspólnych działaniach, rośnie zaufanie i poczucie wpływu na najbliższe otoczenie. Samorząd i organizacje zyskują wgląd w to, czego naprawdę potrzebują ludzie, i mogą na tej podstawie planować większe wsparcie.",
+    "futureVision": "Mechanizm jest bardzo prosty i można go uruchomić w każdej gminie lub dzielnicy, bo wymaga małej puli środków i zasad opartych na zaufaniu. Może być prowadzony przez organizację, urząd albo lokalną firmę. Można go rozszerzyć na inicjatywy młodzieży, seniorów lub szkół, a skuteczne małe projekty mogą być pierwszym krokiem do większych."
   },
   {
     "slug": "doradca-zawodowy-dla-kobiet-po-urlopie-macierzynskim",
@@ -309,7 +434,12 @@
     "stage": "TESTED",
     "region": "Kraków - Dębniki",
     "keywords": ["powrót do pracy", "urlop macierzyński", "mama na rynku pracy", "elastyczny etat", "doradztwo zawodowe"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/mama-wraca.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/mama-wraca.pdf"],
+    "innovativeness": "Poradnictwo zawodowe zwykle zakłada, że luka w CV jest problemem, który trzeba ukryć. Tu opiekę nad dziećmi traktuje się jako źródło realnych umiejętności, takich jak organizacja, negocjowanie i odporność na stres, i uczy się je opisywać językiem pracodawców. Nowością jest połączenie mentoringu z praktycznym przygotowaniem do rozmowy o elastycznym czasie pracy i pracy zdalnej.",
+    "problemDiagnosis": "Kobiety po kilku latach w domu mówią, że nie wiedzą, od czego zacząć, boją się, że ich umiejętności się zdezaktualizowały, i słyszą na rozmowach pytania o dzieci zamiast o kompetencje. Brakuje ofert z elastycznym czasem pracy, a żłobki i przedszkola nie zawsze są dostępne. W efekcie wiele z nich zostaje poza rynkiem pracy dłużej, niż by chciało, albo godzi się na pracę poniżej kwalifikacji.",
+    "audienceDescription": "Odbiorczyniami są kobiety wracające do pracy po długiej przerwie opiekuńczej, często z dobrym wykształceniem i doświadczeniem, ale z utraconą pewnością siebie i kontaktami zawodowymi. Podobne bariery mają osoby, które opiekowały się starszym bliskim. Grupa jest zagrożona wykluczeniem ekonomicznym i społecznym, bo bez własnego dochodu trudniej o samodzielność i bezpieczeństwo rodziny.",
+    "expectedChange": "Uczestniczki odzyskują wiarę w swoje umiejętności, lepiej prezentują się na rynku pracy i znajdują zatrudnienie dostosowane do życia rodzinnego. Zyskują niezależność finansową i wsparcie grupy, która rozumie ich sytuację. Pracodawcy poznają wartościowych kandydatów, a rodziny mają stabilniejszą sytuację materialną.",
+    "futureVision": "Program można przenieść do innych dzielnic, miast i gmin, bo opiera się na warsztatach, mentoringu i współpracy z lokalnymi pracodawcami. Z powodzeniem sprawdzi się też dla osób wracających po chorobie, opiece nad bliskimi albo przerwie w karierze. Można go rozwijać wspólnie z urzędami pracy i firmami, które chcą wprowadzać elastyczne formy zatrudnienia."
   },
   {
     "slug": "rowerowy-wolontariat-dla-osob-starszych",
@@ -321,7 +451,12 @@
     "stage": "IMPLEMENTED",
     "region": "Kraków - Grzegórzki",
     "keywords": ["riksza", "dps", "spacer na rowerze", "wiatr we włosach", "aktywność seniora"],
-    "mediaUrls": ["https://youtube.com/watch?v=rowerem-przez-lata"]
+    "mediaUrls": ["https://youtube.com/watch?v=rowerem-przez-lata"],
+    "innovativeness": "Aktywizacja mieszkańców domów pomocy społecznej zwykle odbywa się w ich wnętrzach, a tutaj senior wyjeżdża poza mury i znów czuje się częścią miasta. Riksza pozwala przeżyć przejażdżkę nawet osobom, które nie chodzą albo szybko się męczą. Wartością jest też prosta relacja z wolontariuszem, który nie jest opiekunem, tylko towarzyszem wycieczki i słuchaczem opowieści.",
+    "problemDiagnosis": "Starsi ludzie w domach pomocy rzadko wychodzą poza budynek, bo brakuje personelu, a spacer wymaga sprawnych nóg i czyjejś pomocy. Dni mijają podobnie, a tęsknota za dawnymi miejscami, rzeką czy parkiem rośnie. Wielu z nich czuje się zapomnianych, bo bliscy mieszkają daleko lub rzadko odwiedzają, a ruch i kontakt z przyrodą jest coraz mniej dostępny.",
+    "audienceDescription": "Odbiorcami są seniorzy mieszkający w domach pomocy społecznej, często z ograniczoną sprawnością, osamotnieni, z bogatą historią życia i wieloma wspomnieniami. Wyróżnia ich to, że chętnie opowiadają o dawnych czasach, ale mało kto ma czas ich słuchać. Są zagrożeni wykluczeniem, bo życie w instytucji ogranicza ich kontakty z miastem i lokalną społecznością.",
+    "expectedChange": "Seniorzy odzyskują radość z ruchu na świeżym powietrzu, wracają do ważnych dla siebie miejsc i rozmawiają z kimś spoza swojego codziennego otoczenia. Poprawia się ich samopoczucie, a wspomnienia stają się okazją do opowieści, które ktoś wreszcie wysłuchuje. Wolontariusze, w tym młodzi, zyskują ciepłe relacje z osobami starszymi, a dom pomocy otwiera się na swoje otoczenie.",
+    "futureVision": "Rozwiązanie można wprowadzić w każdym mieście z domami pomocy czy ośrodkami dla seniorów, bo potrzebuje kilku riksz, przeszkolonych wolontariuszy i życzliwości lokalnych instytucji. Można je rozszerzyć na osoby z niepełnosprawnościami i mieszkańców hospicjów. Dobrym kierunkiem jest współpraca ze szkołami, klubami rowerowymi i samorządami, które mogłyby wspierać zakup sprzętu."
   },
   {
     "slug": "koordynator-opieki-senioralnej-w-przychodni",
@@ -333,7 +468,12 @@
     "stage": "TESTED",
     "region": "Powiat Bocheński",
     "keywords": ["koordynator leczenia", "poz", "przychodnia", "wielochorobowość", "wizyty u lekarza"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/most-zdrowia.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/most-zdrowia.pdf"],
+    "innovativeness": "Zwykle pacjent sam umawia się do każdego specjalisty i sam pilnuje terminów. Tutaj opiekę nad całą ścieżką leczenia przejmuje koordynator pracujący w przychodni podstawowej, który widzi całość potrzeb zdrowotnych seniora. Nowością jest połączenie planowania wizyt, badań i transportu w jedną, prostą usługę oraz sprawdzanie, czy pacjent rozumie zalecenia dotyczące leków.",
+    "problemDiagnosis": "Starsze osoby, które chorują na kilka rzeczy naraz, gubią się w systemie. Mają osobne terminy u różnych lekarzy, w różnych miastach, i nie wiedzą, które badanie zrobić najpierw. Samotni seniorzy nie mają kogo poprosić o pomoc, a dojazd bywa trudny, więc wizyty przepadają. Skutkiem są pogarszający się stan zdrowia, pomylone dawki leków i zbędne pobyty w szpitalu.",
+    "audienceDescription": "Odbiorcami są osoby po siedemdziesiątym piątym roku życia, często mieszkające samotnie, z kilkoma chorobami przewlekłymi i wieloma lekami. Dużo z nich ma ograniczoną sprawność, kłopoty ze wzrokiem lub słuchem i niewielką wprawę w korzystaniu z internetowej rejestracji. Są zagrożone wykluczeniem, bo system ochrony zdrowia wymaga od nich samodzielności, na którą już nie mają sił.",
+    "expectedChange": "Senior przestaje błądzić po gabinetach i wie, dokąd, kiedy i po co jedzie. Mniej wizyt się marnuje, badania są zgrupowane w jednym dniu, a leki przyjmowane zgodnie z zaleceniami. Dzięki temu rośnie poczucie bezpieczeństwa i samodzielności, a osoba starsza chętniej korzysta z opieki i dłużej zachowuje sprawność w swoim otoczeniu.",
+    "futureVision": "Rozwiązanie można wdrożyć w każdej przychodni podstawowej, bo wymaga przede wszystkim jednej przeszkolonej osoby i kalendarza. Samorządy mogą współfinansować transport, a model da się rozszerzyć na młodsze osoby z chorobami przewlekłymi. W kolejnych latach koordynatorzy mogliby tworzyć sieć wymieniającą się doświadczeniami między powiatami."
   },
   {
     "slug": "warsztaty-kodowania-dla-dzieci-z-malych-wsi",
@@ -345,7 +485,12 @@
     "stage": "IMPLEMENTED",
     "region": "Powiat Limanowski",
     "keywords": ["robotyka", "nauka programowania", "wiejska szkoła", "scratch", "druk 3d"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/cyfrowa-iskra.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/cyfrowa-iskra.pdf"],
+    "innovativeness": "Zamiast zapraszać dzieci do miasta, pracownia przyjeżdża do szkoły z całym wyposażeniem i prowadzącym. Wyróżnia ją połączenie budowania robotów, nauki programowania i druku przestrzennego w jednym, praktycznym kursie, który trwa cały semestr. Dzieci uczą się przez zabawę i własne projekty, a szkoła nie musi kupować drogiego sprzętu ani zatrudniać specjalisty.",
+    "problemDiagnosis": "W małych miejscowościach dzieci nie mają żadnych zajęć z informatyki poza podstawowym programem, bo szkoła nie ma sprzętu ani nauczyciela, który by to poprowadził. Rodzice nie wożą dzieci na kółka do miasta, bo to daleko i drogo. Przez to uczniowie ze wsi wchodzą w dorosłość z mniejszymi szansami na dobrą pracę niż ich rówieśnicy z większych ośrodków.",
+    "audienceDescription": "Adresatami są uczniowie szkół podstawowych z terenów wiejskich oraz ich rodziny i lokalna społeczność szkolna. To dzieci ciekawe świata, ale bez dostępu do nowoczesnych narzędzi i mentorów. Często mieszkają daleko od ośrodków edukacyjnych, a budżety domowe nie pozwalają na płatne kursy, więc grozi im wykluczenie cyfrowe i edukacyjne.",
+    "expectedChange": "Dzieci zyskują umiejętność logicznego myślenia, odwagę w rozwiązywaniu problemów i pierwsze doświadczenie w tworzeniu własnych programów. Zmienia się ich spojrzenie na naukę i na własne możliwości, a szkoła staje się miejscem, gdzie dzieją się ciekawe rzeczy. Z czasem zmniejsza się dystans między uczniami z wsi i z miast.",
+    "futureVision": "Model łatwo powielić w kolejnych gminach, bo opiera się na przewoźnym zestawie i jednym instruktorze, który może obsłużyć wiele szkół w cyklu. Zajęcia można dostosować do starszych uczniów, a także do dorosłych mieszkańców, którzy chcą nabyć podstawowe kompetencje cyfrowe. Dobrym uzupełnieniem byłoby szkolenie nauczycieli z danej szkoły, by mogli kontynuować zajęcia samodzielnie."
   },
   {
     "slug": "centrum-doradztwa-dla-opiekunow-osob-lezych",
@@ -357,7 +502,12 @@
     "stage": "IMPLEMENTED",
     "region": "Tarnów",
     "keywords": ["chory leżący", "opieka w łóżku", "odleżyny", "kręgosłup opiekuna", "pielęgnacja w domu"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/domowy-szpital.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/domowy-szpital.pdf"],
+    "innovativeness": "Zwykle rodzina otrzymuje po wypisie ze szpitala jedynie ogólne zalecenia i musi radzić sobie sama. Tutaj do domu przychodzi instruktor pielęgnacji razem z fizjoterapeutą i na miejscu pokazują, jak układać chorego, dobrać sprzęt i unikać odleżyn. Nowością jest nacisk na zdrowie samego opiekuna, a nie tylko pacjenta, oraz nauka praktyczna w warunkach, w jakich rodzina naprawdę będzie pracować.",
+    "problemDiagnosis": "Gdy ktoś bliski nagle zachoruje i nie może wstać z łóżka, rodzina nie wie, od czego zacząć. Nie umie bezpiecznie przekładać chorego, boi się, że zrobi mu krzywdę, a po kilku tygodniach sama ma bóle kręgosłupa. Brakuje też wiedzy o sprzęcie i pomocy, więc pojawiają się odleżyny, wyczerpanie i poczucie bezradności.",
+    "audienceDescription": "Odbiorcami są członkowie rodzin, najczęściej dorosłe dzieci lub małżonkowie, którzy z dnia na dzień zostali opiekunami osoby leżącej po udarze albo wypadku. Zwykle nie mają przygotowania medycznego i łączą opiekę z pracą oraz obowiązkami domowymi. Są zagrożeni przeciążeniem, utratą zdrowia i izolacją społeczną, bo opieka zabiera im niemal cały czas.",
+    "expectedChange": "Rodzina zyskuje pewność, że opiekuje się bliskim w sposób bezpieczny dla niego i dla siebie. Maleje ryzyko odleżyn, upadków i urazów, a opiekun lepiej znosi trudy codzienności i ma więcej spokoju. Chory dłużej zostaje w domu w dobrych warunkach, a opiekunowie nie wypadają z życia zawodowego i społecznego.",
+    "futureVision": "Model można rozwinąć w innych miastach i powiatach, współpracując z przychodniami, szpitalami i ośrodkami pomocy społecznej, które skierują do usługi rodziny po wypisie. Część instruktażu da się przenieść do krótkich filmów i spotkań grupowych, co obniży koszty. Podobne podejście sprawdziłoby się przy opiece nad osobami starszymi z demencją."
   },
   {
     "slug": "grupa-wsparcia-dla-rodzicow-dzieci-z-niepelnosprawnoscia",
@@ -369,7 +519,12 @@
     "stage": "IMPLEMENTED",
     "region": "Nowy Sącz",
     "keywords": ["diagnoza u dziecka", "rodzic niepełnosprawnego", "grupa wsparcia", "psychotraumatolog", "kryzys w rodzinie"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/przystanek-rodzina.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/przystanek-rodzina.pdf"],
+    "innovativeness": "Rodzice zwykle dostają wsparcie dopiero wtedy, gdy kryzys jest głęboki, a terapia wymaga od nich zostawienia dziecka bez opieki. Tutaj spotkania prowadzi specjalista od pracy z traumą, a w tym samym czasie w sąsiedniej sali dziećmi zajmują się przeszkoleni wolontariusze. Dzięki temu nic nie stoi na przeszkodzie, by przyjść, a krąg wsparcia staje się dostępny od razu po diagnozie.",
+    "problemDiagnosis": "Po usłyszeniu diagnozy rodzice często zostają ze swoim bólem sami. Boją się mówić o tym otwarcie, czują wstyd, żal i zmęczenie, a nikt nie ma dla nich czasu. Nie mają z kim zostawić dziecka, więc nie mogą pójść po pomoc. Napięcie odbija się na relacji małżonków i całej rodziny, a część rodziców popada w długotrwały kryzys psychiczny.",
+    "audienceDescription": "To rodzice i opiekunowie dzieci, u których niedawno rozpoznano niepełnosprawność lub ciężką chorobę. Przeżywają żałobę po utraconych planach, a jednocześnie muszą działać, załatwiać formalności i szukać terapii. Są szczególnie narażeni na wypalenie, samotność i rozpad związku, bo na dbanie o siebie nie zostaje im ani czasu, ani sił.",
+    "expectedChange": "Rodzice odnajdują w grupie ludzi, którzy rozumieją ich przeżycia, i uczą się radzić sobie z emocjami. Rośnie ich odporność psychiczna, poprawia się komunikacja w rodzinie i łatwiej im szukać dalszej pomocy. Dziecko zyskuje spokojniejszych, bardziej stabilnych opiekunów, a rodzina nie zostaje wykluczona ze społeczności.",
+    "futureVision": "Kręgi wsparcia mogą działać w każdym mieście, gdzie jest lokal, psycholog i grupa chętnych wolontariuszy, więc wdrożenie jest tanie i proste. Model pasuje także do rodzin dzieci przewlekle chorych oraz do opiekunów dorosłych osób z niepełnosprawnością. Z czasem uczestnicy mogą sami zacząć wspierać nowych rodziców jako doświadczeni rówieśnicy."
   },
   {
     "slug": "punkt-doradztwa-energetycznego-dla-ubogich",
@@ -381,7 +536,12 @@
     "stage": "TESTED",
     "region": "Sucha Beskidzka",
     "keywords": ["ubóstwo energetyczne", "wymiana pieca", "ciepły dom", "dotacja na opał", "termowizja"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/cieply-dom.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/cieply-dom.pdf"],
+    "innovativeness": "Zazwyczaj osoby o niskich dochodach same muszą zrozumieć skomplikowane programy dopłat i znaleźć wykonawców. Doradca przyjeżdża do domu, pokazuje obrazem z kamery, gdzie ucieka ciepło, i prowadzi mieszkańca przez cały proces, od diagnozy po rozliczenie pomocy. Nowością jest połączenie bezpłatnego badania, pomocy w papierach i nadzoru nad realizacją w jednej usłudze.",
+    "problemDiagnosis": "W wielu domach, zwłaszcza tych zamieszkanych przez starsze osoby, zimą jest zimno, a rachunki za ogrzewanie pochłaniają większość budżetu. Ludzie palą tym, co mają, bo nie stać ich na nowy piec i ocieplenie, więc powietrze jest zanieczyszczone i szkodzi zdrowiu. Wnioski o dotację są dla nich zbyt trudne, więc rezygnują z pomocy, na którą mają prawo.",
+    "audienceDescription": "Odbiorcami są mieszkańcy domów jednorodzinnych o niskich dochodach, zwłaszcza seniorzy z niewielkimi emeryturami, oraz samorządy, które odpowiadają za jakość powietrza i pomoc społeczną. Często mieszkają w starych, słabo ocieplonych budynkach i nie mają zaufania do firm oferujących remonty. Grozi im ubóstwo energetyczne i choroby związane z chłodem oraz smogiem.",
+    "expectedChange": "Gospodarstwa domowe zużywają mniej opału, płacą niższe rachunki i mieszkają w cieplejszych, zdrowszych domach. Osoby starsze przestają bać się zimy i wstydzić swojej sytuacji, a z dopłat korzystają ci, którzy dotąd odpadali przez formalności. Mniejsza emisja poprawia jakość powietrza w całej miejscowości.",
+    "futureVision": "Model łatwo przenieść do innych gmin zmagających się ze smogiem, bo wystarczy zespół doradców, kamera i współpraca z urzędem. Samorządy mogą włączyć go do swoich programów ochrony powietrza i pomocy społecznej. W przyszłości doradztwo można rozszerzyć o oszczędzanie wody oraz o pomoc w zakładaniu odnawialnych źródeł energii w budynkach mieszkalnych."
   },
   {
     "slug": "festiwal-kultur-lokalnych-przeciw-ksenofobii",
@@ -393,7 +553,12 @@
     "stage": "IMPLEMENTED",
     "region": "Kraków - Krowodrza",
     "keywords": ["uchodźcy", "integracja migrantów", "wielokulturowość", "dialog sąsiedzki", "warsztaty kulinarne"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/pod-wspolnym-niebem.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/pod-wspolnym-niebem.pdf"],
+    "innovativeness": "Zamiast formalnych szkoleń o tolerancji, spotkania opierają się na codziennych, przyjemnych czynnościach, takich jak wspólne pieczenie chleba, śpiewanie i opowiadanie historii. Dzięki temu rozmowa zaczyna się od konkretu, a nie od trudnych tematów, i obie strony są jednocześnie gośćmi i gospodarzami. Nowością jest wykorzystanie lokalnych domów kultury i bibliotek jako neutralnych miejsc spotkań sąsiedzkich.",
+    "problemDiagnosis": "W okolicach, gdzie pojawiają się nowi mieszkańcy z innych krajów, wielu ludzi nie wie, kim są sąsiedzi, i zaczyna się bać albo powtarzać stereotypy. Przybysze zaś czują się obco, nie znają języka i zwyczajów, więc zamykają się we własnym gronie. Brakuje miejsc, gdzie można się spotkać bez presji, i stąd rośnie wzajemna nieufność oraz osamotnienie po obu stronach.",
+    "audienceDescription": "Odbiorcami są stali mieszkańcy dzielnicy, w tym osoby starsze i rodziny, a także migranci i uchodźcy, którzy niedawno się osiedlili. Wyróżnia ich różnorodność języków, tradycji i doświadczeń życiowych. Grozi im izolacja, bo nie mają okazji do zwykłej rozmowy, a część osób doświadcza uprzedzeń i niechęci ze strony otoczenia.",
+    "expectedChange": "Uczestnicy poznają się jako konkretni ludzie, a nie jako grupy, co osłabia lęki i stereotypy. Nowi mieszkańcy szybciej oswajają się z okolicą i językiem, a starsi sąsiedzi zyskują nowe znajomości. W dzielnicy rośnie zaufanie, powstają sąsiedzkie więzi i łatwiej wspólnie rozwiązywać codzienne sprawy.",
+    "futureVision": "Cykl da się powtórzyć w każdej miejscowości, która ma dom kultury lub bibliotekę i chętne organizacje lokalne, a koszt materiałów jest niewielki. Można go dostosować do innych grup, które żyją obok siebie, a nie razem, na przykład do młodzieży i seniorów. Z czasem uczestnicy mogą sami prowadzić kolejne spotkania i budować trwałą sieć sąsiedzką."
   },
   {
     "slug": "mobilny-punkt-naprawczy-repair-cafe",
@@ -405,7 +570,12 @@
     "stage": "IMPLEMENTED",
     "region": "Wieliczka",
     "keywords": ["repair cafe", "naprawa agd", "majsterkowanie", "zero waste", "napraw to sam"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/repair-cafe.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/repair-cafe.pdf"],
+    "innovativeness": "Zamiast oddawać zepsute rzeczy do wyrzucenia albo kupować nowe, mieszkańcy naprawiają je razem z doświadczonymi majsterkowiczami. Spotkania odbywają się w różnych miejscach, więc usługa dociera tam, gdzie brakuje warsztatów. Wartością dodaną jest nie tylko sama naprawa, ale przekazywanie umiejętności i budowanie kontaktu między starszymi fachowcami a młodszymi ludźmi.",
+    "problemDiagnosis": "Wiele osób wyrzuca sprzęty, które wymagają drobnej naprawy, bo nie wiedzą, jak to zrobić, a płatny serwis kosztuje więcej niż nowa rzecz. Dla domów z małym budżetem to zbędny wydatek, a dla środowiska kolejne odpady. Jednocześnie starsi fachowcy, którzy mają ogromną wiedzę, czują się niepotrzebni i nie mają okazji, by ją przekazać.",
+    "audienceDescription": "Odbiorcami są mieszkańcy o różnym wieku, od młodzieży po seniorów, zwłaszcza osoby z ograniczonym budżetem, które nie mogą pozwolić sobie na częste kupowanie nowych rzeczy. Wyróżnia ich chęć zrobienia czegoś samodzielnie, a jednocześnie brak narzędzi i wiedzy. Część starszych uczestników jest zagrożona osamotnieniem i poczuciem bezużyteczności po zakończeniu pracy zawodowej.",
+    "expectedChange": "Mieszkańcy oszczędzają pieniądze, uczą się podstaw naprawy i zaczynają inaczej patrzeć na rzeczy, które mają w domu. Starsi fachowcy odzyskują poczucie sensu i kontakt z innymi, a młodsi zyskują praktyczne umiejętności. Wspólna praca zbliża pokolenia i zmniejsza ilość odpadów w okolicy.",
+    "futureVision": "Pomysł jest bardzo łatwy do powielenia, bo potrzeba tylko stołów, podstawowych narzędzi, sali i grupy chętnych pasjonatów. Podobne punkty mogą działać w każdej gminie, przy szkołach, domach kultury i spółdzielniach. W przyszłości można dodać wymianę ubrań i narzędzi oraz kursy majsterkowania dla młodzieży."
   },
   {
     "slug": "terapeutyczny-ogrod-na-dachu-szpitala",
@@ -417,7 +587,12 @@
     "stage": "IDEA",
     "region": "Kraków",
     "keywords": ["ogród terapeutyczny", "onkologia", "geriatria", "szpital", "rekonwalescencja"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/zielona-terapia.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/zielona-terapia.pdf"],
+    "innovativeness": "Szpitale rzadko dysponują miejscem, gdzie pacjent może choć na chwilę zapomnieć o chorobie. Pomysł zakłada wykorzystanie nieużywanego dachu jako bezpiecznego ogrodu zmysłów, przystosowanego do wózków i osób słabszych. Nowością jest świadome zaprojektowanie zieleni jako części leczenia, z roślinami pobudzającymi wzrok, węch i dotyk oraz miejscami do odpoczynku i rozmów.",
+    "problemDiagnosis": "Pacjenci, którzy leżą w szpitalu tygodniami, widzą codziennie te same ściany i czują się odcięci od świata. Dochodzą do tego strach, napięcie i samotność, zwłaszcza u osób starszych oraz ciężko chorych. Brakuje miejsca, gdzie można wyjść na świeże powietrze bez opuszczania budynku, a długotrwały stres utrudnia powrót do zdrowia.",
+    "audienceDescription": "Odbiorcami są pacjenci oddziałów onkologicznych i geriatrycznych, często osłabieni, o ograniczonej sprawności, a także ich bliscy i personel. Przeżywają trudny okres choroby i niepewności, a wielu z nich ma trudność w samodzielnym poruszaniu się. Są zagrożeni pogłębieniem izolacji i obniżeniem nastroju, ponieważ szpital odcina ich od natury i codziennego życia.",
+    "expectedChange": "Pacjenci mają miejsce, gdzie mogą odpocząć, odetchnąć i spotkać bliskich w spokojnej atmosferze, co poprawia ich samopoczucie i nastrój. Łatwiej radzą sobie ze stresem związanym z leczeniem, a rodziny mają dokąd przyjść na dłuższą rozmowę. Personel zyskuje również miejsce do krótkiej regeneracji.",
+    "futureVision": "Rozwiązanie można zastosować na dachach i w dziedzińcach innych szpitali, domów opieki i hospicjów, także w mniejszych miejscowościach. Ogród może służyć też zajęciom terapeutycznym i spotkaniom dla pacjentów ambulatoryjnych. Dobrze przygotowany projekt da się powielać, dostosowując rośliny i układ do potrzeb konkretnego oddziału."
   },
   {
     "slug": "aplikacja-wsparcia-dla-mlodocianych-opiekunow",
@@ -429,6 +604,11 @@
     "stage": "IDEA",
     "region": "Małopolska",
     "keywords": ["młody opiekun", "chory rodzic", "pomoc w nauce", "odpowiedzialność dziecka", "wsparcie psychologiczne"],
-    "mediaUrls": ["https://rops.krakow.pl/innowacje/niewidzialni-bohaterowie.pdf"]
+    "mediaUrls": ["https://rops.krakow.pl/innowacje/niewidzialni-bohaterowie.pdf"],
+    "innovativeness": "Młodzi opiekunowie są prawie niewidoczni dla systemu pomocy, bo większość programów kierowana jest do dorosłych. To rozwiązanie łączy w jednym miejscu aplikację, grupy rówieśnicze, pomoc w nauce i wsparcie psychologa, dopasowane do wieku dziecka. Wyróżnia je to, że traktuje dziecko jako osobę, która sama potrzebuje opieki, a nie tylko jako pomocnika rodziny.",
+    "problemDiagnosis": "Dzieci i nastolatki, które opiekują się chorym rodzicem albo rodzeństwem, często opuszczają lekcje, mają zaległości i nie mają czasu na zabawę i przyjaciół. Wstydzą się o tym mówić, a szkoła i otoczenie często nie zauważają, co się dzieje. W efekcie młodzi ludzie czują się samotni, przytłoczeni odpowiedzialnością i pozbawieni dzieciństwa.",
+    "audienceDescription": "Odbiorcami są dzieci i młodzież, które na co dzień pomagają w opiece nad chorym lub niepełnosprawnym członkiem rodziny, oraz ich rodziny. Wyróżnia ich dojrzałość ponad wiek, ale też zmęczenie i brak wsparcia. Są zagrożeni wypadnięciem z systemu edukacji, problemami psychicznymi i izolacją od rówieśników, bo nie mogą wychodzić z domu tak jak inni.",
+    "expectedChange": "Młodzi opiekunowie przestają być sami, zyskują kontakt z rówieśnikami w podobnej sytuacji i dostęp do rozmowy z kimś zaufanym. Mają możliwość nadrobienia zaległości szkolnych i odpoczynku od obowiązków, na przykład podczas wyjazdów. Maleje ryzyko porzucenia nauki, a dzieci odzyskują poczucie, że mają prawo do własnego życia.",
+    "futureVision": "Aplikacja i grupy wsparcia mogą działać w całym regionie, a po sprawdzeniu modelu także w innych częściach kraju, bo nie wymagają dużej infrastruktury. Warto włączyć do projektu szkoły i pedagogów, by szybciej zauważać uczniów w takiej sytuacji. W przyszłości można rozszerzyć ofertę o szkolenia dla nauczycieli i o pomoc dla całej rodziny."
   }
 ]

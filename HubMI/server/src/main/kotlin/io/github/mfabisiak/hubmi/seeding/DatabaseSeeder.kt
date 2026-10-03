@@ -9,25 +9,21 @@ import io.github.mfabisiak.hubmi.api.InnovationStage
 import io.github.mfabisiak.hubmi.api.MaterialType
 import io.github.mfabisiak.hubmi.api.SocialArea
 import io.github.mfabisiak.hubmi.api.TargetGroup
+import io.github.mfabisiak.hubmi.challenges.ChallengeItem
+import io.github.mfabisiak.hubmi.challenges.challenges
+import io.github.mfabisiak.hubmi.common.RepositoryError
+import io.github.mfabisiak.hubmi.common.mongo.catching
 import io.github.mfabisiak.hubmi.config.AppConfig
-import io.github.mfabisiak.hubmi.models.ChallengeItem
-import io.github.mfabisiak.hubmi.models.InnovationItem
-import io.github.mfabisiak.hubmi.models.MaterialItem
-import io.github.mfabisiak.hubmi.models.SampleItem
-import io.github.mfabisiak.hubmi.repository.RepositoryError
-import io.github.mfabisiak.hubmi.repository.catching
-import io.github.mfabisiak.hubmi.repository.challenges
-import io.github.mfabisiak.hubmi.repository.innovations
-import io.github.mfabisiak.hubmi.repository.materials
-import io.github.mfabisiak.hubmi.repository.samples
+import io.github.mfabisiak.hubmi.innovations.InnovationItem
+import io.github.mfabisiak.hubmi.innovations.innovations
+import io.github.mfabisiak.hubmi.materials.MaterialItem
+import io.github.mfabisiak.hubmi.materials.materials
+import io.github.mfabisiak.hubmi.samples.SampleItem
+import io.github.mfabisiak.hubmi.samples.samples
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import org.bson.types.ObjectId
 import org.slf4j.LoggerFactory
-import java.security.MessageDigest
 import java.time.Instant
-
-private const val OBJECT_ID_BYTES = 12
 
 @Serializable
 data class SeedSampleItem(
@@ -48,6 +44,11 @@ data class SeedInnovationItem(
     val region: String? = null,
     val keywords: List<String> = emptyList(),
     val mediaUrls: List<String> = emptyList(),
+    val innovativeness: String? = null,
+    val problemDiagnosis: String? = null,
+    val audienceDescription: String? = null,
+    val expectedChange: String? = null,
+    val futureVision: String? = null,
 )
 
 @Serializable
@@ -112,7 +113,7 @@ class DatabaseSeeder(
         val seedItems = loadFromResource<SeedInnovationItem>("seed/innovations.json")
         seedItems.forEach { item ->
             database.innovations.updateOne(
-                Filters.eq(InnovationItem::id, seedId(item.slug)),
+                Filters.eq(InnovationItem::id, seedObjectId(item.slug)),
                 Updates.combine(
                     Updates.setOnInsert(InnovationItem::title, item.title),
                     Updates.setOnInsert(InnovationItem::summary, item.summary),
@@ -123,6 +124,11 @@ class DatabaseSeeder(
                     Updates.setOnInsert(InnovationItem::region, item.region),
                     Updates.setOnInsert(InnovationItem::keywords, item.keywords),
                     Updates.setOnInsert(InnovationItem::mediaUrls, item.mediaUrls),
+                    Updates.setOnInsert(InnovationItem::innovativeness, item.innovativeness),
+                    Updates.setOnInsert(InnovationItem::problemDiagnosis, item.problemDiagnosis),
+                    Updates.setOnInsert(InnovationItem::audienceDescription, item.audienceDescription),
+                    Updates.setOnInsert(InnovationItem::expectedChange, item.expectedChange),
+                    Updates.setOnInsert(InnovationItem::futureVision, item.futureVision),
                     Updates.setOnInsert(InnovationItem::ratingSum, 0),
                     Updates.setOnInsert(InnovationItem::ratingsCount, 0),
                     Updates.setOnInsert(InnovationItem::archived, false),
@@ -139,7 +145,7 @@ class DatabaseSeeder(
         val seedItems = loadFromResource<SeedChallengeItem>("seed/challenges.json")
         seedItems.forEach { item ->
             database.challenges.updateOne(
-                Filters.eq(ChallengeItem::id, seedId(item.slug)),
+                Filters.eq(ChallengeItem::id, seedObjectId(item.slug)),
                 Updates.combine(
                     Updates.setOnInsert(ChallengeItem::title, item.title),
                     Updates.setOnInsert(ChallengeItem::description, item.description),
@@ -159,7 +165,7 @@ class DatabaseSeeder(
         val seedItems = loadFromResource<SeedMaterialItem>("seed/materials.json")
         seedItems.forEach { item ->
             database.materials.updateOne(
-                Filters.eq(MaterialItem::id, seedId(item.slug)),
+                Filters.eq(MaterialItem::id, seedObjectId(item.slug)),
                 Updates.combine(
                     Updates.setOnInsert(MaterialItem::title, item.title),
                     Updates.setOnInsert(MaterialItem::description, item.description),
@@ -175,13 +181,6 @@ class DatabaseSeeder(
         }
         logger.info("Seeded ${seedItems.size} material items.")
     }
-
-    /**
-     * The slug lives only in the seed files: it is hashed into a stable `_id`, so re-running the seeder upserts the same
-     * documents without a technical key in the model. `$setOnInsert` keeps edits and deletions made by admins.
-     */
-    private fun seedId(slug: String): ObjectId =
-        ObjectId(MessageDigest.getInstance("SHA-1").digest(slug.toByteArray()).copyOf(OBJECT_ID_BYTES))
 
     private inline fun <reified T> loadFromResource(resourcePath: String): List<T> {
         val stream = javaClass.classLoader.getResourceAsStream(resourcePath)

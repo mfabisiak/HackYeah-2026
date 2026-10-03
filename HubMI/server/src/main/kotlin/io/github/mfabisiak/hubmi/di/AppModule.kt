@@ -2,18 +2,27 @@ package io.github.mfabisiak.hubmi.di
 
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
+import io.github.mfabisiak.hubmi.challenges.ChallengeRepository
+import io.github.mfabisiak.hubmi.challenges.ChallengeService
+import io.github.mfabisiak.hubmi.common.mongo.MongoRepository
+import io.github.mfabisiak.hubmi.common.toDomainError
 import io.github.mfabisiak.hubmi.config.AppConfig
-import io.github.mfabisiak.hubmi.repository.ChallengeRepository
-import io.github.mfabisiak.hubmi.repository.InnovationRepository
-import io.github.mfabisiak.hubmi.repository.MaterialRepository
-import io.github.mfabisiak.hubmi.repository.MongoRepository
-import io.github.mfabisiak.hubmi.repository.SampleRepository
+import io.github.mfabisiak.hubmi.health.GreetingService
+import io.github.mfabisiak.hubmi.innovations.InnovationRepository
+import io.github.mfabisiak.hubmi.innovations.InnovationService
+import io.github.mfabisiak.hubmi.matching.InnovationIndex
+import io.github.mfabisiak.hubmi.matching.KeywordMatchingEngine
+import io.github.mfabisiak.hubmi.matching.MatchService
+import io.github.mfabisiak.hubmi.matching.MatchingEngine
+import io.github.mfabisiak.hubmi.matching.NeedRepository
+import io.github.mfabisiak.hubmi.matching.PrefixStemmer
+import io.github.mfabisiak.hubmi.matching.Stemmer
+import io.github.mfabisiak.hubmi.matching.TextAnalyzer
+import io.github.mfabisiak.hubmi.materials.MaterialRepository
+import io.github.mfabisiak.hubmi.materials.MaterialService
+import io.github.mfabisiak.hubmi.samples.SampleRepository
+import io.github.mfabisiak.hubmi.samples.SampleService
 import io.github.mfabisiak.hubmi.seeding.DatabaseSeeder
-import io.github.mfabisiak.hubmi.service.ChallengeService
-import io.github.mfabisiak.hubmi.service.GreetingService
-import io.github.mfabisiak.hubmi.service.InnovationService
-import io.github.mfabisiak.hubmi.service.MaterialService
-import io.github.mfabisiak.hubmi.service.SampleService
 import org.koin.dsl.module
 import org.koin.dsl.onClose
 import java.net.URI
@@ -33,10 +42,19 @@ fun appModule(config: AppConfig) =
         single { SampleRepository(get<MongoRepository>().database) }
         single { SampleService(get()) }
         single { InnovationRepository(get<MongoRepository>().database) }
-        single { InnovationService(get()) }
+        single<Stemmer> { PrefixStemmer() }
+        single { TextAnalyzer(get()) }
+        single {
+            val innovations = get<InnovationRepository>()
+            InnovationIndex(get(), load = { innovations.findAllActive().mapLeft { it.toDomainError() } })
+        }
+        single<MatchingEngine> { KeywordMatchingEngine(get(), get()) }
+        single { InnovationService(get(), get()) }
         single { ChallengeRepository(get<MongoRepository>().database) }
         single { ChallengeService(get()) }
         single { MaterialRepository(get<MongoRepository>().database) }
         single { MaterialService(get()) }
+        single { NeedRepository(get<MongoRepository>().database) }
+        single { MatchService(get(), get()) }
         single { DatabaseSeeder(get<MongoRepository>().database, get()) }
     }

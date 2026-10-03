@@ -8,13 +8,13 @@ import io.github.mfabisiak.hubmi.MongoTestEnvironment
 import io.github.mfabisiak.hubmi.api.InnovationStage
 import io.github.mfabisiak.hubmi.api.SocialArea
 import io.github.mfabisiak.hubmi.api.TargetGroup
+import io.github.mfabisiak.hubmi.challenges.challenges
 import io.github.mfabisiak.hubmi.config.AppConfig
-import io.github.mfabisiak.hubmi.models.InnovationItem
-import io.github.mfabisiak.hubmi.models.SampleItem
-import io.github.mfabisiak.hubmi.repository.challenges
-import io.github.mfabisiak.hubmi.repository.innovations
-import io.github.mfabisiak.hubmi.repository.materials
-import io.github.mfabisiak.hubmi.repository.samples
+import io.github.mfabisiak.hubmi.innovations.InnovationItem
+import io.github.mfabisiak.hubmi.innovations.innovations
+import io.github.mfabisiak.hubmi.materials.materials
+import io.github.mfabisiak.hubmi.samples.SampleItem
+import io.github.mfabisiak.hubmi.samples.samples
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.AfterClass
@@ -118,6 +118,17 @@ class DatabaseSeederTest {
             }
             for (stage in InnovationStage.entries) {
                 assertTrue(stage in coveredStages, "InnovationStage $stage should be covered in seeded innovations")
+            }
+
+            // Every seeded innovation carries the narrative sections of ROPS' application form
+            allInnovations.forEach { item ->
+                listOf(
+                    item.innovativeness,
+                    item.problemDiagnosis,
+                    item.audienceDescription,
+                    item.expectedChange,
+                    item.futureVision,
+                ).forEach { section -> assertTrue(!section.isNullOrBlank(), "Missing section in ${item.title}") }
             }
 
             // Second run (idempotent upsert)
