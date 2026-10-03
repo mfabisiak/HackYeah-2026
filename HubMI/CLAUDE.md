@@ -16,6 +16,7 @@ Opis zadania, moduły i kryteria oceny: [docs/TASK.md](docs/TASK.md). **Przeczyt
 ```bash
 ./gradlew :server:test             # testy serwera
 ./gradlew ktlintCheck              # styl (ktlint_official); ./gradlew ktlintFormat naprawia
+./gradlew backendCheck             # to samo co CI: ktlint + testy :server i :core
 ./gradlew :server:run              # serwer lokalnie (wymaga Mongo i Keycloaka)
 docker compose up -d --build       # Mongo + Keycloak + serwer
 ```

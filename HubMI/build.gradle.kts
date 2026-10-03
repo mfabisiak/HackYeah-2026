@@ -21,3 +21,10 @@ subprojects {
         }
     }
 }
+
+// Everything CI needs for the backend; avoids pulling in Android/iOS app modules (and their SDKs).
+tasks.register("backendCheck") {
+    group = "verification"
+    description = "Runs ktlint and tests for :server and :core (JVM)."
+    dependsOn(":server:check", ":core:ktlintCheck", ":core:jvmTest")
+}
