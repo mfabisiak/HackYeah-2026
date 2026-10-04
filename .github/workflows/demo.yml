@@ -1,0 +1,83 @@
+name: Demo
+
+# The demo is the React app running on the Kotlin mock of HubApi (VITE_MOCK), so it needs no server and no Keycloak.
+# Pull requests only prove that it builds; main also publishes it to GitHub Pages
+# (Settings > Pages > Build and deployment > Source: GitHub Actions).
+on:
+  push:
+    branches: [main]
+    paths:
+      - HubMI/core/**
+      - HubMI/web-client/**
+      - HubMI/web/**
+      - HubMI/server/src/main/resources/seed/**
+      - HubMI/gradle/**
+      - .github/workflows/demo.yml
+  pull_request:
+    paths:
+      - HubMI/core/**
+      - HubMI/web-client/**
+      - HubMI/web/**
+      - HubMI/server/src/main/resources/seed/**
+      - HubMI/gradle/**
+      - .github/workflows/demo.yml
+  workflow_dispatch:
+
+concurrency:
+  group: demo-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: HubMI
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          build-root-directory: HubMI
+          cache-read-only: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: HubMI/web/package-lock.json
+      # The React app depends on the Kotlin/JS client (real and mock implementation) built from :web-client
+      - run: ./gradlew :web-client:jsBrowserProductionLibraryDistribution --no-daemon
+      - run: npm ci
+        working-directory: HubMI/web
+      - run: npm run build:demo
+        working-directory: HubMI/web
+        env:
+          # Project pages live under /<repository>/
+          VITE_BASE: /${{ github.event.repository.name }}/
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: HubMI/web/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
