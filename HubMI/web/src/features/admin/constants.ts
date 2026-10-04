@@ -126,3 +126,26 @@ export const accessibleBadgeStyles = {
   },
 }
 
+/**
+ * Slightly larger padding for standalone single badges like Etap, Obszar problemowy, Format / Typ.
+ */
+export const singleBadgeStyles = {
+  root: {
+    height: 'auto',
+    minHeight: 24,
+    paddingTop: 4,
+    paddingBottom: 4,
+    paddingInline: 12,
+    whiteSpace: 'normal' as const,
+  },
+  label: {
+    whiteSpace: 'normal' as const,
+    overflow: 'visible' as const,
+    textOverflow: 'clip' as const,
+    fontSize: '0.84rem',
+    fontWeight: 600,
+    lineHeight: 1.25,
+    textAlign: 'center' as const,
+  },
+}
+

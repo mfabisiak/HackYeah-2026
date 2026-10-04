@@ -1,6 +1,7 @@
 import { Alert, Badge, Button, Group, Paper, Stack, Text } from '@mantine/core'
 import { IconAlertCircle } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
+import { toFriendlyErrorMessage } from '../api/errors'
 import { hubApi } from '../api/hubApi'
 import { useAuth } from '../auth/AuthContext'
 import { keycloak } from '../auth/keycloak'
@@ -79,7 +80,7 @@ export function AccountPage() {
 
         setState({
           kind: 'error',
-          message: result.error.message ?? 'Nie udało się pobrać danych konta.',
+          message: toFriendlyErrorMessage(result.error, 'Nie udało się pobrać danych konta.'),
         })
         return
       }

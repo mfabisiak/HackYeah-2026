@@ -21,6 +21,7 @@ import {
   IconRefresh,
 } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
+import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
@@ -56,15 +57,15 @@ export function IdeasModerationQueue() {
         const res = await hubApi.admin.ideas(queryStatus, currentPage - 1, PAGE_SIZE)
         if (cancelled) return
         if (res.error) {
-          setError(res.error.message || 'Nie udało się pobrać listy pomysłów.')
+          setError(toFriendlyErrorMessage(res.error, 'Nie udało się pobrać listy pomysłów.'))
           setData(null)
         } else if (res.value) {
           setData(res.value)
           setError(null)
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          setError('Wystąpił błąd podczas ładowania kolejki moderacji.')
+          setError(toFriendlyErrorMessage(err, 'Wystąpił błąd podczas ładowania kolejki moderacji.'))
         }
       } finally {
         if (!cancelled) {
@@ -130,14 +131,14 @@ export function IdeasModerationQueue() {
         } else if (res.error.status === 409) {
           setDrawerError('Ktoś już zmienił ten status — odśwież listę pomysłów.')
         } else {
-          setDrawerError(res.error.message || 'Nie udało się zaktualizować statusu pomysłu.')
+          setDrawerError(toFriendlyErrorMessage(res.error, 'Nie udało się zaktualizować statusu pomysłu.'))
         }
       } else if (res.value) {
         handleCloseDrawer()
         handleRefresh()
       }
-    } catch {
-      setDrawerError('Wystąpił błąd sieci podczas zapisywania decyzji.')
+    } catch (err) {
+      setDrawerError(toFriendlyErrorMessage(err, 'Wystąpił błąd sieci podczas zapisywania decyzji.'))
     } finally {
       setIsSubmitting(false)
     }

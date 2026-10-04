@@ -21,6 +21,7 @@ import {
 } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { useAuth } from '../../auth/AuthContext'
 import { ErrorAlert } from '../../components/ErrorAlert'
@@ -55,14 +56,14 @@ export function ThreadsListPage() {
         const res = await hubApi.threads.list(0, 50)
         if (cancelled) return
         if (res.error) {
-          setError(res.error.message || 'Nie udało się pobrać listy rozmów.')
+          setError(toFriendlyErrorMessage(res.error, 'Nie udało się pobrać listy rozmów.'))
         } else if (res.value) {
           setThreads(res.value.items)
           setError(null)
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          setError('Wystąpił błąd podczas połączenia z serwerem wiadomości.')
+          setError(toFriendlyErrorMessage(err, 'Wystąpił błąd podczas połączenia z serwerem wiadomości.'))
         }
       } finally {
         if (!cancelled) {

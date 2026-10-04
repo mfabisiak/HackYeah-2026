@@ -12,6 +12,7 @@ import {
 } from '@mantine/core'
 import { IconCheck, IconStar, IconStarFilled } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
+import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { useAuth } from '../../auth/AuthContext'
 import type { FeedbackJs } from 'hubmi-client'
@@ -92,13 +93,13 @@ export function InnovationFeedbackSection({
           login()
           return
         }
-        setError(res.error.message || 'Nie udało się zapisać oceny. Spróbuj ponownie.')
+        setError(toFriendlyErrorMessage(res.error, 'Nie udało się zapisać oceny. Spróbuj ponownie.'))
       } else if (res.value) {
         setExistingFeedback(res.value)
         setIsSuccess(true)
       }
-    } catch {
-      setError('Wystąpił błąd sieci podczas zapisywania oceny.')
+    } catch (err) {
+      setError(toFriendlyErrorMessage(err, 'Wystąpił błąd sieci podczas zapisywania oceny.'))
     } finally {
       setIsSubmitting(false)
     }

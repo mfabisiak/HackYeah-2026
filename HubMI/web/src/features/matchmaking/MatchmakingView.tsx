@@ -10,6 +10,7 @@ import {
 } from '@mantine/core'
 import { IconArrowRight, IconBulb, IconSparkles } from '@tabler/icons-react'
 import { Link } from 'react-router-dom'
+import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { EmptyState } from '../../components/EmptyState'
 import { ErrorAlert } from '../../components/ErrorAlert'
@@ -45,7 +46,7 @@ export function MatchmakingView() {
           )
         }
         throw new Error(
-          res.error?.message ?? 'Nie udało się dopasować rozwiązań. Spróbuj ponownie.',
+          toFriendlyErrorMessage(res.error, 'Nie udało się dopasować rozwiązań. Spróbuj ponownie.'),
         )
       }
 
@@ -80,11 +81,7 @@ export function MatchmakingView() {
         resultsRef.current?.focus()
       }, 50)
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('Wystąpił nieoczekiwany błąd podczas wyszukiwania rozwiązań.')
-      }
+      setError(toFriendlyErrorMessage(err, 'Wystąpił nieoczekiwany błąd podczas wyszukiwania rozwiązań.'))
     } finally {
       setIsLoading(false)
     }

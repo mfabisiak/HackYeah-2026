@@ -21,15 +21,33 @@ import { FeedbackModerationQueue } from './FeedbackModerationQueue'
 import { IdeasModerationQueue } from './IdeasModerationQueue'
 import { TestRequestsModerationQueue } from './TestRequestsModerationQueue'
 
+const SUBTAB_TO_MAIN: Record<string, 'tresci'> = {
+  innowacje: 'tresci',
+  wyzwania: 'tresci',
+  materialy: 'tresci',
+}
+
 export function AdminPanel() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const initialTab = searchParams.get('tab') || 'wymaga-uwagi'
-  const [activeTab, setActiveTab] = useState<string | null>(initialTab)
+  const rawTab = searchParams.get('tab') || 'wymaga-uwagi'
+
+  const resolvedMainTab = rawTab in SUBTAB_TO_MAIN ? 'tresci' : rawTab
+  const resolvedSubTab =
+    rawTab in SUBTAB_TO_MAIN ? (rawTab as 'innowacje' | 'wyzwania' | 'materialy') : 'innowacje'
+
+  const [activeTab, setActiveTab] = useState<string | null>(resolvedMainTab)
+  const [contentSubTab, setContentSubTab] = useState<'innowacje' | 'wyzwania' | 'materialy'>(resolvedSubTab)
 
   const handleTabChange = (val: string | null) => {
     if (val) {
-      setActiveTab(val)
-      setSearchParams({ tab: val })
+      if (val in SUBTAB_TO_MAIN) {
+        setActiveTab('tresci')
+        setContentSubTab(val as 'innowacje' | 'wyzwania' | 'materialy')
+        setSearchParams({ tab: val })
+      } else {
+        setActiveTab(val)
+        setSearchParams({ tab: val })
+      }
     }
   }
 
@@ -124,7 +142,7 @@ export function AdminPanel() {
           </Tabs.Panel>
 
           <Tabs.Panel value="tresci" pt="xl">
-            <ContentManagement />
+            <ContentManagement key={contentSubTab} initialSubTab={contentSubTab} />
           </Tabs.Panel>
 
           <Tabs.Panel value="opinie" pt="xl">

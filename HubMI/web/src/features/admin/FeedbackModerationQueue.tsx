@@ -16,6 +16,7 @@ import {
   IconStarFilled,
 } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
+import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
@@ -48,15 +49,15 @@ export function FeedbackModerationQueue() {
         const res = await hubApi.admin.feedback(undefined, currentPage - 1, PAGE_SIZE)
         if (cancelled) return
         if (res.error) {
-          setError(res.error.message || 'Nie udało się pobrać opinii testerów.')
+          setError(toFriendlyErrorMessage(res.error, 'Nie udało się pobrać opinii testerów.'))
           setData(null)
         } else if (res.value) {
           setData(res.value)
           setError(null)
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          setError('Wystąpił błąd podczas ładowania opinii testerów.')
+          setError(toFriendlyErrorMessage(err, 'Wystąpił błąd podczas ładowania opinii testerów.'))
         }
       } finally {
         if (!cancelled) {

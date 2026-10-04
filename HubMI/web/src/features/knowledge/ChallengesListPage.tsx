@@ -17,6 +17,7 @@ import {
 } from '@tabler/icons-react'
 import { useEffect, useState, useTransition } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { EmptyState } from '../../components/EmptyState'
 import { ErrorAlert } from '../../components/ErrorAlert'
@@ -61,15 +62,15 @@ export function ChallengesListPage() {
         if (cancelled) return
 
         if (res.error) {
-          setError(res.error.message || 'Nie udało się pobrać listy wyzwań.')
+          setError(toFriendlyErrorMessage(res.error, 'Nie udało się pobrać listy wyzwań.'))
           setData(null)
         } else if (res.value) {
           setData(res.value)
           setError(null)
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          setError('Wystąpił błąd podczas ładowania wyzwań.')
+          setError(toFriendlyErrorMessage(err, 'Wystąpił błąd podczas ładowania wyzwań.'))
           setData(null)
         }
       } finally {

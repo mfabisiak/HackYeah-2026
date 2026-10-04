@@ -27,11 +27,12 @@ import {
   IconTrash,
 } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
+import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
 import { SOCIAL_AREA_NAMES } from '../knowledge/constants'
-import { accessibleBadgeStyles, MATERIAL_TYPE_LABELS } from './constants'
+import { accessibleBadgeStyles, MATERIAL_TYPE_LABELS, singleBadgeStyles } from './constants'
 import { UpsertMaterialJs, type MaterialJs } from 'hubmi-client'
 
 export function MaterialsCrud() {
@@ -64,14 +65,14 @@ export function MaterialsCrud() {
         const res = await hubApi.materials.list(undefined, undefined, undefined, 0, 50)
         if (cancelled) return
         if (res.error) {
-          setError(res.error.message || 'Nie udało się pobrać materiałów.')
+          setError(toFriendlyErrorMessage(res.error, 'Nie udało się pobrać materiałów.'))
         } else if (res.value) {
           setItems(res.value.items)
           setError(null)
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          setError('Wystąpił błąd podczas ładowania materiałów.')
+          setError(toFriendlyErrorMessage(err, 'Wystąpił błąd podczas ładowania materiałów.'))
         }
       } finally {
         if (!cancelled) {
@@ -155,13 +156,13 @@ export function MaterialsCrud() {
       }
 
       if (res.error) {
-        setFormError(res.error.message || 'Nie udało się zapisać materiału.')
+        setFormError(toFriendlyErrorMessage(res.error, 'Nie udało się zapisać materiału.'))
       } else {
         setModalOpened(false)
         handleRefresh()
       }
-    } catch {
-      setFormError('Wystąpił błąd sieci.')
+    } catch (err) {
+      setFormError(toFriendlyErrorMessage(err, 'Wystąpił błąd sieci.'))
     } finally {
       setIsSubmitting(false)
     }
@@ -227,8 +228,8 @@ export function MaterialsCrud() {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th scope="col">Tytuł publikacji</Table.Th>
-                <Table.Th scope="col">Format / Typ</Table.Th>
-                <Table.Th scope="col">Obszary</Table.Th>
+                <Table.Th scope="col" style={{ textAlign: 'center' }}>Format / Typ</Table.Th>
+                <Table.Th scope="col" style={{ textAlign: 'center' }}>Obszary</Table.Th>
                 <Table.Th scope="col" style={{ textAlign: 'right' }}>Akcje</Table.Th>
               </Table.Tr>
             </Table.Thead>
@@ -244,26 +245,28 @@ export function MaterialsCrud() {
                     </Text>
                   </Table.Td>
 
-                  <Table.Td style={{ minWidth: 160 }}>
-                    <Badge
-                      variant="light"
-                      color={item.type === 'VIDEO' ? 'red' : 'indigo'}
-                      size="sm"
-                      styles={accessibleBadgeStyles}
-                      leftSection={
-                        item.type === 'VIDEO' ? (
-                          <IconPlayerPlay size={16} aria-hidden="true" />
-                        ) : (
-                          <IconFileText size={16} aria-hidden="true" />
-                        )
-                      }
-                    >
-                      {MATERIAL_TYPE_LABELS[item.type] || item.type}
-                    </Badge>
+                  <Table.Td style={{ minWidth: 160, textAlign: 'center' }}>
+                    <Group justify="center">
+                      <Badge
+                        variant="light"
+                        color={item.type === 'VIDEO' ? 'red' : 'indigo'}
+                        size="sm"
+                        styles={singleBadgeStyles}
+                        leftSection={
+                          item.type === 'VIDEO' ? (
+                            <IconPlayerPlay size={16} aria-hidden="true" />
+                          ) : (
+                            <IconFileText size={16} aria-hidden="true" />
+                          )
+                        }
+                      >
+                        {MATERIAL_TYPE_LABELS[item.type] || item.type}
+                      </Badge>
+                    </Group>
                   </Table.Td>
 
                   <Table.Td style={{ minWidth: 160 }}>
-                    <Group gap={4} wrap="wrap">
+                    <Group gap={4} wrap="wrap" justify="center">
                       {item.areas.map((a) => (
                         <Badge key={a} size="xs" variant="outline" color="gray" styles={accessibleBadgeStyles}>
                           {SOCIAL_AREA_NAMES[a] || a}

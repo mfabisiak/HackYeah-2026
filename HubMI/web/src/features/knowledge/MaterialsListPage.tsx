@@ -24,6 +24,7 @@ import {
 } from '@tabler/icons-react'
 import { useEffect, useState, useTransition } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { EmptyState } from '../../components/EmptyState'
 import { ErrorAlert } from '../../components/ErrorAlert'
@@ -82,15 +83,15 @@ export function MaterialsListPage() {
         if (cancelled) return
 
         if (res.error) {
-          setError(res.error.message || 'Nie udało się pobrać materiałów edukacyjnych.')
+          setError(toFriendlyErrorMessage(res.error, 'Nie udało się pobrać materiałów edukacyjnych.'))
           setData(null)
         } else if (res.value) {
           setData(res.value)
           setError(null)
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          setError('Wystąpił błąd sieci podczas ładowania materiałów.')
+          setError(toFriendlyErrorMessage(err, 'Wystąpił błąd sieci podczas ładowania materiałów.'))
           setData(null)
         }
       } finally {

@@ -23,7 +23,7 @@ const ERROR_CODE_MESSAGES: Record<string, string> = {
   SERVICE_UNAVAILABLE: 'Serwis jest chwilowo niedostępny. Spróbuj ponownie za chwilę.',
   INTERNAL_ERROR: 'Wystąpił wewnętrzny błąd serwera. Skontaktuj się z administratorem.',
   NOT_IMPLEMENTED: 'Funkcjonalność nie została jeszcze zaimplementowana.',
-  NETWORK_ERROR: 'Nie udało się połączyć z serwerem. Sprawdź połączenie internetowe.',
+  NETWORK_ERROR: 'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie internetowe lub spróbuj ponownie za chwilę.',
 }
 
 function isRawTechnicalError(msg: string): boolean {
@@ -67,7 +67,10 @@ export function formatApiError(error: unknown): string {
     if (errObj.status === 403) {
       return 'Brak wymaganych uprawnień administratora do wykonania tej operacji.'
     }
-    if (errObj.message && !isRawTechnicalError(errObj.message)) {
+    if (errObj.message) {
+      if (isRawTechnicalError(errObj.message)) {
+        return 'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie internetowe lub spróbuj ponownie za chwilę.'
+      }
       return errObj.message
     }
   }
@@ -87,6 +90,15 @@ export function formatApiError(error: unknown): string {
   }
 
   return 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.'
+}
+
+export function toFriendlyErrorMessage(error: unknown, fallback?: string): string {
+  if (!error) return fallback || 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.'
+  const formatted = formatApiError(error)
+  if (formatted === 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.' && fallback) {
+    return fallback
+  }
+  return formatted
 }
 
 export function extractFieldErrors(error: unknown): Record<string, string> {

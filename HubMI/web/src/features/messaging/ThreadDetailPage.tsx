@@ -24,6 +24,7 @@ import {
 } from '@tabler/icons-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { useAuth } from '../../auth/AuthContext'
 import { LoadingState } from '../../components/LoadingState'
@@ -63,7 +64,7 @@ export function ThreadDetailPage() {
             setIs404(true)
             return
           }
-          setError(msgRes.error.message || 'Nie udało się pobrać wiadomości.')
+          setError(toFriendlyErrorMessage(msgRes.error, 'Nie udało się pobrać wiadomości.'))
           return
         }
 
@@ -80,9 +81,9 @@ export function ThreadDetailPage() {
             document.title = `${found.subject} | Wiadomości HubMI`
           }
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          setError('Wystąpił błąd podczas ładowania rozmowy.')
+          setError(toFriendlyErrorMessage(err, 'Wystąpił błąd podczas ładowania rozmowy.'))
         }
       } finally {
         if (!cancelled) {
@@ -117,7 +118,7 @@ export function ThreadDetailPage() {
           login()
           return
         }
-        setReplyError(res.error.message || 'Nie udało się wysłać odpowiedzi. Spróbuj ponownie.')
+        setReplyError(toFriendlyErrorMessage(res.error, 'Nie udało się wysłać odpowiedzi. Spróbuj ponownie.'))
       } else if (res.value) {
         setMessages((prev) => [...prev, res.value as MessageJs])
         setReplyText('')
@@ -126,8 +127,8 @@ export function ThreadDetailPage() {
           messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
         }, 100)
       }
-    } catch {
-      setReplyError('Wystąpił błąd sieci. Spróbuj ponownie za chwilę.')
+    } catch (err) {
+      setReplyError(toFriendlyErrorMessage(err, 'Wystąpił błąd sieci. Spróbuj ponownie za chwilę.'))
     } finally {
       setIsSubmitting(false)
     }

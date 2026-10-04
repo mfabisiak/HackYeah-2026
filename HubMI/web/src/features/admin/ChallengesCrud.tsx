@@ -20,11 +20,12 @@ import {
   IconTrash,
 } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
+import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
 import { SOCIAL_AREA_NAMES } from '../knowledge/constants'
-import { accessibleBadgeStyles } from './constants'
+import { accessibleBadgeStyles, singleBadgeStyles } from './constants'
 import { UpsertChallengeJs, type ChallengeJs } from 'hubmi-client'
 
 export function ChallengesCrud() {
@@ -55,14 +56,14 @@ export function ChallengesCrud() {
         const res = await hubApi.challenges.list(undefined, 0, 50)
         if (cancelled) return
         if (res.error) {
-          setError(res.error.message || 'Nie udało się pobrać wyzwań.')
+          setError(toFriendlyErrorMessage(res.error, 'Nie udało się pobrać wyzwań.'))
         } else if (res.value) {
           setItems(res.value.items)
           setError(null)
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          setError('Wystąpił błąd podczas ładowania wyzwań.')
+          setError(toFriendlyErrorMessage(err, 'Wystąpił błąd podczas ładowania wyzwań.'))
         }
       } finally {
         if (!cancelled) {
@@ -130,13 +131,13 @@ export function ChallengesCrud() {
       }
 
       if (res.error) {
-        setFormError(res.error.message || 'Nie udało się zapisać wyzwania.')
+        setFormError(toFriendlyErrorMessage(res.error, 'Nie udało się zapisać wyzwania.'))
       } else {
         setModalOpened(false)
         handleRefresh()
       }
-    } catch {
-      setFormError('Wystąpił błąd sieci.')
+    } catch (err) {
+      setFormError(toFriendlyErrorMessage(err, 'Wystąpił błąd sieci.'))
     } finally {
       setIsSubmitting(false)
     }
@@ -202,8 +203,8 @@ export function ChallengesCrud() {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th scope="col">Tytuł wyzwania</Table.Th>
-                <Table.Th scope="col">Obszar problemowy</Table.Th>
-                <Table.Th scope="col">Gminy / Powiaty</Table.Th>
+                <Table.Th scope="col" style={{ textAlign: 'center' }}>Obszar problemowy</Table.Th>
+                <Table.Th scope="col" style={{ textAlign: 'center' }}>Gminy / Powiaty</Table.Th>
                 <Table.Th scope="col" style={{ textAlign: 'right' }}>Akcje</Table.Th>
               </Table.Tr>
             </Table.Thead>
@@ -219,14 +220,16 @@ export function ChallengesCrud() {
                     </Text>
                   </Table.Td>
 
-                  <Table.Td style={{ minWidth: 160 }}>
-                    <Badge variant="light" color="blue" size="sm" styles={accessibleBadgeStyles}>
-                      {SOCIAL_AREA_NAMES[item.area] || item.area}
-                    </Badge>
+                  <Table.Td style={{ minWidth: 160, textAlign: 'center' }}>
+                    <Group justify="center">
+                      <Badge variant="light" color="blue" size="sm" styles={singleBadgeStyles}>
+                        {SOCIAL_AREA_NAMES[item.area] || item.area}
+                      </Badge>
+                    </Group>
                   </Table.Td>
 
                   <Table.Td style={{ minWidth: 160 }}>
-                    <Group gap={4} wrap="wrap">
+                    <Group gap={4} wrap="wrap" justify="center">
                       {item.municipalities.map((m) => (
                         <Badge key={m} size="xs" variant="outline" color="gray" styles={accessibleBadgeStyles}>
                           {m}

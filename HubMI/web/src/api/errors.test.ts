@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ApiClientError, extractFieldErrors, formatApiError } from './errors'
+import { ApiClientError, extractFieldErrors, formatApiError, toFriendlyErrorMessage } from './errors'
 import { ApiErrorJs, FieldErrorJs } from 'hubmi-client'
 
 describe('API errors utility', () => {
@@ -51,5 +51,14 @@ describe('API errors utility', () => {
     expect(formatApiError('TypeError: Failed to fetch')).toBe(
       'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie internetowe lub spróbuj ponownie za chwilę.',
     )
+    expect(formatApiError(new ApiErrorJs(0, 'NETWORK_ERROR', 'Failed to fetch'))).toBe(
+      'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie internetowe lub spróbuj ponownie za chwilę.',
+    )
+    expect(
+      toFriendlyErrorMessage(
+        new ApiErrorJs(0, 'NETWORK_ERROR', 'Failed to fetch'),
+        'Nie udało się pobrać danych.',
+      ),
+    ).toBe('Nie udało się połączyć z serwerem. Sprawdź swoje połączenie internetowe lub spróbuj ponownie za chwilę.')
   })
 })

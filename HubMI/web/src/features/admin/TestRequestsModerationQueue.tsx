@@ -20,6 +20,7 @@ import {
   IconX,
 } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
+import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
@@ -56,15 +57,15 @@ export function TestRequestsModerationQueue() {
         const res = await hubApi.admin.testRequests(undefined, queryStatus, currentPage - 1, PAGE_SIZE)
         if (cancelled) return
         if (res.error) {
-          setError(res.error.message || 'Nie udało się pobrać listy zgłoszeń do testów.')
+          setError(toFriendlyErrorMessage(res.error, 'Nie udało się pobrać listy zgłoszeń do testów.'))
           setData(null)
         } else if (res.value) {
           setData(res.value)
           setError(null)
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          setError('Wystąpił błąd podczas ładowania zgłoszeń testerów.')
+          setError(toFriendlyErrorMessage(err, 'Wystąpił błąd podczas ładowania zgłoszeń testerów.'))
         }
       } finally {
         if (!cancelled) {
@@ -97,13 +98,13 @@ export function TestRequestsModerationQueue() {
         decisionItem.targetStatus,
       )
       if (res.error) {
-        setDecisionError(res.error.message || 'Nie udało się zapisać decyzji.')
+        setDecisionError(toFriendlyErrorMessage(res.error, 'Nie udało się zapisać decyzji.'))
       } else {
         setDecisionItem(null)
         handleRefresh()
       }
-    } catch {
-      setDecisionError('Błąd sieci podczas zapisywania decyzji.')
+    } catch (err) {
+      setDecisionError(toFriendlyErrorMessage(err, 'Błąd sieci podczas zapisywania decyzji.'))
     } finally {
       setIsSubmitting(false)
     }
@@ -194,10 +195,10 @@ export function TestRequestsModerationQueue() {
                 <Table.Th scope="col" style={{ width: '15%', fontSize: '1rem', fontWeight: 700 }}>
                   Data zgłoszenia
                 </Table.Th>
-                <Table.Th scope="col" style={{ width: '11%', fontSize: '1rem', fontWeight: 700 }}>
+                <Table.Th scope="col" style={{ width: '11%', fontSize: '1rem', fontWeight: 700, textAlign: 'center' }}>
                   Status
                 </Table.Th>
-                <Table.Th scope="col" style={{ width: '18%', fontSize: '1rem', fontWeight: 700, textAlign: 'right' }}>
+                <Table.Th scope="col" style={{ width: '18%', fontSize: '1rem', fontWeight: 700, textAlign: 'center' }}>
                   Decyzja ROPS
                 </Table.Th>
               </Table.Tr>
@@ -272,20 +273,22 @@ export function TestRequestsModerationQueue() {
                       </Group>
                     </Table.Td>
 
-                    <Table.Td>
-                      <Badge
-                        color={cfg.color}
-                        size="sm"
-                        variant="filled"
-                        styles={accessibleBadgeStyles}
-                      >
-                        {cfg.label}
-                      </Badge>
+                    <Table.Td style={{ textAlign: 'center' }}>
+                      <Group justify="center">
+                        <Badge
+                          color={cfg.color}
+                          size="sm"
+                          variant="filled"
+                          styles={accessibleBadgeStyles}
+                        >
+                          {cfg.label}
+                        </Badge>
+                      </Group>
                     </Table.Td>
 
-                    <Table.Td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                    <Table.Td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                       {isPending ? (
-                        <Group gap={6} justify="flex-end" wrap="nowrap">
+                        <Group gap={6} justify="center" wrap="nowrap">
                           <Button
                             size="xs"
                             color="teal"
@@ -312,7 +315,7 @@ export function TestRequestsModerationQueue() {
                           </Button>
                         </Group>
                       ) : (
-                        <Text size="xs" c="dimmed" fs="italic">
+                        <Text size="xs" c="dimmed" fs="italic" ta="center">
                           Decyzja podjęta
                         </Text>
                       )}
@@ -461,12 +464,21 @@ export function TestRequestsModerationQueue() {
                 style={{
                   maxHeight: 350,
                   overflowY: 'auto',
-                  whiteSpace: 'pre-wrap',
-                  lineHeight: 1.6,
-                  fontSize: '1rem',
+                  overflowX: 'hidden',
+                  width: '100%',
                 }}
               >
-                {previewNoteItem.note}
+                <Text
+                  style={{
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    overflowWrap: 'anywhere',
+                    lineHeight: 1.6,
+                    fontSize: '1rem',
+                  }}
+                >
+                  {previewNoteItem.note}
+                </Text>
               </Paper>
             </div>
 

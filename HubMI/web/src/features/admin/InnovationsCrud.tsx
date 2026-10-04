@@ -22,6 +22,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
+import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
@@ -30,7 +31,7 @@ import {
   SOCIAL_AREA_NAMES,
   TARGET_GROUP_NAMES,
 } from '../knowledge/constants'
-import { accessibleBadgeStyles } from './constants'
+import { accessibleBadgeStyles, singleBadgeStyles } from './constants'
 import { UpsertInnovationJs, type InnovationSummaryJs } from 'hubmi-client'
 
 export function InnovationsCrud() {
@@ -68,14 +69,14 @@ export function InnovationsCrud() {
         const res = await hubApi.innovations.list(undefined, undefined, undefined, 0, 50)
         if (cancelled) return
         if (res.error) {
-          setError(res.error.message || 'Nie udało się pobrać bazy innowacji.')
+          setError(toFriendlyErrorMessage(res.error, 'Nie udało się pobrać bazy innowacji.'))
         } else if (res.value) {
           setItems(res.value.items)
           setError(null)
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          setError('Wystąpił błąd podczas ładowania innowacji.')
+          setError(toFriendlyErrorMessage(err, 'Wystąpił błąd podczas ładowania innowacji.'))
         }
       } finally {
         if (!cancelled) {
@@ -179,13 +180,13 @@ export function InnovationsCrud() {
       }
 
       if (res.error) {
-        setFormError(res.error.message || 'Nie udało się zapisać innowacji.')
+        setFormError(toFriendlyErrorMessage(res.error, 'Nie udało się zapisać innowacji.'))
       } else {
         setModalOpened(false)
         handleRefresh()
       }
-    } catch {
-      setFormError('Wystąpił błąd sieci podczas zapisywania innowacji.')
+    } catch (err) {
+      setFormError(toFriendlyErrorMessage(err, 'Wystąpił błąd sieci podczas zapisywania innowacji.'))
     } finally {
       setIsSubmitting(false)
     }
@@ -251,9 +252,9 @@ export function InnovationsCrud() {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th scope="col">Tytuł innowacji</Table.Th>
-                <Table.Th scope="col">Etap</Table.Th>
-                <Table.Th scope="col">Obszary</Table.Th>
-                <Table.Th scope="col">Grupy docelowe</Table.Th>
+                <Table.Th scope="col" style={{ textAlign: 'center' }}>Etap</Table.Th>
+                <Table.Th scope="col" style={{ textAlign: 'center' }}>Obszary</Table.Th>
+                <Table.Th scope="col" style={{ textAlign: 'center' }}>Grupy docelowe</Table.Th>
                 <Table.Th scope="col" style={{ textAlign: 'right' }}>Akcje</Table.Th>
               </Table.Tr>
             </Table.Thead>
@@ -269,14 +270,16 @@ export function InnovationsCrud() {
                     </Text>
                   </Table.Td>
 
-                  <Table.Td style={{ minWidth: 160 }}>
-                    <Badge variant="light" color="blue" size="sm" styles={accessibleBadgeStyles}>
-                      {INNOVATION_STAGE_NAMES[item.stage] || item.stage}
-                    </Badge>
+                  <Table.Td style={{ minWidth: 160, textAlign: 'center' }}>
+                    <Group justify="center">
+                      <Badge variant="light" color="blue" size="sm" styles={singleBadgeStyles}>
+                        {INNOVATION_STAGE_NAMES[item.stage] || item.stage}
+                      </Badge>
+                    </Group>
                   </Table.Td>
 
                   <Table.Td style={{ minWidth: 160 }}>
-                    <Group gap={4} wrap="wrap">
+                    <Group gap={4} wrap="wrap" justify="center">
                       {item.areas.map((a) => (
                         <Badge key={a} size="xs" variant="outline" color="gray" styles={accessibleBadgeStyles}>
                           {SOCIAL_AREA_NAMES[a] || a}
@@ -286,7 +289,7 @@ export function InnovationsCrud() {
                   </Table.Td>
 
                   <Table.Td style={{ minWidth: 160 }}>
-                    <Group gap={4} wrap="wrap">
+                    <Group gap={4} wrap="wrap" justify="center">
                       {item.targetGroups.map((g) => (
                         <Badge key={g} size="xs" variant="outline" color="teal" styles={accessibleBadgeStyles}>
                           {TARGET_GROUP_NAMES[g] || g}
