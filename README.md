@@ -219,6 +219,7 @@ Domyślnie system działa w trybie hybrydowym z automatycznym fallbackiem na BM2
 ```bash
 # Zainstaluj Ollamę lokalnie (macOS / Linux / Windows)
 ollama pull bge-m3
+ollama pull SpeakLeash/bielik-4.5b-v3.0-instruct:Q8_0
 ```
 Serwer automatycznie wykryje działającą instancję Ollamy pod adresem `localhost:11434` i przełączy się na wektorowy ranking semantyczny.
 
