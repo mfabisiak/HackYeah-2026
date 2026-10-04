@@ -1,5 +1,6 @@
-import { Alert, Container, Paper, Stack, Text } from '@mantine/core'
+import { Alert, Anchor, Container, Paper, Stack, Text } from '@mantine/core'
 import { IconShieldCheck } from '@tabler/icons-react'
+import { Link } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
 import { RequireRole } from '../auth/RequireRole'
 
@@ -24,6 +25,19 @@ function AdminContent() {
           Masz dostęp do tej sekcji, ponieważ Twoje konto posiada uprawnienia administratora (rola{' '}
           <code>admin</code>).
         </Alert>
+
+        <Paper withBorder p="lg" radius="md" component="nav" aria-label="Narzędzia administratora">
+          <Stack gap="xs" component="ul" p={0} m={0} style={{ listStyle: 'none' }}>
+            <li>
+              <Anchor component={Link} to="/admin/plany" fw={600}>
+                Plany adaptacji do przeglądu
+              </Anchor>
+              <Text size="sm" c="dimmed">
+                Plany wdrożenia innowacji przygotowane przez asystenta AI (moduł 7), czekające na zatwierdzenie.
+              </Text>
+            </li>
+          </Stack>
+        </Paper>
 
         <Paper withBorder p="lg" radius="md">
           <Text size="sm">

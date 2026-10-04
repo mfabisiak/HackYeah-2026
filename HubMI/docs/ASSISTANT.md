@@ -100,6 +100,23 @@ Pomiar na żywo (Bielik 4.5B, NGO z budżetem 30 tys. zł, innowacja „Transpor
 zapisany po 15–18 s, `exceedsBudget = false`. Jakościowo plan jest poprawny po polsku, ale ogólnikowy (kroki typu
 „Zatrudnij kierowców"), a model chętnie ustawia koszt równo na budżet. To materiał do pracy admina, nie gotowy projekt.
 
+## Frontend (`web/`)
+
+- **`/asystent`** (`features/assistant`): formularz pomysłu (te same reguły co `IdeaDraft`) i `AssistantPanel` z czterema
+  trybami. Podobne innowacje pojawiają się od razu (pierwsze trzy, reszta pod przyciskiem), podpowiedzi i kroki przepływu
+  na bieżąco, z oznaczeniem „Wygenerowane przez AI". Panel dostaje tylko `resolveIdea`, więc można go osadzić pod
+  dowolnym formularzem pomysłu (np. w kreatorze fiszki, FE-05). Zmiana trybu albo wyjście ze strony anuluje trwające
+  generowanie (`cancel()` przerywa żądanie, a serwer przestaje generować). „Przerwij" zostawia to, co zdążyło się pojawić.
+- **Innowacja → „Dostosuj do mojej instytucji"** (`features/adaptations/AdaptationModal`): formularz profilu instytucji,
+  kroki planu rosną na żywo, na końcu zapisany plan z oznaczeniem AI i statusem. Gdy model nie napisał planu, jest
+  komunikat z przyczyną, a formularz zostaje z wpisanymi danymi.
+- **`/moje-plany`**: plany autora ze statusem (tekst i ikona), komentarzem ROPS i pełnym planem po rozwinięciu.
+- **`/admin/plany`**: kolejka przeglądu (filtr statusu), zatwierdzenie i odrzucenie przez okno potwierdzenia, odrzucenie
+  wymaga powodu, `409` daje komunikat „ktoś już zmienił status" i odświeża listę.
+- Dostępność: wynik jest w regionie `aria-live="polite"`, błędy formularzy w `ErrorSummary` z linkami do pól, kroki i
+  przepływ to listy numerowane (strzałki dekoracyjne, „do" czytane przez czytnik), koszt ponad budżet i status to tekst, a
+  nie sam kolor. Sprawdzone ręcznie w przeglądarce na żywo z Bielikiem; testy w `*.test.tsx` na sztucznym `StreamJs`.
+
 ## Wizualizacja
 
 SVG od LLM odpada (52 s i śmieci). Zamiast tego tryb `FLOW`: model zwraca **dane** (aktorzy, kroki), a frontend rysuje je

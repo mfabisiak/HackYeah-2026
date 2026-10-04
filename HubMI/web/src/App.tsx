@@ -6,6 +6,8 @@ import { HomePage } from './pages/HomePage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { StatusPage } from './pages/StatusPage'
 import { RequireAuth } from './auth/RequireAuth'
+import { AssistantPage } from './features/assistant'
+import { AdminAdaptationsPage, MyAdaptationsPage } from './features/adaptations'
 
 import {
   ChallengesListPage,
@@ -33,7 +35,10 @@ export default function App() {
             </RequireAuth>
           }
         />
+        <Route path="asystent" element={<AssistantPage />} />
+        <Route path="moje-plany" element={<MyAdaptationsPage />} />
         <Route path="admin" element={<AdminPage />} />
+        <Route path="admin/plany" element={<AdminAdaptationsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

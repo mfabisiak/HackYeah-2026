@@ -7,6 +7,7 @@ import { useAuth } from '../auth/AuthContext'
 const baseLinks = [
   { to: '/', label: 'Start' },
   { to: '/dopasuj', label: 'Opisz problem' },
+  { to: '/asystent', label: 'Asystent pomysłów' },
   { to: '/innowacje', label: 'Baza innowacji' },
   { to: '/wyzwania', label: 'Wyzwania Małopolski' },
   { to: '/materialy', label: 'Materiały edukacyjne' },
@@ -18,6 +19,7 @@ export function Shell() {
   const { ready, authenticated, username, login, logout, hasRole } = useAuth()
   const navLinks = [
     ...baseLinks,
+    ...(authenticated ? [{ to: '/moje-plany', label: 'Moje plany' }] : []),
     ...(authenticated && hasRole('admin') ? [{ to: '/admin', label: 'Panel admina' }] : []),
   ]
   const { setColorScheme } = useMantineColorScheme()

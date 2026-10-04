@@ -23,3 +23,9 @@ class ResizeObserverMock {
 }
 
 window.ResizeObserver = ResizeObserverMock
+
+// jsdom has no font loading API; Mantine's autosizing Textarea listens to it
+Object.defineProperty(document, 'fonts', {
+  writable: true,
+  value: { addEventListener: () => {}, removeEventListener: () => {} },
+})
