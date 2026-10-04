@@ -22,11 +22,14 @@ import {
   IconPlayerPlay,
   IconRocket,
   IconSparkles,
+  IconStar,
+  IconStarFilled,
   IconTarget,
 } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { hubApi } from '../../api/hubApi'
+import { useAuth } from '../../auth/AuthContext'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
 import { PageHeader } from '../../components/PageHeader'
@@ -37,14 +40,48 @@ import {
 } from './constants'
 import { InnovationFeedbackSection } from './InnovationFeedbackSection'
 import { TestRequestModal } from './TestRequestModal'
-import type { InnovationJs } from 'hubmi-client'
+import type { InnovationJs, TestRequestJs } from 'hubmi-client'
+
+function formatRatingCount(count: number): string {
+  if (count === 1) return '1 ocena'
+  const mod10 = count % 10
+  const mod100 = count % 100
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+    return `${count} oceny`
+  }
+  return `${count} ocen`
+}
 
 export function InnovationDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const { authenticated } = useAuth()
   const [innovation, setInnovation] = useState<InnovationJs | null>(null)
+  const [existingRequest, setExistingRequest] = useState<TestRequestJs | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [testModalOpened, setTestModalOpened] = useState(false)
+
+  useEffect(() => {
+    if (!id || !authenticated) return
+    let cancelled = false
+
+    void hubApi.innovations.myTestRequest(id).then((res) => {
+      if (cancelled) return
+      if (res.value) {
+        setExistingRequest(res.value)
+      } else {
+        setExistingRequest(null)
+      }
+    }).catch(() => {
+      if (!cancelled) {
+        setExistingRequest(null)
+      }
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [id, authenticated])
 
   useEffect(() => {
     if (!id) return
@@ -132,15 +169,37 @@ export function InnovationDetailPage() {
           Wróć do bazy innowacji
         </Button>
 
-        <Button
-          onClick={() => setTestModalOpened(true)}
-          size="lg"
-          color="blue"
-          leftSection={<IconHeartHandshake size={22} aria-hidden="true" />}
-          styles={{ root: { fontSize: '1.05rem', fontWeight: 600 } }}
-        >
-          Chcę przetestować to rozwiązanie
-        </Button>
+        <Group gap="sm" wrap="wrap">
+          <Button
+            component="a"
+            href="#feedback-heading"
+            variant="outline"
+            color="blue"
+            size="lg"
+            leftSection={<IconStar size={22} aria-hidden="true" />}
+            styles={{ root: { fontSize: '1.05rem', fontWeight: 600 } }}
+          >
+            Oceń rozwiązanie
+          </Button>
+
+          <Button
+            onClick={() => setTestModalOpened(true)}
+            size="lg"
+            color={existingRequest ? 'teal' : 'blue'}
+            leftSection={
+              existingRequest ? (
+                <IconCheck size={22} aria-hidden="true" />
+              ) : (
+                <IconHeartHandshake size={22} aria-hidden="true" />
+              )
+            }
+            styles={{ root: { fontSize: '1.05rem', fontWeight: 600 } }}
+          >
+            {existingRequest
+              ? 'Zgłoszono do testów (edytuj zgłoszenie)'
+              : 'Chcę przetestować to rozwiązanie'}
+          </Button>
+        </Group>
       </Group>
 
       {/* Main Overview Card */}
@@ -186,8 +245,22 @@ export function InnovationDetailPage() {
             </Group>
 
             {innovation.averageRating && innovation.averageRating > 0 && (
-              <Badge color="yellow" variant="light" size="lg">
-                ★ {innovation.averageRating.toFixed(1)} / 5 ({innovation.ratingsCount} opinii)
+              <Badge
+                color="yellow"
+                variant="light"
+                size="xl"
+                radius="md"
+                style={{
+                  height: 38,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                }}
+                styles={{
+                  label: { fontSize: '1.05rem', fontWeight: 600 },
+                }}
+              >
+                <IconStarFilled size={18} aria-hidden="true" style={{ marginRight: 6 }} />
+                {innovation.averageRating.toFixed(1).replace('.', ',')} na 5 ({formatRatingCount(innovation.ratingsCount)})
               </Badge>
             )}
           </Group>
@@ -461,6 +534,8 @@ export function InnovationDetailPage() {
         onClose={() => setTestModalOpened(false)}
         innovationId={innovation.id}
         innovationTitle={innovation.title}
+        existingRequest={existingRequest}
+        onRequestUpdated={setExistingRequest}
       />
     </Stack>
   )

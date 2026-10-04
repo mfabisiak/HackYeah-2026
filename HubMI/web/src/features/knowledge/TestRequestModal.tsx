@@ -19,6 +19,8 @@ export interface TestRequestModalProps {
   onClose: () => void
   innovationId: string
   innovationTitle: string
+  existingRequest?: TestRequestJs | null
+  onRequestUpdated?: (request: TestRequestJs) => void
 }
 
 export function TestRequestModal({
@@ -26,13 +28,16 @@ export function TestRequestModal({
   onClose,
   innovationId,
   innovationTitle,
+  existingRequest: initialExistingRequest,
+  onRequestUpdated,
 }: TestRequestModalProps) {
   const { authenticated, login } = useAuth()
-  const [existingRequest, setExistingRequest] = useState<TestRequestJs | null>(null)
-  const [note, setNote] = useState('')
+  const [existingRequest, setExistingRequest] = useState<TestRequestJs | null>(initialExistingRequest ?? null)
+  const [note, setNote] = useState(initialExistingRequest?.note ?? '')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
 
   useEffect(() => {
     if (!opened || !authenticated) return
@@ -45,6 +50,7 @@ export function TestRequestModal({
       if (res.value) {
         setExistingRequest(res.value)
         setNote(res.value.note ?? '')
+        onRequestUpdated?.(res.value)
       } else {
         setExistingRequest(null)
       }
@@ -53,7 +59,7 @@ export function TestRequestModal({
     return () => {
       cancelled = true
     }
-  }, [opened, authenticated, innovationId])
+  }, [opened, authenticated, innovationId, onRequestUpdated])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -63,10 +69,15 @@ export function TestRequestModal({
     try {
       const res = await hubApi.innovations.requestTest(innovationId, note.trim() || undefined)
       if (res.error) {
+        if (res.error.status === 401) {
+          login()
+          return
+        }
         setError(res.error.message || 'Nie udało się przesłać zgłoszenia. Spróbuj ponownie.')
       } else if (res.value) {
         setExistingRequest(res.value)
         setIsSuccess(true)
+        onRequestUpdated?.(res.value)
       }
     } catch {
       setError('Wystąpił błąd sieci. Spróbuj ponownie.')
@@ -95,6 +106,9 @@ export function TestRequestModal({
       title="Zgłoszenie do testowania innowacji"
       size="xl"
       radius="md"
+      trapFocus
+      returnFocus
+      closeOnEscape
       styles={{
         title: { fontSize: '1.4rem', fontWeight: 700 },
         header: { paddingBottom: 16 },
@@ -214,7 +228,10 @@ export function TestRequestModal({
                   description="Napisz krótko, kim jesteś (np. senior, opiekun, pracownik gminy) i w czym to rozwiązanie mogłoby pomóc."
                   placeholder="Np. Jestem sołtysem w małej wsi i chcielibyśmy sprawdzić ten model w naszym klubie seniora..."
                   value={note}
-                  onChange={(e) => setNote(e.currentTarget.value)}
+                  onChange={(e) => {
+                    setNote(e.currentTarget.value)
+                    setIsSuccess(false)
+                  }}
                   minRows={4}
                   maxRows={8}
                   disabled={isSubmitting}
@@ -242,6 +259,7 @@ export function TestRequestModal({
                   <Button
                     type="submit"
                     loading={isSubmitting}
+                    disabled={isSubmitting || isSuccess}
                     leftSection={<IconSend size={22} aria-hidden="true" />}
                     size="lg"
                     styles={{

@@ -6,14 +6,19 @@ import { InnovationsListPage } from './InnovationsListPage'
 import { InnovationDetailPage } from './InnovationDetailPage'
 import { ChallengesListPage } from './ChallengesListPage'
 import { MaterialsListPage } from './MaterialsListPage'
+import { TestRequestModal } from './TestRequestModal'
+import { InnovationFeedbackSection } from './InnovationFeedbackSection'
 import { hubApi } from '../../api/hubApi'
 import {
+  ApiErrorJs,
   ApiResult,
   ChallengeJs,
+  FeedbackJs,
   InnovationJs,
   InnovationSummaryJs,
   MaterialJs,
   PageJs,
+  TestRequestJs,
 } from 'hubmi-client'
 
 vi.mock('../../auth/AuthContext', () => ({
@@ -193,11 +198,114 @@ describe('Knowledge Base Feature (FE-04)', () => {
       expect(screen.getByText('Materiały do pobrania i multimedia')).toBeInTheDocument()
       expect(screen.getByText('Materiał wideo (z napisami i transkrypcją)')).toBeInTheDocument()
 
-      // Test Request button
+      // Action buttons
       expect(screen.getByText('Chcę przetestować to rozwiązanie')).toBeInTheDocument()
+      expect(screen.getByText('Oceń rozwiązanie')).toBeInTheDocument()
 
-      // Rating Section
-      expect(screen.getByText('Opinie i oceny rozwiązania')).toBeInTheDocument()
+      // Aggregate Rating presentation per FE-06
+      expect(screen.getAllByText(/4,8 na 5 \(12 ocen\)/i).length).toBeGreaterThan(0)
+    })
+
+    it('changes test button label to "Zgłoszono do testów (edytuj zgłoszenie)" when user has already submitted a test request', async () => {
+      vi.spyOn(hubApi.innovations, 'get').mockResolvedValue(
+        new ApiResult(mockInnovationDetail, null),
+      )
+      vi.spyOn(hubApi.innovations, 'myTestRequest').mockResolvedValue(
+        new ApiResult(
+          new TestRequestJs('req-001', 'inno-001', 'Mój powód testowania', 'NEW', '2026-10-04T00:00:00Z'),
+          null,
+        ),
+      )
+
+      renderWithProviders(
+        <Routes>
+          <Route path="/innowacje/:id" element={<InnovationDetailPage />} />
+        </Routes>,
+        ['/innowacje/inno-001'],
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Zgłoszono do testów (edytuj zgłoszenie)')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('Tester innowacji i oceny (FE-06)', () => {
+    it('submits test request with note and disables button upon success', async () => {
+      const requestSpy = vi.spyOn(hubApi.innovations, 'requestTest').mockResolvedValue(
+        new ApiResult(
+          new TestRequestJs('req-1', 'inno-001', 'Chcę sprawdzić w sołectwie.', 'NEW', '2026-10-04T00:00:00Z'),
+          null,
+        ),
+      )
+      vi.spyOn(hubApi.innovations, 'myTestRequest').mockResolvedValue(
+        new ApiResult<TestRequestJs>(null as unknown as TestRequestJs, new ApiErrorJs(404, 'NOT_FOUND', 'Not found')),
+      )
+
+      renderWithProviders(
+        <TestRequestModal
+          opened={true}
+          onClose={vi.fn()}
+          innovationId="inno-001"
+          innovationTitle="Sąsiad dla Seniora"
+        />,
+      )
+
+      expect(screen.getByText('Zgłoszenie do testowania innowacji')).toBeInTheDocument()
+
+      const noteTextarea = screen.getByLabelText(/Dlaczego chcesz przetestować to rozwiązanie/i)
+      fireEvent.change(noteTextarea, { target: { value: 'Chcę sprawdzić w sołectwie.' } })
+
+      const submitButton = screen.getByRole('button', { name: 'Wyślij zgłoszenie do testów' })
+      fireEvent.click(submitButton)
+
+      await waitFor(() => {
+        expect(requestSpy).toHaveBeenCalledWith('inno-001', 'Chcę sprawdzić w sołectwie.')
+      })
+
+      expect(screen.getByText('Dziękujemy za zgłoszenie!')).toBeInTheDocument()
+      expect(submitButton).toBeDisabled()
+    })
+
+    it('submits feedback with verbal rating, comment and suggestion', async () => {
+      const sendFeedbackSpy = vi.spyOn(hubApi.innovations, 'sendFeedback').mockResolvedValue(
+        new ApiResult(
+          new FeedbackJs('fb-1', 'inno-001', 5, 'Super inicjatywa', 'Więcej warsztatów', '2026-10-04T00:00:00Z'),
+          null,
+        ),
+      )
+      vi.spyOn(hubApi.innovations, 'myFeedback').mockResolvedValue(
+        new ApiResult<FeedbackJs>(null as unknown as FeedbackJs, new ApiErrorJs(404, 'NOT_FOUND', 'Not found')),
+      )
+
+      renderWithProviders(
+        <InnovationFeedbackSection
+          innovationId="inno-001"
+          averageRating={4.8}
+          ratingsCount={12}
+        />,
+      )
+
+      expect(screen.getByText(/4,8 na 5 \(12 ocen\)/i)).toBeInTheDocument()
+
+      // Verbal radio buttons
+      expect(screen.getByLabelText(/1 – Słabo/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/5 – Znakomicie/i)).toBeInTheDocument()
+
+      const commentInput = screen.getByLabelText(/Twój komentarz/i)
+      fireEvent.change(commentInput, { target: { value: 'Super inicjatywa' } })
+
+      const suggestionInput = screen.getByLabelText(/Co można usprawnić lub zmienić/i)
+      fireEvent.change(suggestionInput, { target: { value: 'Więcej warsztatów' } })
+
+      const submitBtn = screen.getByRole('button', { name: 'Zapisz ocenę' })
+      fireEvent.click(submitBtn)
+
+      await waitFor(() => {
+        expect(sendFeedbackSpy).toHaveBeenCalledWith('inno-001', 5, 'Super inicjatywa', 'Więcej warsztatów')
+      })
+
+      expect(screen.getByText('Dziękujemy za opinię!')).toBeInTheDocument()
     })
   })
 
