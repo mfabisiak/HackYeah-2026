@@ -152,6 +152,14 @@ Dostępność w HubMI jest filarem projektu (kryterium za 20%):
 - **Ułatwienia percepcyjne:** Przełącznik wysokiego kontrastu, skalowanie fontów do 200% bez utraty zawartości i poziomego paska przewijania, respektowanie `prefers-reduced-motion`.
 - **Wymóg dostępności multimediów:** Formularz dodawania materiałów wideo w panelu admina blokuje publikację materiałów pozbawionych napisów lub transkrypcji tekstowej.
 
+### Lokalny model językowy w służbie innowacji społecznych
+
+W modułach Asystenta Kreatora oraz Middlemana Innowacji wykorzystujemy polski model językowy **Bielik 4.5B v3 Instruct** (od SpeakLeash / Cyfronet AGH) uruchamiany lokalnie przez Ollamę:
+
+* **Sovereignty i Prywatność 100% On-Premise:** Dane wrażliwe obywateli, opisy problemów społecznych oraz plany adaptacyjne gmin nie trafiają do komercyjnych chmur zewnętrznych (OpenAI, Google, Anthropic). Całość przetwarza infrastruktura ROPS.
+* **Polski kontekst instytucjonalny:** W przeciwieństwie do globalnych modeli, Bielik trenowany był na gigantycznym korpusie języka polskiego, dzięki czemu naturalnie posługuje się urzędową i ekspercką terminologią sektora publicznego (JST, MOPS, CUS, innowacje społeczne, formy prawne NGO).
+* **Ekonomia i niskie TCO (Total Cost of Ownership):** Skwantyzowany model (`Q8_0`, ~5 GB) generuje około 25 tokenów/s i działa płynnie nawet na pojedynczej stacji roboczej lub skromnym GPU, całkowicie eliminując opłaty abonamentowe za API i drastycznie redukując koszty wdrożenia w samorządzie.
+* **Zasada „Model podpowiada, a człowiek decyduje”:** Bielik służy jako asystent i generator wstępnych szkiców. Każda jego odpowiedź przechodzi przez rygorystyczny walidator domenowy (`AssistParser`), który chroni przed halucynacjami, a ostateczna akceptacja merytoryczna planu zawsze należy do eksperta ROPS.
 ---
 
 ## 🚀 Szybki Start (Uruchomienie Lokalne)
