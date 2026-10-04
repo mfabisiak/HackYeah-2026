@@ -3,6 +3,7 @@ import { IconMoon, IconSun } from '@tabler/icons-react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useRef } from 'react'
 import { useAuth } from '../auth/AuthContext'
+import { NotificationBell } from '../features/messaging/NotificationBell'
 
 const baseLinks = [
   { to: '/', label: 'Start' },
@@ -17,7 +18,9 @@ const baseLinks = [
 export function Shell() {
   const { ready, authenticated, username, login, logout, hasRole } = useAuth()
   const navLinks = [
-    ...baseLinks,
+    ...baseLinks.slice(0, 6),
+    ...(authenticated ? [{ to: '/wiadomosci', label: 'Wiadomości z ROPS' }] : []),
+    baseLinks[6],
     ...(authenticated && hasRole('admin') ? [{ to: '/admin', label: 'Panel admina' }] : []),
   ]
   const { setColorScheme } = useMantineColorScheme()
@@ -55,6 +58,7 @@ export function Shell() {
             <Group gap="sm">
               {ready && authenticated ? (
                 <>
+                  <NotificationBell />
                   <Text span>Zalogowano: {username}</Text>
                   <Button variant="default" onClick={logout}>
                     Wyloguj
