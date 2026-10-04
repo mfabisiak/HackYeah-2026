@@ -366,10 +366,10 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
             </Text>
             <Button
               variant="light"
-              color="gray"
+              color="orange"
               size="md"
               fullWidth
-              onClick={() => onNavigateTab('innowacje')}
+              onClick={() => onNavigateTab('trendy')}
               rightSection={<IconArrowRight size={18} aria-hidden="true" />}
               styles={{
                 root: {
@@ -383,7 +383,7 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
                 },
               }}
             >
-              Uzupełnij bazę
+              Analiza trendów i luk
             </Button>
           </Stack>
         </Card>

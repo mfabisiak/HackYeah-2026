@@ -12,6 +12,7 @@ import {
   IconMessageHeart,
   IconSparkles,
   IconShieldCheck,
+  IconTrendingUp,
 } from '@tabler/icons-react'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -22,6 +23,7 @@ import { ContentManagement } from './ContentManagement'
 import { FeedbackModerationQueue } from './FeedbackModerationQueue'
 import { IdeasModerationQueue } from './IdeasModerationQueue'
 import { TestRequestsModerationQueue } from './TestRequestsModerationQueue'
+import { TrendsDashboard } from './TrendsDashboard'
 
 const SUBTAB_TO_MAIN: Record<string, 'tresci'> = {
   innowacje: 'tresci',
@@ -136,6 +138,13 @@ export function AdminPanel() {
             >
               Plany adaptacji
             </Tabs.Tab>
+
+            <Tabs.Tab
+              value="trendy"
+              leftSection={<IconTrendingUp size={20} aria-hidden="true" />}
+            >
+              Trendy i diagnoza
+            </Tabs.Tab>
           </Tabs.List>
 
           <Tabs.Panel value="wymaga-uwagi" pt="xl">
@@ -160,6 +169,20 @@ export function AdminPanel() {
 
           <Tabs.Panel value="plany" pt="xl">
             <AdaptationsReviewQueue />
+          </Tabs.Panel>
+
+          <Tabs.Panel value="trendy" pt="xl">
+            <TrendsDashboard
+              onNavigateTab={(tab, subTab) => {
+                if (subTab) {
+                  setActiveTab(tab)
+                  setContentSubTab(subTab as 'innowacje' | 'wyzwania' | 'materialy')
+                  setSearchParams({ tab: subTab })
+                } else {
+                  handleTabChange(tab)
+                }
+              }}
+            />
           </Tabs.Panel>
         </Tabs>
       </Stack>
