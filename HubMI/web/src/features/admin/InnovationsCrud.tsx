@@ -255,7 +255,7 @@ export function InnovationsCrud() {
                 <Table.Th scope="col" style={{ textAlign: 'center' }}>Etap</Table.Th>
                 <Table.Th scope="col" style={{ textAlign: 'center' }}>Obszary</Table.Th>
                 <Table.Th scope="col" style={{ textAlign: 'center' }}>Grupy docelowe</Table.Th>
-                <Table.Th scope="col" style={{ textAlign: 'right' }}>Akcje</Table.Th>
+                <Table.Th scope="col" style={{ textAlign: 'center' }}>Akcje</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -298,8 +298,8 @@ export function InnovationsCrud() {
                     </Group>
                   </Table.Td>
 
-                  <Table.Td style={{ textAlign: 'right', minWidth: 200 }}>
-                    <Group gap="xs" justify="flex-end">
+                  <Table.Td style={{ textAlign: 'center', minWidth: 200 }}>
+                    <Group gap="xs" justify="center">
                       <Button
                         size="sm"
                         variant="light"

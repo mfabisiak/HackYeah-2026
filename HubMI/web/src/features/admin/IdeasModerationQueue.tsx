@@ -227,10 +227,10 @@ export function IdeasModerationQueue() {
                 <Table.Th scope="col" style={{ fontSize: '1.05rem', fontWeight: 700 }}>
                   Data zgłoszenia
                 </Table.Th>
-                <Table.Th scope="col" style={{ fontSize: '1.05rem', fontWeight: 700 }}>
+                <Table.Th scope="col" style={{ fontSize: '1.05rem', fontWeight: 700, textAlign: 'center' }}>
                   Status
                 </Table.Th>
-                <Table.Th scope="col" style={{ fontSize: '1.05rem', fontWeight: 700, textAlign: 'right' }}>
+                <Table.Th scope="col" style={{ fontSize: '1.05rem', fontWeight: 700, textAlign: 'center' }}>
                   Akcja
                 </Table.Th>
               </Table.Tr>
@@ -277,28 +277,32 @@ export function IdeasModerationQueue() {
                       </Group>
                     </Table.Td>
 
-                    <Table.Td style={{ minWidth: 160 }}>
-                      <Badge
-                        color={cfg.color}
-                        size="md"
-                        variant="filled"
-                        styles={accessibleBadgeStyles}
-                      >
-                        {cfg.label}
-                      </Badge>
+                    <Table.Td style={{ minWidth: 160, textAlign: 'center' }}>
+                      <Group justify="center">
+                        <Badge
+                          color={cfg.color}
+                          size="md"
+                          variant="filled"
+                          styles={accessibleBadgeStyles}
+                        >
+                          {cfg.label}
+                        </Badge>
+                      </Group>
                     </Table.Td>
 
-                    <Table.Td style={{ textAlign: 'right', minWidth: 150 }}>
-                      <Button
-                        size="sm"
-                        color="blue"
-                        variant="light"
-                        onClick={() => handleOpenDrawer(idea)}
-                        leftSection={<IconEdit size={16} aria-hidden="true" />}
-                        styles={{ root: { fontSize: '0.95rem', fontWeight: 600 } }}
-                      >
-                        Zmień status
-                      </Button>
+                    <Table.Td style={{ textAlign: 'center', minWidth: 150 }}>
+                      <Group justify="center">
+                        <Button
+                          size="sm"
+                          color="blue"
+                          variant="light"
+                          onClick={() => handleOpenDrawer(idea)}
+                          leftSection={<IconEdit size={16} aria-hidden="true" />}
+                          styles={{ root: { fontSize: '0.95rem', fontWeight: 600 } }}
+                        >
+                          Zmień status
+                        </Button>
+                      </Group>
                     </Table.Td>
                   </Table.Tr>
                 )

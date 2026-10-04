@@ -205,7 +205,7 @@ export function ChallengesCrud() {
                 <Table.Th scope="col">Tytuł wyzwania</Table.Th>
                 <Table.Th scope="col" style={{ textAlign: 'center' }}>Obszar problemowy</Table.Th>
                 <Table.Th scope="col" style={{ textAlign: 'center' }}>Gminy / Powiaty</Table.Th>
-                <Table.Th scope="col" style={{ textAlign: 'right' }}>Akcje</Table.Th>
+                <Table.Th scope="col" style={{ textAlign: 'center' }}>Akcje</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -238,8 +238,8 @@ export function ChallengesCrud() {
                     </Group>
                   </Table.Td>
 
-                  <Table.Td style={{ textAlign: 'right', minWidth: 200 }}>
-                    <Group gap="xs" justify="flex-end">
+                  <Table.Td style={{ textAlign: 'center', minWidth: 200 }}>
+                    <Group gap="xs" justify="center">
                       <Button
                         size="sm"
                         variant="light"
