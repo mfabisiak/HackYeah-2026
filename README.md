@@ -3,6 +3,10 @@
 > **Cyfrowe serce innowacji społecznych dla Województwa Małopolskiego**
 > Prototyp platformy opracowany w ramach wyzwania **Regionalnego Ośrodka Polityki Społecznej w Krakowie (ROPS)** na hackathonie **HackYeah 2026**.
 
+### 🚀 [Wypróbuj demo na żywo: mfabisiak.github.io/HackYeah-2026](https://mfabisiak.github.io/HackYeah-2026/)
+
+Demo działa w przeglądarce, bez serwera, na danych przykładowych. W menu konta (prawy górny róg) przełączysz się między użytkownikiem, ekspertem ROPS i administratorem. Szczegóły: [HubMI/docs/DEMO.md](HubMI/docs/DEMO.md).
+
 [![Kotlin Multiplatform](https://img.shields.io/badge/Kotlin-Multiplatform%202.4-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/)
 [![Ktor](https://img.shields.io/badge/Ktor-3.1-087CFA?logo=ktor&logoColor=white)](https://ktor.io/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
