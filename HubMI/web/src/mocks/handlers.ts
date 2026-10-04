@@ -340,4 +340,57 @@ export const handlers = [
       total: 1,
     })
   }),
+
+  // Admin Dashboard and Trends
+  http.get('/api/admin/summary', () => {
+    return HttpResponse.json({
+      submittedIdeas: 4,
+      pendingTestRequests: 2,
+      unmatchedNeedsThisWeek: 7,
+      pendingThreads: 3,
+    })
+  }),
+
+  http.get('/api/admin/trends', ({ request }) => {
+    const url = new URL(request.url)
+    const months = parseInt(url.searchParams.get('months') || '6', 10)
+    const allSeries = [
+      { month: '2026-05', count: 14 },
+      { month: '2026-06', count: 19 },
+      { month: '2026-07', count: 24 },
+      { month: '2026-08', count: 28 },
+      { month: '2026-09', count: 31 },
+      { month: '2026-10', count: 33 },
+    ]
+    const series = allSeries.slice(-Math.min(months, allSeries.length))
+    return HttpResponse.json({
+      byArea: [
+        { area: 'AGING', count: 42, previousCount: 35 },
+        { area: 'LONELINESS', count: 31, previousCount: 28 },
+        { area: 'MENTAL_HEALTH', count: 27, previousCount: 19 },
+        { area: 'SERVICE_ACCESS', count: 18, previousCount: 20 },
+        { area: 'DIGITAL_EXCLUSION', count: 15, previousCount: 9 },
+        { area: 'COORDINATION', count: 9, previousCount: 10 },
+        { area: 'DEPOPULATION', count: 7, previousCount: 4 },
+      ],
+      byMunicipality: [
+        { municipality: 'Kraków', count: 38 },
+        { municipality: 'Tarnów', count: 17 },
+        { municipality: 'Nowy Sącz', count: 14 },
+        { municipality: 'Wieliczka', count: 11 },
+        { municipality: 'Oświęcim', count: 9 },
+        { municipality: 'Zakopane', count: 6 },
+      ],
+      unmatchedNeeds: 22,
+      series,
+      topUnmatchedTerms: [
+        'opieka wytchnieniowa',
+        'tłumacz migowy',
+        'asystent osoby niesamodzielnej',
+        'transport door-to-door',
+        'psycholog dziecięcy weekend',
+      ],
+      privacyThreshold: 3,
+    })
+  }),
 ]

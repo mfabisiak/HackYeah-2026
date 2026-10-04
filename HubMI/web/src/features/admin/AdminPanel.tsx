@@ -12,6 +12,7 @@ import {
   IconMessageHeart,
   IconSparkles,
   IconShieldCheck,
+  IconTrendingUp,
 } from '@tabler/icons-react'
 import { useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -22,6 +23,7 @@ import { ContentManagement } from './ContentManagement'
 import { FeedbackModerationQueue } from './FeedbackModerationQueue'
 import { IdeasModerationQueue } from './IdeasModerationQueue'
 import { TestRequestsModerationQueue } from './TestRequestsModerationQueue'
+import { TrendsDashboard } from './TrendsDashboard'
 
 /** `admin` sees everything; `expert` is an official without content management (the panel is otherwise the same). */
 export type PanelMode = 'admin' | 'expert'
@@ -65,11 +67,13 @@ const SUBTAB_TO_MAIN: Record<string, 'tresci'> = {
 export function AdminPanel({ mode = 'admin' }: { mode?: PanelMode }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const rawTab = searchParams.get('tab') || 'wymaga-uwagi'
-  const canEditContent = mode === 'admin'
+  // Trends and content management are for the admin only.
+  const isAdmin = mode === 'admin'
   const text = PANEL_TEXT[mode]
 
   const requestedMainTab = rawTab in SUBTAB_TO_MAIN ? 'tresci' : rawTab
-  const resolvedMainTab = !canEditContent && requestedMainTab === 'tresci' ? 'wymaga-uwagi' : requestedMainTab
+  const resolvedMainTab =
+    !isAdmin && (requestedMainTab === 'tresci' || requestedMainTab === 'trendy') ? 'wymaga-uwagi' : requestedMainTab
   const resolvedSubTab =
     rawTab in SUBTAB_TO_MAIN ? (rawTab as 'innowacje' | 'wyzwania' | 'materialy') : 'innowacje'
 
@@ -78,7 +82,7 @@ export function AdminPanel({ mode = 'admin' }: { mode?: PanelMode }) {
 
   const handleTabChange = (val: string | null) => {
     if (val) {
-      if (val in SUBTAB_TO_MAIN && !canEditContent) return
+      if (!isAdmin && (val in SUBTAB_TO_MAIN || val === 'trendy')) return
       if (val in SUBTAB_TO_MAIN) {
         setActiveTab('tresci')
         setContentSubTab(val as 'innowacje' | 'wyzwania' | 'materialy')
@@ -152,7 +156,7 @@ export function AdminPanel({ mode = 'admin' }: { mode?: PanelMode }) {
               Zgłoszenia do testów
             </Tabs.Tab>
 
-            {canEditContent && (
+            {isAdmin && (
               <Tabs.Tab
                 value="tresci"
                 leftSection={<IconDatabase size={20} aria-hidden="true" />}
@@ -174,10 +178,19 @@ export function AdminPanel({ mode = 'admin' }: { mode?: PanelMode }) {
             >
               Plany adaptacji
             </Tabs.Tab>
+
+            {isAdmin && (
+              <Tabs.Tab
+                value="trendy"
+                leftSection={<IconTrendingUp size={20} aria-hidden="true" />}
+              >
+                Trendy i diagnoza
+              </Tabs.Tab>
+            )}
           </Tabs.List>
 
           <Tabs.Panel value="wymaga-uwagi" pt="xl">
-            <AdminSummaryOverview onNavigateTab={handleTabChange} canEditContent={canEditContent} />
+            <AdminSummaryOverview onNavigateTab={handleTabChange} canSeeTrends={isAdmin} />
           </Tabs.Panel>
 
           <Tabs.Panel value="pomysly" pt="xl">
@@ -188,7 +201,7 @@ export function AdminPanel({ mode = 'admin' }: { mode?: PanelMode }) {
             <TestRequestsModerationQueue />
           </Tabs.Panel>
 
-          {canEditContent && (
+          {isAdmin && (
             <Tabs.Panel value="tresci" pt="xl">
               <ContentManagement key={contentSubTab} initialSubTab={contentSubTab} />
             </Tabs.Panel>
@@ -201,6 +214,22 @@ export function AdminPanel({ mode = 'admin' }: { mode?: PanelMode }) {
           <Tabs.Panel value="plany" pt="xl">
             <AdaptationsReviewQueue />
           </Tabs.Panel>
+
+          {isAdmin && (
+            <Tabs.Panel value="trendy" pt="xl">
+              <TrendsDashboard
+                onNavigateTab={(tab, subTab) => {
+                  if (subTab) {
+                    setActiveTab(tab)
+                    setContentSubTab(subTab as 'innowacje' | 'wyzwania' | 'materialy')
+                    setSearchParams({ tab: subTab })
+                  } else {
+                    handleTabChange(tab)
+                  }
+                }}
+              />
+            </Tabs.Panel>
+          )}
         </Tabs>
       </Stack>
     </Container>

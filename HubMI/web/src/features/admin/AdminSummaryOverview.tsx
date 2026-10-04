@@ -31,11 +31,11 @@ import type { AdminSummaryJs } from 'hubmi-client'
 
 export interface AdminSummaryOverviewProps {
   onNavigateTab: (tab: string) => void
-  /** Whether the shortcut to the content tabs is offered; the expert panel has none. */
-  canEditContent?: boolean
+  /** Whether the shortcut to the trends is offered; trends are for the admin only. */
+  canSeeTrends?: boolean
 }
 
-export function AdminSummaryOverview({ onNavigateTab, canEditContent = true }: AdminSummaryOverviewProps) {
+export function AdminSummaryOverview({ onNavigateTab, canSeeTrends = true }: AdminSummaryOverviewProps) {
   const { login } = useAuth()
   const [summary, setSummary] = useState<AdminSummaryJs | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -366,13 +366,13 @@ export function AdminSummaryOverview({ onNavigateTab, canEditContent = true }: A
             <Text size="sm" c="dimmed" style={{ fontSize: '0.95rem' }}>
               Wyszukiwania mieszkańców, dla których nie znaleziono gotowego rozwiązania.
             </Text>
-            {canEditContent && (
+            {canSeeTrends && (
               <Button
                 variant="light"
-                color="gray"
+                color="orange"
                 size="md"
                 fullWidth
-                onClick={() => onNavigateTab('innowacje')}
+                onClick={() => onNavigateTab('trendy')}
                 rightSection={<IconArrowRight size={18} aria-hidden="true" />}
                 styles={{
                   root: {
@@ -386,7 +386,7 @@ export function AdminSummaryOverview({ onNavigateTab, canEditContent = true }: A
                   },
                 }}
               >
-                Uzupełnij bazę
+                Analiza trendów i luk
               </Button>
             )}
           </Stack>

@@ -58,3 +58,24 @@
   white-space: normal;
   text-align: center;
 }
+
+/* Table headers styling for light & dark themes */
+.mantine-Table-thead,
+table thead {
+  background-color: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6));
+}
+
+.mantine-Table-th,
+table th[scope='col'] {
+  color: light-dark(var(--mantine-color-dark-8), var(--mantine-color-gray-1));
+  font-weight: 700;
+  border-bottom: 2px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4)) !important;
+}
+
+[data-mantine-color-scheme='dark'] .mantine-Table-table,
+[data-mantine-color-scheme='dark'] table {
+  --table-striped-color: var(--mantine-color-dark-7);
+  --table-hover-color: var(--mantine-color-dark-5);
+  --table-border-color: var(--mantine-color-dark-4);
+}
+

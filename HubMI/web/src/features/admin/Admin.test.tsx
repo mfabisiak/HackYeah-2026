@@ -7,6 +7,7 @@ import { IdeasModerationQueue } from './IdeasModerationQueue'
 import { TestRequestsModerationQueue } from './TestRequestsModerationQueue'
 import { FeedbackModerationQueue } from './FeedbackModerationQueue'
 import { MaterialsCrud } from './MaterialsCrud'
+import { TrendsDashboard } from './TrendsDashboard'
 import { ContentManagement } from './ContentManagement'
 import { pluralizeSprawy } from './constants'
 import { AdminPage } from '../../pages/AdminPage'
@@ -18,10 +19,15 @@ import {
   AdminTestRequestJs,
   ApiErrorJs,
   ApiResult,
+  AreaTrendJs,
   IdeaJs,
   MaterialJs,
+  MonthlyTrendPointJs,
+  MunicipalityTrendJs,
   PageJs,
+  TrendsJs,
 } from 'hubmi-client'
+import { axe } from 'vitest-axe'
 
 let mockAuth = {
   ready: true,
@@ -133,6 +139,43 @@ const mockMaterialsPage: PageJs<MaterialJs> = {
   size: 10,
 }
 
+const mockTrends: TrendsJs = new TrendsJs(
+  [
+    new AreaTrendJs('AGING', 42, 35),
+    new AreaTrendJs('LONELINESS', 31, 28),
+    new AreaTrendJs('MENTAL_HEALTH', 27, 19),
+    new AreaTrendJs('SERVICE_ACCESS', 18, 20),
+    new AreaTrendJs('DIGITAL_EXCLUSION', 15, 9),
+    new AreaTrendJs('COORDINATION', 9, 10),
+    new AreaTrendJs('DEPOPULATION', 7, 4),
+  ],
+  [
+    new MunicipalityTrendJs('Kraków', 38),
+    new MunicipalityTrendJs('Tarnów', 17),
+    new MunicipalityTrendJs('Nowy Sącz', 14),
+    new MunicipalityTrendJs('Wieliczka', 11),
+    new MunicipalityTrendJs('Oświęcim', 9),
+    new MunicipalityTrendJs('Zakopane', 6),
+  ],
+  22,
+  [
+    new MonthlyTrendPointJs('2026-05', 14),
+    new MonthlyTrendPointJs('2026-06', 19),
+    new MonthlyTrendPointJs('2026-07', 24),
+    new MonthlyTrendPointJs('2026-08', 28),
+    new MonthlyTrendPointJs('2026-09', 31),
+    new MonthlyTrendPointJs('2026-10', 33),
+  ],
+  [
+    'opieka wytchnieniowa',
+    'tłumacz migowy',
+    'asystent osoby niesamodzielnej',
+    'transport door-to-door',
+    'psycholog dziecięcy weekend',
+  ],
+  3,
+)
+
 describe('Panel administratora: moderacja i zarządzanie treścią (FE-08)', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
@@ -182,7 +225,8 @@ describe('Panel administratora: moderacja i zarządzanie treścią (FE-08)', () 
       expect(screen.getByRole('tab', { name: /Kolejka pomysłów/i })).toBeInTheDocument()
       expect(screen.getByRole('tab', { name: /Plany adaptacji/i })).toBeInTheDocument()
       expect(screen.queryByRole('tab', { name: /Zarządzanie treścią/i })).not.toBeInTheDocument()
-      expect(screen.queryByRole('button', { name: /Uzupełnij bazę/i })).not.toBeInTheDocument()
+      expect(screen.queryByRole('tab', { name: /Trendy i diagnoza/i })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /Analiza trendów i luk/i })).not.toBeInTheDocument()
     })
 
     it('blokuje panel eksperta zwykłemu użytkownikowi', () => {
@@ -523,6 +567,168 @@ describe('Panel administratora: moderacja i zarządzanie treścią (FE-08)', () 
       expect(
         screen.getByRole('tab', { name: /Materiały i publikacje edukacyjne/i }),
       ).toBeInTheDocument()
+    })
+  })
+
+  describe('Trendy i diagnoza (TrendsDashboard - FE-09)', () => {
+    it('prezentuje pełny dashboard trendów z kluczowymi KPI, obszarami, osią czasu i gminami', async () => {
+      vi.spyOn(hubApi.admin, 'trends').mockResolvedValue(new ApiResult(mockTrends, null))
+
+      renderWithProviders(<TrendsDashboard />)
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole('heading', { level: 2, name: /Analiza trendów i diagnoza potrzeb społecznych/i }),
+        ).toBeInTheDocument()
+      })
+
+      // KPI cards
+      expect(screen.getByText('149')).toBeInTheDocument()
+      expect(screen.getByText('22')).toBeInTheDocument()
+      expect(screen.getByText('6')).toBeInTheDocument()
+
+      // Areas (matching SOCIAL_AREA_NAMES)
+      expect(screen.getAllByText('Wsparcie seniorów i osób starszych').length).toBeGreaterThan(0)
+      expect(screen.getAllByText('Przeciwdziałanie samotności i integracja').length).toBeGreaterThan(0)
+      expect(screen.getAllByText('Zdrowie psychiczne i samopoczucie').length).toBeGreaterThan(0)
+      expect(screen.getByText('+20%')).toBeInTheDocument()
+
+      // Timeline
+      expect(screen.getAllByText('2026-05').length).toBeGreaterThan(0)
+      expect(screen.getAllByText('2026-10').length).toBeGreaterThan(0)
+
+      // Municipalities
+      expect(screen.getAllByText('Kraków').length).toBeGreaterThan(0)
+      expect(screen.getAllByText('Tarnów').length).toBeGreaterThan(0)
+      expect(screen.getAllByText('Wieliczka').length).toBeGreaterThan(0)
+
+      // Top unmatched terms
+      expect(screen.getByText(/opieka wytchnieniowa/i)).toBeInTheDocument()
+      expect(screen.getByText(/tłumacz migowy/i)).toBeInTheDocument()
+    })
+
+    it('pozwala przełączyć widok na tryb dostępności (tylko tabele)', async () => {
+      vi.spyOn(hubApi.admin, 'trends').mockResolvedValue(new ApiResult(mockTrends, null))
+
+      renderWithProviders(<TrendsDashboard />)
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole('heading', { level: 2, name: /Analiza trendów i diagnoza potrzeb społecznych/i }),
+        ).toBeInTheDocument()
+      })
+
+      const tableModeBtn = screen.getByText('Tylko tabela')
+      fireEvent.click(tableModeBtn)
+
+      expect(
+        screen.getByRole('table', { name: /Tabela potrzeb według obszarów społecznych/i }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('table', { name: /Tabela dynamiki zgłoszeń w czasie/i }),
+      ).toBeInTheDocument()
+    })
+
+    it('reaguje na zmianę horyzontu czasowego (parametr months)', async () => {
+      const trendsSpy = vi.spyOn(hubApi.admin, 'trends').mockResolvedValue(new ApiResult(mockTrends, null))
+
+      renderWithProviders(<TrendsDashboard />)
+
+      await waitFor(() => {
+        expect(trendsSpy).toHaveBeenCalledWith(6)
+      })
+
+      const periodSelect = screen.getByRole('combobox', { name: /Okres analizy/i })
+      fireEvent.click(periodSelect)
+
+      const option12 = screen.getByRole('option', { name: /Ostatni rok/i, hidden: true })
+      fireEvent.click(option12)
+
+      await waitFor(() => {
+        expect(trendsSpy).toHaveBeenCalledWith(12)
+      })
+    })
+
+    it('umożliwia szybkie przejście do formularza dodawania nowej innowacji dla wykrytej luki', async () => {
+      vi.spyOn(hubApi.admin, 'trends').mockResolvedValue(new ApiResult(mockTrends, null))
+      const onNavigate = vi.fn()
+
+      renderWithProviders(<TrendsDashboard onNavigateTab={onNavigate} />)
+
+      await waitFor(() => {
+        expect(screen.getByText(/opieka wytchnieniowa/i)).toBeInTheDocument()
+      })
+
+      const addButtons = screen.getAllByRole('button', { name: /Dodaj nową innowację odpowiadającą na potrzebę/i })
+      fireEvent.click(addButtons[0])
+
+      expect(onNavigate).toHaveBeenCalledWith('tresci', 'innowacje')
+    })
+
+    it('obsługuje błąd API i umożliwia ponowienie zapytania', async () => {
+      vi.spyOn(hubApi.admin, 'trends')
+        .mockResolvedValueOnce(new ApiResult<TrendsJs>(null, new ApiErrorJs(500, 'ERROR', 'Błąd pobierania trendów')))
+        .mockResolvedValueOnce(new ApiResult(mockTrends, null))
+
+      renderWithProviders(<TrendsDashboard />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toBeInTheDocument()
+      })
+
+      const retryBtn = screen.getByRole('button', { name: /Spróbuj ponownie/i })
+      fireEvent.click(retryBtn)
+
+      await waitFor(() => {
+        expect(screen.getAllByText('Wsparcie seniorów i osób starszych')[0]).toBeInTheDocument()
+      })
+    })
+
+    it('jest zgodny z WCAG 2.1 AA (brak naruszeń dostępności axe)', async () => {
+      vi.spyOn(hubApi.admin, 'trends').mockResolvedValue(new ApiResult(mockTrends, null))
+
+      const { container } = renderWithProviders(<TrendsDashboard />)
+
+      await waitFor(() => {
+        expect(screen.getAllByText('Wsparcie seniorów i osób starszych')[0]).toBeInTheDocument()
+      })
+
+      expect(await axe(container)).toHaveNoViolations()
+    })
+
+    it('przycisk w AdminSummaryOverview prowadzi bezpośrednio do zakładki trendy', async () => {
+      vi.spyOn(hubApi.admin, 'summary').mockResolvedValue(new ApiResult(mockSummary, null))
+      const onNavigate = vi.fn()
+
+      renderWithProviders(<AdminSummaryOverview onNavigateTab={onNavigate} />)
+
+      await waitFor(() => {
+        expect(screen.getByText(/Luki w bazie/i)).toBeInTheDocument()
+      })
+
+      const trendsBtn = screen.getByRole('button', { name: 'Analiza trendów i luk' })
+      fireEvent.click(trendsBtn)
+
+      expect(onNavigate).toHaveBeenCalledWith('trendy')
+    })
+
+    it('zakładka Trendy i diagnoza jest widoczna i przełącza widok w AdminPage', async () => {
+      vi.spyOn(hubApi.admin, 'summary').mockResolvedValue(new ApiResult(mockSummary, null))
+      vi.spyOn(hubApi.admin, 'trends').mockResolvedValue(new ApiResult(mockTrends, null))
+
+      renderWithProviders(<AdminPage />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('tab', { name: /Trendy i diagnoza/i })).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByRole('tab', { name: /Trendy i diagnoza/i }))
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole('heading', { level: 2, name: /Analiza trendów i diagnoza potrzeb społecznych/i }),
+        ).toBeInTheDocument()
+      })
     })
   })
 })

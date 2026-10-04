@@ -8,3 +8,5 @@ export * from './ContentManagement'
 export * from './InnovationsCrud'
 export * from './ChallengesCrud'
 export * from './MaterialsCrud'
+export * from './TrendsDashboard'
+

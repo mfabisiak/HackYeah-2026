@@ -33,3 +33,7 @@ Object.defineProperty(document, 'fonts', {
   writable: true,
   value: { addEventListener: () => {}, removeEventListener: () => {} },
 })
+
+// Mock HTMLElement.prototype.scrollIntoView for Mantine Combobox
+window.HTMLElement.prototype.scrollIntoView = function () {}
+
