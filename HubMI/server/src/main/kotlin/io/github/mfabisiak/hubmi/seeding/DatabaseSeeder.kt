@@ -34,6 +34,9 @@ import java.time.temporal.ChronoUnit
 
 private const val SEED_USER_ID = "c0000000-0000-0000-0000-000000000001"
 
+/** Invented demo innovations (the matching-quality fixture) and ROPS' Social Innovation Library. */
+private val INNOVATION_SEED_FILES = listOf("seed/innovations.json", "seed/rops-innovations.json")
+
 @Serializable
 data class SeedSampleItem(
     val slug: String,
@@ -121,7 +124,7 @@ class DatabaseSeeder(
     }
 
     private suspend fun seedInnovations(now: String) {
-        val seedItems = loadFromResource<SeedInnovationItem>("seed/innovations.json")
+        val seedItems = INNOVATION_SEED_FILES.flatMap { loadFromResource<SeedInnovationItem>(it) }
         seedItems.forEach { item ->
             database.innovations.updateOne(
                 Filters.eq(InnovationItem::id, seedObjectId(item.slug)),

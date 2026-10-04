@@ -88,8 +88,8 @@ class DatabaseSeederTest {
 
             val innovationsCount1 = database.innovations.countDocuments()
             assertTrue(
-                innovationsCount1 in 30L..50L,
-                "Innovations count should be between 30 and 50 (got $innovationsCount1)",
+                innovationsCount1 >= 150L,
+                "Innovations count should be at least 150: 36 demo + the ROPS library (got $innovationsCount1)",
             )
 
             val challengesCount1 = database.challenges.countDocuments()
@@ -120,16 +120,24 @@ class DatabaseSeederTest {
                 assertTrue(stage in coveredStages, "InnovationStage $stage should be covered in seeded innovations")
             }
 
-            // Every seeded innovation carries the narrative sections of ROPS' application form
+            // Every seeded innovation has the diagnosis and audience sections of ROPS' application form;
+            // the invented demo set carries all five (the ROPS library has no innovativeness / future vision)
             allInnovations.forEach { item ->
-                listOf(
-                    item.innovativeness,
-                    item.problemDiagnosis,
-                    item.audienceDescription,
-                    item.expectedChange,
-                    item.futureVision,
-                ).forEach { section -> assertTrue(!section.isNullOrBlank(), "Missing section in ${item.title}") }
+                listOf(item.problemDiagnosis, item.audienceDescription).forEach { section ->
+                    assertTrue(!section.isNullOrBlank(), "Missing section in ${item.title}")
+                }
             }
+            val withAllSections =
+                allInnovations.count { item ->
+                    listOf(
+                        item.innovativeness,
+                        item.problemDiagnosis,
+                        item.audienceDescription,
+                        item.expectedChange,
+                        item.futureVision,
+                    ).all { !it.isNullOrBlank() }
+                }
+            assertTrue(withAllSections >= 36, "Demo innovations should carry every section (got $withAllSections)")
 
             // Second run (idempotent upsert)
             val result2 = seeder.seedIfNeeded()

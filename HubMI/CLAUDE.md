@@ -108,7 +108,8 @@ common/mongo/ infrastruktura Mongo: `MongoRepository` (klient), `SoftDeleteRepos
 common/http/  mapowanie `DomainError` → odpowiedź HTTP (`respondError`, `respondEither`…)
 config/       AppConfig – konfiguracja z env (data class, bez globalnych singletonów)
 plugins/      konfiguracja Ktor: Koin, Serialization, Indexes
-seeding/      dane przykładowe (żadnych prawdziwych danych osobowych!)
+seeding/      dane przykładowe (żadnych prawdziwych danych osobowych!); pliki w `resources/seed/`, format i skrypt
+                odświeżający bibliotekę ROPS (`scripts/scrape_rops.py`): `resources/seed/README.md`
 di/           moduły Koin
 ```
 
