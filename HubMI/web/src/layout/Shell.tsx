@@ -4,12 +4,13 @@ import {
   Button,
   Container,
   Group,
+  Menu,
   Text,
   Title,
   useComputedColorScheme,
   useMantineColorScheme,
 } from '@mantine/core'
-import { IconMoon, IconSun } from '@tabler/icons-react'
+import { IconCheck, IconChevronDown, IconMoon, IconSun } from '@tabler/icons-react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useRef } from 'react'
 import { resetMockHubData } from 'hubmi-client'
@@ -35,7 +36,7 @@ const accountLinks = [
 ]
 
 export function Shell() {
-  const { ready, authenticated, username, login, logout, hasRole } = useAuth()
+  const { ready, authenticated, username, login, logout, hasRole, demo } = useAuth()
   const navLinks = [
     ...contentLinks,
     ...(authenticated
@@ -80,7 +81,12 @@ export function Shell() {
               </Group>
             </nav>
             <Group gap="sm">
-              {ready && authenticated ? (
+              {demo ? (
+                <>
+                  {authenticated && <NotificationBell />}
+                  <DemoAccountMenu />
+                </>
+              ) : ready && authenticated ? (
                 <>
                   <NotificationBell />
                   <Text span>Zalogowano: {username}</Text>
@@ -143,5 +149,46 @@ function DemoNotice() {
         </Group>
       </Alert>
     </Container>
+  )
+}
+
+/** In the demo there is no Keycloak: one picks the role to sign in as, and can switch to another any time. */
+function DemoAccountMenu() {
+  const { authenticated, logout, demo } = useAuth()
+  if (!demo) return null
+
+  return (
+    <Menu position="bottom-end" withinPortal>
+      <Menu.Target>
+        <Button variant={authenticated ? 'default' : 'filled'} rightSection={<IconChevronDown aria-hidden size={16} />}>
+          {authenticated ? `Zalogowano: ${demo.current.username} (${demo.current.label})` : 'Zaloguj się jako…'}
+        </Button>
+      </Menu.Target>
+      <Menu.Dropdown>
+        <Menu.Label>{authenticated ? 'Zmień konto demo' : 'Wybierz konto demo'}</Menu.Label>
+        {demo.accounts.map((account) => {
+          const isCurrent = authenticated && account.role === demo.current.role
+          return (
+            <Menu.Item
+              key={account.role}
+              onClick={() => demo.signInAs(account.role)}
+              rightSection={isCurrent ? <IconCheck aria-hidden size={16} /> : undefined}
+              aria-current={isCurrent ? 'true' : undefined}
+            >
+              {account.label}
+              <Text size="xs" c="dimmed">
+                {account.username}
+              </Text>
+            </Menu.Item>
+          )
+        })}
+        {authenticated && (
+          <>
+            <Menu.Divider />
+            <Menu.Item onClick={logout}>Wyloguj</Menu.Item>
+          </>
+        )}
+      </Menu.Dropdown>
+    </Menu>
   )
 }

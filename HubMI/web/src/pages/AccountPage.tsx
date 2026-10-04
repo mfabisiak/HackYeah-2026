@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { toFriendlyErrorMessage } from '../api/errors'
 import { hubApi } from '../api/hubApi'
 import { useAuth } from '../auth/AuthContext'
-import { keycloak } from '../auth/keycloak'
+import { MOCK_MODE, keycloak } from '../auth/keycloak'
 import { PageHeader } from '../components/PageHeader'
 import { LoadingState } from '../components/LoadingState'
 import { ErrorAlert } from '../components/ErrorAlert'
@@ -22,7 +22,7 @@ type State =
   | { kind: 'error'; message: string }
 
 export function AccountPage() {
-  const { ready, authenticated, login } = useAuth()
+  const { ready, authenticated, username, login } = useAuth()
   const [state, setState] = useState<State>({ kind: 'loading' })
 
   useEffect(() => {
@@ -31,7 +31,8 @@ export function AccountPage() {
 
     const loadMe = async () => {
       // If token is expired or about to expire in the next 10s, attempt refresh
-      if (typeof keycloak.isTokenExpired === 'function' && keycloak.isTokenExpired(10)) {
+      // The demo has no Keycloak session to renew (and the Keycloak adapter throws when it was never initialised).
+      if (!MOCK_MODE && typeof keycloak.isTokenExpired === 'function' && keycloak.isTokenExpired(10)) {
         try {
           await keycloak.updateToken(30)
         } catch {
@@ -106,7 +107,8 @@ export function AccountPage() {
     return () => {
       cancelled = true
     }
-  }, [authenticated])
+  // The username changes when the demo switches the account.
+  }, [authenticated, username])
 
   if (!ready) return <LoadingState message="Ładowanie informacji o profilu..." />
 

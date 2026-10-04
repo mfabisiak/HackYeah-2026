@@ -13,8 +13,9 @@ Ta sama aplikacja React, ale zamiast serwera odpowiada **mock `HubApi`** napisan
 - **Zapis**: każda zmiana (pomysł, ocena, zgłoszenie testów, wniosek, wiadomość, decyzja admina) ląduje w `localStorage`
   przeglądarki pod kluczem `hubmi.demo.db.v1`. Przeładowanie strony nic nie gubi, a każdy odwiedzający ma własne dane.
   Przycisk „Przywróć dane początkowe” w banerze demo czyści ten stan.
-- **Użytkownik**: stały `jan.kowalski` z rolami `user` i `admin`, więc widać też panel admina. „Wyloguj” i „Zaloguj się”
-  przełączają tylko stan w aplikacji.
+- **Konta**: trzy, po jednym na rolę z realmu (użytkownik, ekspert, administrator). Wybiera się je w menu w nagłówku
+  („Zaloguj się jako…” / „Zmień konto demo”); wybór pamięta `localStorage`. Konta widzą te same dane, a to, co kto może
+  zobaczyć (np. panel admina), rozstrzyga interfejs: mock niczego nie odmawia.
 - **„AI”** jest atrapą: asystent i Middleman składają odpowiedź z szablonów (podobne innowacje liczy prawdziwy, prosty
   silnik po rdzeniach słów) i strumieniują ją z opóźnieniem, jak prawdziwy model. Odpowiedzi są podpisane jako generowane.
 - Mock nie sprawdza uprawnień i nie replikuje wszystkich walidacji serwera; to demo, nie zastępstwo backendu.

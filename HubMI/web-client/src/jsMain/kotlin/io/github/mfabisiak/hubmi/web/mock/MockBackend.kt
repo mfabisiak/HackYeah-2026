@@ -15,6 +15,7 @@ import io.github.mfabisiak.hubmi.web.toJs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.js.Date
 import kotlin.js.Promise
 import kotlin.random.Random
@@ -26,8 +27,18 @@ private const val DAY_MS = 86_400_000.0
 /** Runs the calls of the demo: every answer arrives after a short delay, as a failure or a value, never as an exception. */
 internal class MockBackend(
     val store: MockStore,
+    initialAccount: DemoAccount,
     private val scope: CoroutineScope = MainScope(),
 ) {
+    private val signedIn = MutableStateFlow(initialAccount)
+
+    val account: DemoAccount get() = signedIn.value
+
+    fun signIn(account: DemoAccount) {
+        signedIn.value = account
+        saveAccount(account)
+    }
+
     fun <T> respond(block: suspend Raise<ApiErrorJs>.() -> T): Promise<ApiResult<T>> =
         scope.promiseResult {
             delay(LATENCY_MS)

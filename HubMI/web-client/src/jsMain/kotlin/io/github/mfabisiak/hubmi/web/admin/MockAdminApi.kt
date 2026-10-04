@@ -43,7 +43,7 @@ private const val WEEK_DAYS = 7
 private const val MONTHS_IN_YEAR = 12
 private const val MAX_MONTHS = 24
 
-/** The admin side of the demo. Anyone can use it: the demo user holds both roles, so nothing is refused. */
+/** The admin side of the demo; the interface decides who gets to see it, the mock refuses nobody. */
 internal class MockAdminApi(
     private val backend: MockBackend,
 ) : AdminApi {

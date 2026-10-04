@@ -1,6 +1,5 @@
 package io.github.mfabisiak.hubmi.web.mock
 
-import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.web.ApiResult
 import io.github.mfabisiak.hubmi.web.HealthJs
 import io.github.mfabisiak.hubmi.web.HubApi
@@ -31,13 +30,51 @@ import io.github.mfabisiak.hubmi.web.messaging.NotificationsApi
 import io.github.mfabisiak.hubmi.web.messaging.ThreadsApi
 import kotlin.js.Promise
 
+/** [HubApi] of the demo, which also lets the visitor choose whom to sign in as. */
+@JsExport
+interface DemoHubApi : HubApi {
+    /** The accounts of the demo, one per role. */
+    fun accounts(): Array<DemoAccountJs>
+
+    /** The account the demo is signed in as; it is remembered across reloads. */
+    fun currentAccount(): DemoAccountJs
+
+    /** Signs in as the account of the given `Role` name (`USER`, `EXPERT` or `ADMIN`); `null` for any other name. */
+    fun signInAs(role: String): DemoAccountJs?
+}
+
+@JsExport
+class DemoAccountJs(
+    /** `Role` name of the account. */
+    val role: String,
+    /** What to call the role in the interface, e.g. "Administrator". */
+    val label: String,
+    val username: String,
+    val email: String,
+    /** Keycloak names of the roles the account holds. */
+    val roles: Array<String>,
+)
+
+private fun DemoAccount.toJs(): DemoAccountJs =
+    DemoAccountJs(name, label, username, "$username@example.com", roles.map { it.keycloakName }.toTypedArray())
+
 /**
- * The demo backend: answers from data kept in the browser (see [MockStore]), signed in as one user who is both a
- * regular user and an admin. Nothing leaves the page.
+ * The demo backend: answers from data kept in the browser (see [MockStore]) and signs in as one of three accounts that
+ * share that data. Nothing leaves the page, and nothing is refused: what each role may see is up to the interface.
  */
 internal class MockHubApi(
     private val backend: MockBackend,
-) : HubApi {
+) : DemoHubApi {
+    override fun accounts(): Array<DemoAccountJs> = DemoAccount.entries.map { it.toJs() }.toTypedArray()
+
+    override fun currentAccount(): DemoAccountJs = backend.account.toJs()
+
+    override fun signInAs(role: String): DemoAccountJs? {
+        val account = DemoAccount.entries.firstOrNull { it.name == role }
+        account?.let(backend::signIn)
+        return account?.toJs()
+    }
+
     override val innovations: InnovationsApi = MockInnovationsApi(backend)
     override val challenges: ChallengesApi = MockChallengesApi(backend)
     override val materials: MaterialsApi = MockMaterialsApi(backend)
@@ -53,15 +90,7 @@ internal class MockHubApi(
 
     override fun health(): Promise<ApiResult<HealthJs>> = backend.respond { HealthJs("UP") }
 
-    override fun me(): Promise<ApiResult<MeJs>> =
-        backend.respond {
-            MeJs(
-                DEMO_USER_ID,
-                DEMO_USER_NAME,
-                DEMO_USER_EMAIL,
-                arrayOf(Role.USER.keycloakName, Role.ADMIN.keycloakName),
-            )
-        }
+    override fun me(): Promise<ApiResult<MeJs>> = backend.respond { backend.account.toMe() }
 }
 
 /**
@@ -69,7 +98,8 @@ internal class MockHubApi(
  * the visitor adds is kept in the browser's `localStorage`.
  */
 @JsExport
-fun createMockHubApi(): HubApi = MockHubApi(MockBackend(MockStore(readSavedDb() ?: DemoSeed.initial())))
+fun createMockHubApi(): DemoHubApi =
+    MockHubApi(MockBackend(MockStore(readSavedDb() ?: DemoSeed.initial()), readSavedAccount()))
 
 /** Forgets what the demo has saved in this browser; the next [createMockHubApi] starts from the seed again. */
 @JsExport

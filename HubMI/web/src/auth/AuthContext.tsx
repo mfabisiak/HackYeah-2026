@@ -1,4 +1,7 @@
+import { useQueryClient } from '@tanstack/react-query'
+import type { DemoAccountJs } from 'hubmi-client'
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { demoApi } from '../api/hubApi'
 import { clearIdeaLocalData } from '../features/ideas/localData'
 import { MOCK_MODE, clearAuthSession, initKeycloak, keycloak } from './keycloak'
 
@@ -10,17 +13,21 @@ export interface AuthState {
   hasRole: (role: string) => boolean
   login: () => void
   logout: () => void
+  /** Demo only: the accounts one can sign in as, the signed-in one and the way to switch (`Role` name). */
+  demo?: {
+    accounts: DemoAccountJs[]
+    current: DemoAccountJs
+    signInAs: (role: string) => void
+  }
 }
-
-const MOCK_USERNAME = 'jan.kowalski'
-/** The demo user can see everything, the admin panel included. */
-const MOCK_ROLES = ['user', 'admin']
 
 const AuthContext = createContext<AuthState | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(MOCK_MODE)
   const [authenticated, setAuthenticated] = useState(MOCK_MODE)
+  const [account, setAccount] = useState(() => demoApi?.currentAccount())
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     if (MOCK_MODE) return
@@ -53,16 +60,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const roles = useMemo<string[]>(() => {
     if (!authenticated) return []
-    if (MOCK_MODE) return MOCK_ROLES
+    if (account) return Array.from(account.roles)
     const realmRoles = (keycloak.tokenParsed?.realm_access?.roles as string[] | undefined) ?? []
     return realmRoles
-  }, [authenticated])
+  }, [authenticated, account])
 
   const value = useMemo<AuthState>(
     () => ({
       ready,
       authenticated,
-      username: MOCK_MODE ? MOCK_USERNAME : (keycloak.tokenParsed?.preferred_username as string | undefined),
+      username: account ? account.username : (keycloak.tokenParsed?.preferred_username as string | undefined),
       roles,
       hasRole: (role: string) => roles.includes(role) || (typeof keycloak.hasRealmRole === 'function' ? keycloak.hasRealmRole(role) : false),
       login: () => {
@@ -77,8 +84,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (MOCK_MODE) setAuthenticated(false)
         else void keycloak.logout({ redirectUri: window.location.origin })
       },
+      demo:
+        demoApi && account
+          ? {
+              accounts: Array.from(demoApi.accounts()),
+              current: account,
+              signInAs: (role: string) => {
+                const next = demoApi?.signInAs(role)
+                if (!next) return
+                // What was fetched for the previous account must not be shown to the next one.
+                queryClient.clear()
+                setAccount(next)
+                setAuthenticated(true)
+              },
+            }
+          : undefined,
     }),
-    [ready, authenticated, roles],
+    [ready, authenticated, roles, account, queryClient],
   )
 
   return <AuthContext value={value}>{children}</AuthContext>

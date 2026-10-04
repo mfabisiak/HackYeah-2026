@@ -15,10 +15,9 @@ import io.github.mfabisiak.hubmi.api.SocialArea
 import io.github.mfabisiak.hubmi.api.ThreadDto
 import kotlinx.serialization.Serializable
 
-/** The only signed-in user of the demo. */
+/** The user the demo's data belongs to; whichever account is signed in sees it as its own. */
 internal const val DEMO_USER_ID = "demo-user"
 internal const val DEMO_USER_NAME = "jan.kowalski"
-internal const val DEMO_USER_EMAIL = "jan.kowalski@example.com"
 internal const val DEMO_AUTHOR_NAME = "Jan Kowalski"
 internal const val ROPS_TEAM_NAME = "Zespół Hubu Innowacji"
 

@@ -8,7 +8,6 @@ import io.github.mfabisiak.hubmi.api.ThreadDto
 import io.github.mfabisiak.hubmi.web.ApiResult
 import io.github.mfabisiak.hubmi.web.EmptyJs
 import io.github.mfabisiak.hubmi.web.PageJs
-import io.github.mfabisiak.hubmi.web.mock.DEMO_AUTHOR_NAME
 import io.github.mfabisiak.hubmi.web.mock.MockBackend
 import io.github.mfabisiak.hubmi.web.mock.MockThread
 import io.github.mfabisiak.hubmi.web.mock.ROPS_TEAM_NAME
@@ -55,6 +54,7 @@ internal class MockThreadsApi(
                     blank("message").takeIf { message.isBlank() },
                 )
             ensure(errors.isEmpty()) { invalid(*errors.toTypedArray()) }
+            val author = backend.account
             val sentAt = nowIso()
             val thread =
                 MockThread(
@@ -63,8 +63,8 @@ internal class MockThreadsApi(
                         listOf(
                             MessageDto(
                                 newId("wiadomosc"),
-                                DEMO_AUTHOR_NAME,
-                                ParticipantRole.AUTHOR,
+                                author.displayName,
+                                author.participantRole,
                                 message.trim(),
                                 sentAt,
                             ),
@@ -106,8 +106,9 @@ internal class MockThreadsApi(
         backend.respond {
             ensure(text.isNotBlank()) { invalid(blank("text")) }
             ensure(store.db.threads.any { it.thread.id == threadId }) { notFound("wątek $threadId") }
+            val author = backend.account
             val message =
-                MessageDto(newId("wiadomosc"), DEMO_AUTHOR_NAME, ParticipantRole.AUTHOR, text.trim(), nowIso())
+                MessageDto(newId("wiadomosc"), author.displayName, author.participantRole, text.trim(), nowIso())
             store.update { db ->
                 db.copy(
                     threads =

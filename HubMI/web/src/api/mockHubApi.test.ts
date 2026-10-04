@@ -80,4 +80,19 @@ describe('createMockHubApi', () => {
     expect(result.value?.aiStatus).toBe('NOT_REQUESTED')
     expect(result.value?.similar.length).toBeGreaterThan(0)
   })
+
+  it('signs in as each role and remembers the account across reloads', async () => {
+    const api = createMockHubApi()
+
+    const admin = api.signInAs('ADMIN')
+    const me = await api.me()
+    expect(Array.from(api.accounts()).map((account) => account.role)).toEqual(['USER', 'EXPERT', 'ADMIN'])
+    expect(admin?.roles).toContain('admin')
+    expect(me.value?.username).toBe(admin?.username)
+
+    expect(createMockHubApi().currentAccount().role).toBe('ADMIN')
+    expect(api.signInAs('NOBODY')).toBeNull()
+    expect(api.currentAccount().role).toBe('ADMIN')
+    expect(Array.from(api.signInAs('USER')?.roles ?? [])).toEqual(['user'])
+  })
 })
