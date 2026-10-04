@@ -262,6 +262,13 @@ class IdeaRouteTest {
                 }
             assertEquals(HttpStatusCode.OK, expertGet.status)
 
+            // Expert can list all ideas for review via AdminIdeas
+            val expertList =
+                client.get(AdminIdeas()) {
+                    header(HttpHeaders.Authorization, "Bearer $expertToken")
+                }
+            assertEquals(HttpStatusCode.OK, expertList.status)
+
             // Invalid id format gets 400 Bad Request
             val invalidIdGet =
                 client.get(Ideas.ById(id = "not-an-objectid")) {

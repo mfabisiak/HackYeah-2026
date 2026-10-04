@@ -106,7 +106,7 @@ class ThreadService(
         either {
             val pageRequest = validatePageRequest(page, size).bind()
             val threadsPage =
-                if (Role.ADMIN in callerRoles) {
+                if (Role.ADMIN in callerRoles || Role.EXPERT in callerRoles) {
                     threadRepository.findAll(pageRequest)
                 } else {
                     threadRepository.findByParticipant(callerId, pageRequest)
@@ -137,7 +137,7 @@ class ThreadService(
                     DomainError.NotFound("Nie znaleziono wątku o id: $threadIdString")
                 }
 
-            val canAccess = thread.ownerId == callerId || callerId in thread.participantIds || Role.ADMIN in callerRoles
+            val canAccess = thread.ownerId == callerId || callerId in thread.participantIds || Role.ADMIN in callerRoles || Role.EXPERT in callerRoles
             ensure(canAccess) {
                 DomainError.NotFound("Nie znaleziono wątku o id: $threadIdString")
             }
@@ -174,7 +174,7 @@ class ThreadService(
                     DomainError.NotFound("Nie znaleziono wątku o id: $threadIdString")
                 }
 
-            val canAccess = thread.ownerId == callerId || callerId in thread.participantIds || Role.ADMIN in callerRoles
+            val canAccess = thread.ownerId == callerId || callerId in thread.participantIds || Role.ADMIN in callerRoles || Role.EXPERT in callerRoles
             ensure(canAccess) {
                 DomainError.NotFound("Nie znaleziono wątku o id: $threadIdString")
             }

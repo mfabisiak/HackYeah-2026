@@ -7,6 +7,7 @@ import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.UpdateIdeaStatusRequest
 import io.github.mfabisiak.hubmi.auth.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.auth.currentUser
+import io.github.mfabisiak.hubmi.auth.requireAnyRole
 import io.github.mfabisiak.hubmi.auth.requireRole
 import io.github.mfabisiak.hubmi.common.http.respondEither
 import io.ktor.http.*
@@ -47,13 +48,15 @@ fun Route.ideaRoutes() {
             }
         }
 
-        requireRole(Role.ADMIN) {
+        requireAnyRole(Role.ADMIN, Role.EXPERT) {
             get<AdminIdeas> { params ->
                 respondEither {
                     ideaService.listForAdmin(params.status, params.page, params.size).bind()
                 }
             }
+        }
 
+        requireRole(Role.ADMIN) {
             patch<AdminIdeas.Status> { params ->
                 respondEither {
                     val request = call.receive<UpdateIdeaStatusRequest>()

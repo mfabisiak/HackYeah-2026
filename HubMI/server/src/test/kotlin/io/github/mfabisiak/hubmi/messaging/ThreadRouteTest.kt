@@ -30,6 +30,7 @@ import kotlin.test.*
 class ThreadRouteTest {
     private val databaseName = "test-hubmi-threads"
     private val adminToken = TestSecurityHelper.generateToken(roles = setOf(Role.ADMIN), username = "admin-user")
+    private val expertToken = TestSecurityHelper.generateToken(roles = setOf(Role.EXPERT), username = "expert-user")
     private val authorToken = TestSecurityHelper.generateToken(userId = "user-author", username = "jan-kowalski")
     private val strangerToken = TestSecurityHelper.generateToken(userId = "user-stranger", username = "anna-nowak")
 
@@ -132,6 +133,19 @@ class ThreadRouteTest {
             val reply = replyResponse.body<MessageDto>()
             assertEquals("admin-user", reply.authorName)
             assertEquals(ParticipantRole.ADMIN, reply.authorRole)
+
+            // Expert replies with expert consultation
+            val expertReplyResponse =
+                client.post(Threads.ById.Messages(parent = Threads.ById(id = thread.id))) {
+                    bearerAuth(expertToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(PostMessageRequest("Z punktu widzenia metodycznego warto doprecyzować rolę lidera grupy."))
+                }
+
+            assertEquals(HttpStatusCode.Created, expertReplyResponse.status)
+            val expertReply = expertReplyResponse.body<MessageDto>()
+            assertEquals("expert-user", expertReply.authorName)
+            assertEquals(ParticipantRole.EXPERT, expertReply.authorRole)
 
             // Author checks threads: now unread for author!
             val authorThreads =

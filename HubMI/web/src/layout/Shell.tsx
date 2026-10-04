@@ -27,6 +27,7 @@ export function Shell() {
     ...contentLinks,
     ...(authenticated ? [{ to: '/wiadomosci', label: 'Wiadomości z ROPS' }] : []),
     ...accountLinks,
+    ...(authenticated && (hasRole('expert') || hasRole('admin')) ? [{ to: '/ekspert', label: 'Strefa eksperta' }] : []),
     ...(authenticated && hasRole('admin') ? [{ to: '/admin', label: 'Panel admina' }] : []),
   ]
   const { setColorScheme } = useMantineColorScheme()
