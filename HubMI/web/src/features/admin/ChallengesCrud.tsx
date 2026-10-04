@@ -24,6 +24,7 @@ import { hubApi } from '../../api/hubApi'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
 import { SOCIAL_AREA_NAMES } from '../knowledge/constants'
+import { accessibleBadgeStyles } from './constants'
 import { UpsertChallengeJs, type ChallengeJs } from 'hubmi-client'
 
 export function ChallengesCrud() {
@@ -219,38 +220,40 @@ export function ChallengesCrud() {
                   </Table.Td>
 
                   <Table.Td style={{ minWidth: 160 }}>
-                    <Badge variant="light" color="blue" size="md">
+                    <Badge variant="light" color="blue" size="md" styles={accessibleBadgeStyles}>
                       {SOCIAL_AREA_NAMES[item.area] || item.area}
                     </Badge>
                   </Table.Td>
 
                   <Table.Td style={{ minWidth: 160 }}>
-                    <Group gap={4} wrap="wrap">
+                    <Group gap={6} wrap="wrap">
                       {item.municipalities.map((m) => (
-                        <Badge key={m} size="xs" variant="outline" color="gray">
+                        <Badge key={m} size="sm" variant="outline" color="gray" styles={accessibleBadgeStyles}>
                           {m}
                         </Badge>
                       ))}
                     </Group>
                   </Table.Td>
 
-                  <Table.Td style={{ textAlign: 'right', minWidth: 160 }}>
+                  <Table.Td style={{ textAlign: 'right', minWidth: 200 }}>
                     <Group gap="xs" justify="flex-end">
                       <Button
-                        size="xs"
+                        size="sm"
                         variant="light"
                         color="blue"
                         onClick={() => handleOpenEdit(item)}
-                        leftSection={<IconEdit size={14} />}
+                        leftSection={<IconEdit size={16} aria-hidden="true" />}
+                        styles={{ root: { minHeight: 36, fontSize: '0.92rem', fontWeight: 600 } }}
                       >
                         Edytuj
                       </Button>
                       <Button
-                        size="xs"
+                        size="sm"
                         variant="subtle"
                         color="red"
                         onClick={() => setDeleteId(item.id)}
-                        leftSection={<IconTrash size={14} />}
+                        leftSection={<IconTrash size={16} aria-hidden="true" />}
+                        styles={{ root: { minHeight: 36, fontSize: '0.92rem', fontWeight: 600 } }}
                       >
                         Archiwizuj
                       </Button>

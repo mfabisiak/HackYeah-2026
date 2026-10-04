@@ -26,25 +26,64 @@ const ERROR_CODE_MESSAGES: Record<string, string> = {
   NETWORK_ERROR: 'Nie udało się połączyć z serwerem. Sprawdź połączenie internetowe.',
 }
 
+function isRawTechnicalError(msg: string): boolean {
+  const lower = msg.toLowerCase()
+  return (
+    lower.includes('failed to fetch') ||
+    lower.includes('networkerror') ||
+    lower.includes('network error') ||
+    lower.includes('load failed') ||
+    lower.includes('fetch') ||
+    lower.includes('econnrefused') ||
+    lower.includes('http_')
+  )
+}
+
 export function formatApiError(error: unknown): string {
   if (error instanceof ApiClientError) {
-    if (ERROR_CODE_MESSAGES[error.code]) {
+    if (error.code && ERROR_CODE_MESSAGES[error.code]) {
       return ERROR_CODE_MESSAGES[error.code]
     }
-    if (error.message) {
+    if (error.status === 401) {
+      return 'Brak autoryzacji lub Twoja sesja wygasła. Zaloguj się ponownie.'
+    }
+    if (error.status === 403) {
+      return 'Brak wymaganych uprawnień administratora do wykonania tej operacji.'
+    }
+    if (error.message && !isRawTechnicalError(error.message)) {
       return error.message
     }
+    return 'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie internetowe lub spróbuj ponownie za chwilę.'
   }
 
-  if (typeof error === 'object' && error !== null && 'code' in error) {
-    const code = String((error as { code: string }).code)
-    if (ERROR_CODE_MESSAGES[code]) {
-      return ERROR_CODE_MESSAGES[code]
+  if (typeof error === 'object' && error !== null) {
+    const errObj = error as { code?: string; status?: number; message?: string }
+    if (errObj.code && ERROR_CODE_MESSAGES[errObj.code]) {
+      return ERROR_CODE_MESSAGES[errObj.code]
+    }
+    if (errObj.status === 401) {
+      return 'Brak autoryzacji lub Twoja sesja wygasła. Zaloguj się ponownie.'
+    }
+    if (errObj.status === 403) {
+      return 'Brak wymaganych uprawnień administratora do wykonania tej operacji.'
+    }
+    if (errObj.message && !isRawTechnicalError(errObj.message)) {
+      return errObj.message
     }
   }
 
   if (error instanceof Error && error.message) {
+    if (isRawTechnicalError(error.message)) {
+      return 'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie internetowe lub spróbuj ponownie za chwilę.'
+    }
     return error.message
+  }
+
+  if (typeof error === 'string') {
+    if (isRawTechnicalError(error)) {
+      return 'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie internetowe lub spróbuj ponownie za chwilę.'
+    }
+    return 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.'
   }
 
   return 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.'

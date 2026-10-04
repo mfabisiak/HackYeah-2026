@@ -43,4 +43,13 @@ describe('API errors utility', () => {
     expect(formatApiError(new Error('Błąd połączenia'))).toBe('Błąd połączenia')
     expect(formatApiError('unexpected')).toBe('Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.')
   })
+
+  it('converts raw technical browser errors like Failed to fetch to friendly Polish', () => {
+    expect(formatApiError(new Error('Failed to fetch'))).toBe(
+      'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie internetowe lub spróbuj ponownie za chwilę.',
+    )
+    expect(formatApiError('TypeError: Failed to fetch')).toBe(
+      'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie internetowe lub spróbuj ponownie za chwilę.',
+    )
+  })
 })

@@ -27,7 +27,7 @@ import { LoadingState } from '../../components/LoadingState'
 import { AccessiblePagination } from '../../components/Pagination'
 import { formatPolishDateTime } from '../messaging/constants'
 import { TARGET_GROUP_NAMES } from '../knowledge/constants'
-import { IDEA_STATUS_CONFIG } from './constants'
+import { accessibleBadgeStyles, IDEA_STATUS_CONFIG } from './constants'
 import type { IdeaJs, PageJs } from 'hubmi-client'
 
 const PAGE_SIZE = 10
@@ -248,7 +248,7 @@ export function IdeasModerationQueue() {
                     <Table.Td style={{ minWidth: 180 }}>
                       <Group gap={6} wrap="wrap">
                         {idea.targetGroups.map((g) => (
-                          <Badge key={g} size="sm" variant="light" color="blue">
+                          <Badge key={g} size="sm" variant="light" color="blue" styles={accessibleBadgeStyles}>
                             {TARGET_GROUP_NAMES[g] ?? g}
                           </Badge>
                         ))}
@@ -272,9 +272,9 @@ export function IdeasModerationQueue() {
                     <Table.Td style={{ minWidth: 160 }}>
                       <Badge
                         color={cfg.color}
-                        size="lg"
+                        size="md"
                         variant="filled"
-                        styles={{ label: { fontSize: '0.9rem', fontWeight: 600 } }}
+                        styles={accessibleBadgeStyles}
                       >
                         {cfg.label}
                       </Badge>

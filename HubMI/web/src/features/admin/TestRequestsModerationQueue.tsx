@@ -6,6 +6,7 @@ import {
   Modal,
   Paper,
   Select,
+  SimpleGrid,
   Stack,
   Table,
   Text,
@@ -14,6 +15,7 @@ import {
 import {
   IconCheck,
   IconClock,
+  IconFileText,
   IconHeartHandshake,
   IconRefresh,
   IconX,
@@ -24,7 +26,7 @@ import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
 import { AccessiblePagination } from '../../components/Pagination'
 import { formatPolishDateTime } from '../messaging/constants'
-import { TEST_REQUEST_STATUS_CONFIG } from './constants'
+import { accessibleBadgeStyles, TEST_REQUEST_STATUS_CONFIG } from './constants'
 import type { AdminTestRequestJs, PageJs } from 'hubmi-client'
 
 const PAGE_SIZE = 10
@@ -36,7 +38,7 @@ export function TestRequestsModerationQueue() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null)
+  const [previewNoteItem, setPreviewNoteItem] = useState<AdminTestRequestJs | null>(null)
 
   // Decision confirmation modal state
   const [decisionItem, setDecisionItem] = useState<{
@@ -226,35 +228,38 @@ export function TestRequestsModerationQueue() {
                       </Text>
                     </Table.Td>
 
-                    <Table.Td style={{ maxWidth: 300, minWidth: 200, wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                    <Table.Td style={{ maxWidth: 300, minWidth: 220, wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                       {req.note ? (
-                        <div>
+                        <Stack gap={4}>
                           <Text
                             size="sm"
-                            lineClamp={expandedNoteId === req.id ? undefined : 2}
-                            style={{ fontSize: '0.95rem', lineHeight: 1.5 }}
+                            lineClamp={2}
+                            style={{ fontSize: '0.95rem', lineHeight: 1.4 }}
                           >
                             {req.note}
                           </Text>
-                          {req.note.length > 70 && (
-                            <Button
-                              variant="subtle"
-                              size="compact-xs"
-                              color="blue"
-                              mt={2}
-                              p={0}
-                              onClick={() =>
-                                setExpandedNoteId(expandedNoteId === req.id ? null : req.id)
-                              }
-                              styles={{ root: { height: 'auto', fontWeight: 600 } }}
-                            >
-                              {expandedNoteId === req.id ? 'Zwiń treść' : 'Pokaż pełną treść'}
-                            </Button>
-                          )}
-                        </div>
+                          <Button
+                            variant="light"
+                            size="xs"
+                            color="blue"
+                            onClick={() => setPreviewNoteItem(req)}
+                            leftSection={<IconFileText size={15} aria-hidden="true" />}
+                            styles={{
+                              root: {
+                                height: 28,
+                                paddingInline: 8,
+                                fontSize: '0.85rem',
+                                fontWeight: 600,
+                                alignSelf: 'flex-start',
+                              },
+                            }}
+                          >
+                            Zobacz całe uzasadnienie
+                          </Button>
+                        </Stack>
                       ) : (
                         <Text size="sm" c="dimmed" fs="italic">
-                          Brak dodatkowej notatki
+                          Brak dodatkowego uzasadnienia
                         </Text>
                       )}
                     </Table.Td>
@@ -268,12 +273,12 @@ export function TestRequestsModerationQueue() {
                       </Group>
                     </Table.Td>
 
-                    <Table.Td style={{ minWidth: 100 }}>
+                    <Table.Td style={{ minWidth: 120 }}>
                       <Badge
                         color={cfg.color}
-                        size="lg"
+                        size="md"
                         variant="filled"
-                        styles={{ label: { fontSize: '0.85rem', fontWeight: 600 } }}
+                        styles={accessibleBadgeStyles}
                       >
                         {cfg.label}
                       </Badge>
@@ -388,6 +393,103 @@ export function TestRequestsModerationQueue() {
               >
                 {decisionItem.targetStatus === 'ACCEPTED' ? 'Potwierdzam akceptację' : 'Potwierdzam odrzucenie'}
               </Button>
+            </Group>
+          </Stack>
+        )}
+      </Modal>
+
+      {/* Note Preview Modal - Safe against arbitrarily long text without breaking table layout */}
+      <Modal
+        opened={!!previewNoteItem}
+        onClose={() => setPreviewNoteItem(null)}
+        title="Uzasadnienie zgłoszenia do testów"
+        size="lg"
+        radius="md"
+        transitionProps={{ duration: 0 }}
+        styles={{ title: { fontSize: '1.25rem', fontWeight: 700 } }}
+      >
+        {previewNoteItem && (
+          <Stack gap="md">
+            <Paper withBorder p="md" radius="sm" bg="var(--mantine-color-gray-0)">
+              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="xs">
+                <div>
+                  <Text size="xs" c="dimmed" fw={600} tt="uppercase">Innowacja</Text>
+                  <Text size="sm" fw={700}>{previewNoteItem.innovationTitle}</Text>
+                </div>
+                <div>
+                  <Text size="xs" c="dimmed" fw={600} tt="uppercase">Tester (zgłaszający)</Text>
+                  <Text size="sm" fw={700}>{previewNoteItem.userId}</Text>
+                </div>
+                <div>
+                  <Text size="xs" c="dimmed" fw={600} tt="uppercase">Data zgłoszenia</Text>
+                  <Text size="sm">{formatPolishDateTime(previewNoteItem.createdAt)}</Text>
+                </div>
+                <div>
+                  <Text size="xs" c="dimmed" fw={600} tt="uppercase">Aktualny status</Text>
+                  <Badge
+                    color={TEST_REQUEST_STATUS_CONFIG[previewNoteItem.status]?.color ?? 'gray'}
+                    size="sm"
+                    styles={accessibleBadgeStyles}
+                  >
+                    {TEST_REQUEST_STATUS_CONFIG[previewNoteItem.status]?.label ?? previewNoteItem.status}
+                  </Badge>
+                </div>
+              </SimpleGrid>
+            </Paper>
+
+            <div>
+              <Text size="sm" fw={700} mb={6}>Pełna treść uzasadnienia od testera:</Text>
+              <Paper
+                withBorder
+                p="md"
+                radius="md"
+                style={{
+                  maxHeight: 350,
+                  overflowY: 'auto',
+                  backgroundColor: 'white',
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: 1.6,
+                  fontSize: '1.02rem',
+                }}
+              >
+                {previewNoteItem.note}
+              </Paper>
+            </div>
+
+            <Group justify="space-between" mt="sm">
+              <Button variant="default" size="md" onClick={() => setPreviewNoteItem(null)}>
+                Zamknij podgląd
+              </Button>
+
+              {previewNoteItem.status === 'NEW' && (
+                <Group gap="xs">
+                  <Button
+                    size="md"
+                    color="teal"
+                    leftSection={<IconCheck size={18} aria-hidden="true" />}
+                    onClick={() => {
+                      const item = previewNoteItem
+                      setPreviewNoteItem(null)
+                      setDecisionItem({ item, targetStatus: 'ACCEPTED' })
+                    }}
+                  >
+                    Zaakceptuj wniosek
+                  </Button>
+                  <Button
+                    size="md"
+                    color="red"
+                    variant="subtle"
+                    leftSection={<IconX size={18} aria-hidden="true" />}
+                    onClick={() => {
+                      const item = previewNoteItem
+                      setPreviewNoteItem(null)
+                      setDecisionItem({ item, targetStatus: 'DECLINED' })
+                    }}
+                  >
+                    Odrzuć wniosek
+                  </Button>
+                </Group>
+              )}
             </Group>
           </Stack>
         )}

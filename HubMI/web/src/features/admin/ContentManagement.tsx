@@ -23,10 +23,11 @@ export function ContentManagement({ initialSubTab = 'innowacje' }: ContentManage
             fontSize: '1.05rem',
             fontWeight: 600,
             padding: '10px 18px',
+            minHeight: 44,
           },
         }}
       >
-        <Tabs.List>
+        <Tabs.List style={{ flexWrap: 'wrap', gap: 8 }}>
           <Tabs.Tab
             value="innowacje"
             leftSection={<IconBulb size={18} aria-hidden="true" />}

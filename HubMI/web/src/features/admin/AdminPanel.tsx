@@ -74,7 +74,7 @@ export function AdminPanel() {
             tabLabel: { fontSize: '1.05rem' },
           }}
         >
-          <Tabs.List>
+          <Tabs.List style={{ flexWrap: 'wrap' }}>
             <Tabs.Tab
               value="wymaga-uwagi"
               leftSection={<IconAlertCircle size={20} aria-hidden="true" />}

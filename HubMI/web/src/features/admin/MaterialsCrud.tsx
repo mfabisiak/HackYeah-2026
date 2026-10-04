@@ -31,7 +31,7 @@ import { hubApi } from '../../api/hubApi'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
 import { SOCIAL_AREA_NAMES } from '../knowledge/constants'
-import { MATERIAL_TYPE_LABELS } from './constants'
+import { accessibleBadgeStyles, MATERIAL_TYPE_LABELS } from './constants'
 import { UpsertMaterialJs, type MaterialJs } from 'hubmi-client'
 
 export function MaterialsCrud() {
@@ -249,11 +249,12 @@ export function MaterialsCrud() {
                       variant="light"
                       color={item.type === 'VIDEO' ? 'red' : 'indigo'}
                       size="md"
+                      styles={accessibleBadgeStyles}
                       leftSection={
                         item.type === 'VIDEO' ? (
-                          <IconPlayerPlay size={14} aria-hidden="true" />
+                          <IconPlayerPlay size={16} aria-hidden="true" />
                         ) : (
-                          <IconFileText size={14} aria-hidden="true" />
+                          <IconFileText size={16} aria-hidden="true" />
                         )
                       }
                     >
@@ -262,32 +263,34 @@ export function MaterialsCrud() {
                   </Table.Td>
 
                   <Table.Td style={{ minWidth: 160 }}>
-                    <Group gap={4} wrap="wrap">
+                    <Group gap={6} wrap="wrap">
                       {item.areas.map((a) => (
-                        <Badge key={a} size="xs" variant="outline" color="gray">
+                        <Badge key={a} size="sm" variant="outline" color="gray" styles={accessibleBadgeStyles}>
                           {SOCIAL_AREA_NAMES[a] || a}
                         </Badge>
                       ))}
                     </Group>
                   </Table.Td>
 
-                  <Table.Td style={{ textAlign: 'right', minWidth: 160 }}>
+                  <Table.Td style={{ textAlign: 'right', minWidth: 200 }}>
                     <Group gap="xs" justify="flex-end">
                       <Button
-                        size="xs"
+                        size="sm"
                         variant="light"
                         color="blue"
                         onClick={() => handleOpenEdit(item)}
-                        leftSection={<IconEdit size={14} />}
+                        leftSection={<IconEdit size={16} aria-hidden="true" />}
+                        styles={{ root: { minHeight: 36, fontSize: '0.92rem', fontWeight: 600 } }}
                       >
                         Edytuj
                       </Button>
                       <Button
-                        size="xs"
+                        size="sm"
                         variant="subtle"
                         color="red"
                         onClick={() => setDeleteId(item.id)}
-                        leftSection={<IconTrash size={14} />}
+                        leftSection={<IconTrash size={16} aria-hidden="true" />}
+                        styles={{ root: { minHeight: 36, fontSize: '0.92rem', fontWeight: 600 } }}
                       >
                         Archiwizuj
                       </Button>

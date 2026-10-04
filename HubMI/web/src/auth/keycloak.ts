@@ -6,21 +6,52 @@ export const keycloak = new Keycloak({
   clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID ?? 'hubmi-app',
 })
 
+export function clearAuthSession() {
+  try {
+    keycloak.clearToken()
+    // Thoroughly remove any auth/token keys from localStorage and sessionStorage
+    // to prevent retry loops when tokens expire or server keysets change
+    const keysToRemove: string[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (
+        key &&
+        (key.toLowerCase().includes('token') ||
+          key.toLowerCase().includes('kc') ||
+          key.toLowerCase().includes('auth') ||
+          key.toLowerCase().includes('oidc'))
+      ) {
+        keysToRemove.push(key)
+      }
+    }
+    keysToRemove.forEach((k) => localStorage.removeItem(k))
+    sessionStorage.clear()
+  } catch {
+    // Ignore
+  }
+}
+
 // The access token lives only in memory (never in localStorage); keep it fresh before it expires.
 keycloak.onTokenExpired = () => {
-  keycloak.updateToken(30).catch(() => keycloak.clearToken())
+  keycloak.updateToken(30).catch(() => clearAuthSession())
 }
 
 // Keycloak can be initialised only once; React StrictMode runs effects twice in development.
 let initialisation: Promise<boolean> | undefined
 
 export function initKeycloak(): Promise<boolean> {
-  initialisation ??= keycloak.init({
-    onLoad: 'check-sso',
-    pkceMethod: 'S256',
-    checkLoginIframe: false,
-    silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
-  })
+  initialisation ??= keycloak
+    .init({
+      onLoad: 'check-sso',
+      pkceMethod: 'S256',
+      checkLoginIframe: false,
+      silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
+    })
+    .catch((err) => {
+      console.warn('Keycloak initialization failed, clearing any stale session:', err)
+      clearAuthSession()
+      return false
+    })
   return initialisation
 }
 

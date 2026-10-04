@@ -30,6 +30,7 @@ import {
   SOCIAL_AREA_NAMES,
   TARGET_GROUP_NAMES,
 } from '../knowledge/constants'
+import { accessibleBadgeStyles } from './constants'
 import { UpsertInnovationJs, type InnovationSummaryJs } from 'hubmi-client'
 
 export function InnovationsCrud() {
@@ -269,15 +270,15 @@ export function InnovationsCrud() {
                   </Table.Td>
 
                   <Table.Td style={{ minWidth: 160 }}>
-                    <Badge variant="light" color="blue" size="md">
+                    <Badge variant="light" color="blue" size="md" styles={accessibleBadgeStyles}>
                       {INNOVATION_STAGE_NAMES[item.stage] || item.stage}
                     </Badge>
                   </Table.Td>
 
                   <Table.Td style={{ minWidth: 160 }}>
-                    <Group gap={4} wrap="wrap">
+                    <Group gap={6} wrap="wrap">
                       {item.areas.map((a) => (
-                        <Badge key={a} size="xs" variant="outline" color="gray">
+                        <Badge key={a} size="sm" variant="outline" color="gray" styles={accessibleBadgeStyles}>
                           {SOCIAL_AREA_NAMES[a] || a}
                         </Badge>
                       ))}
@@ -285,32 +286,34 @@ export function InnovationsCrud() {
                   </Table.Td>
 
                   <Table.Td style={{ minWidth: 160 }}>
-                    <Group gap={4} wrap="wrap">
+                    <Group gap={6} wrap="wrap">
                       {item.targetGroups.map((g) => (
-                        <Badge key={g} size="xs" variant="outline" color="teal">
+                        <Badge key={g} size="sm" variant="outline" color="teal" styles={accessibleBadgeStyles}>
                           {TARGET_GROUP_NAMES[g] || g}
                         </Badge>
                       ))}
                     </Group>
                   </Table.Td>
 
-                  <Table.Td style={{ textAlign: 'right', minWidth: 180 }}>
+                  <Table.Td style={{ textAlign: 'right', minWidth: 200 }}>
                     <Group gap="xs" justify="flex-end">
                       <Button
-                        size="xs"
+                        size="sm"
                         variant="light"
                         color="blue"
                         onClick={() => void handleOpenEdit(item)}
-                        leftSection={<IconEdit size={14} />}
+                        leftSection={<IconEdit size={16} aria-hidden="true" />}
+                        styles={{ root: { minHeight: 36, fontSize: '0.92rem', fontWeight: 600 } }}
                       >
                         Edytuj
                       </Button>
                       <Button
-                        size="xs"
+                        size="sm"
                         variant="subtle"
                         color="red"
                         onClick={() => setDeleteId(item.id)}
-                        leftSection={<IconTrash size={14} />}
+                        leftSection={<IconTrash size={16} aria-hidden="true" />}
+                        styles={{ root: { minHeight: 36, fontSize: '0.92rem', fontWeight: 600 } }}
                       >
                         Archiwizuj
                       </Button>

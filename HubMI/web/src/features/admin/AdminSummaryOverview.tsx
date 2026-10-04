@@ -20,10 +20,13 @@ import {
   IconSearch,
 } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
+import { formatApiError } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
-import { getAccessToken } from '../../auth/keycloak'
+import { useAuth } from '../../auth/AuthContext'
+import { clearAuthSession } from '../../auth/keycloak'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
+import { pluralizeSprawy } from './constants'
 import type { AdminSummaryJs } from 'hubmi-client'
 
 export interface AdminSummaryOverviewProps {
@@ -31,9 +34,11 @@ export interface AdminSummaryOverviewProps {
 }
 
 export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProps) {
+  const { login } = useAuth()
   const [summary, setSummary] = useState<AdminSummaryJs | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isAuthExpired, setIsAuthExpired] = useState(false)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   useEffect(() => {
@@ -41,54 +46,27 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
 
     const fetchSummary = async () => {
       try {
-        let loadedSummary: AdminSummaryJs | null = null
-
-        // Try typed client call first
-        if (typeof hubApi.admin?.summary === 'function') {
-          try {
-            const res = await hubApi.admin.summary()
-            if (cancelled) return
-            if (res.value) {
-              loadedSummary = res.value
-            } else if (res.error) {
-              console.warn('hubApi.admin.summary returned error:', res.error)
-            }
-          } catch (clientErr) {
-            console.warn('hubApi.admin.summary threw error:', clientErr)
-          }
-        }
-
-        // Fallback to fetch with Bearer token if typed client didn't succeed
-        if (!loadedSummary && !cancelled) {
-          const token = getAccessToken()
-          const resp = await fetch('/api/admin/summary', {
-            headers: {
-              ...(token ? { Authorization: `Bearer ${token}` } : {}),
-              Accept: 'application/json',
-            },
-          })
-          if (resp.ok) {
-            const json = await resp.json()
-            if (!cancelled) {
-              loadedSummary = json as AdminSummaryJs
-            }
-          } else {
-            console.error('Direct /api/admin/summary failed with status:', resp.status)
-          }
-        }
-
+        const res = await hubApi.admin.summary()
         if (cancelled) return
 
-        if (loadedSummary) {
-          setSummary(loadedSummary)
+        if (res.error) {
+          if (res.error.status === 401) {
+            clearAuthSession()
+            setIsAuthExpired(true)
+            setError('Twoja sesja wygasła lub klucze autoryzacji uległy zmianie. Zaloguj się ponownie, aby uzyskać dostęp do panelu.')
+          } else {
+            setError(formatApiError(res.error))
+          }
+        } else if (res.value) {
+          setSummary(res.value)
           setError(null)
+          setIsAuthExpired(false)
         } else {
           setError('Nie udało się pobrać danych podsumowania administratora. Sprawdź połączenie z serwerem.')
         }
       } catch (err) {
         if (!cancelled) {
-          console.error('Error fetching admin summary:', err)
-          setError('Wystąpił błąd podczas ładowania danych podsumowania.')
+          setError(formatApiError(err))
         }
       } finally {
         if (!cancelled) {
@@ -107,6 +85,7 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
   const handleRefresh = () => {
     setIsLoading(true)
     setError(null)
+    setIsAuthExpired(false)
     setRefreshTrigger((prev) => prev + 1)
   }
 
@@ -117,7 +96,14 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
   if (error) {
     return (
       <Stack gap="md">
-        <ErrorAlert message={error} onRetry={handleRefresh} />
+        <ErrorAlert message={error} onRetry={isAuthExpired ? undefined : handleRefresh} />
+        {isAuthExpired && (
+          <Group justify="center">
+            <Button size="md" color="blue" onClick={login}>
+              Zaloguj się ponownie
+            </Button>
+          </Group>
+        )}
       </Stack>
     )
   }
@@ -143,8 +129,10 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
             message: { fontSize: '1.05rem', lineHeight: 1.6 },
           }}
         >
-          Masz łącznie <strong>{totalUrgent}</strong> spraw oczekujących na reakcję pracownika ROPS
-          (nowe pomysły, zgłoszenia do testów lub wiadomości). Poniżej znajdziesz bezpośrednie przejścia do każdej z kolejek.
+          Masz łącznie <strong>{totalUrgent}</strong> {pluralizeSprawy(totalUrgent).noun}{' '}
+          {pluralizeSprawy(totalUrgent).adjective} na reakcję pracownika ROPS (nowe pomysły,
+          zgłoszenia do testów lub wiadomości). Poniżej znajdziesz bezpośrednie przejścia do każdej
+          z kolejek.
         </Alert>
       ) : (
         <Alert
@@ -162,7 +150,7 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
       )}
 
       {/* 4 Large Senior-Friendly Metric Cards */}
-      <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
+      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">
         {/* Card 1: Submitted Ideas */}
         <Card
           withBorder
@@ -194,9 +182,20 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
               variant="light"
               color="blue"
               size="md"
+              fullWidth
               onClick={() => onNavigateTab('pomysly')}
               rightSection={<IconArrowRight size={18} aria-hidden="true" />}
-              styles={{ root: { fontSize: '1rem', fontWeight: 600 } }}
+              styles={{
+                root: {
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  paddingInline: 12,
+                  whiteSpace: 'normal',
+                  height: 'auto',
+                  minHeight: 44,
+                  paddingBlock: 8,
+                },
+              }}
             >
               Rozpatrz pomysły
             </Button>
@@ -234,9 +233,20 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
               variant="light"
               color="teal"
               size="md"
+              fullWidth
               onClick={() => onNavigateTab('testy')}
               rightSection={<IconArrowRight size={18} aria-hidden="true" />}
-              styles={{ root: { fontSize: '1rem', fontWeight: 600 } }}
+              styles={{
+                root: {
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  paddingInline: 12,
+                  whiteSpace: 'normal',
+                  height: 'auto',
+                  minHeight: 44,
+                  paddingBlock: 8,
+                },
+              }}
             >
               Kolejka testerów
             </Button>
@@ -274,10 +284,21 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
               variant="light"
               color="indigo"
               size="md"
+              fullWidth
               component="a"
               href="/wiadomosci"
               rightSection={<IconArrowRight size={18} aria-hidden="true" />}
-              styles={{ root: { fontSize: '1rem', fontWeight: 600 } }}
+              styles={{
+                root: {
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  paddingInline: 12,
+                  whiteSpace: 'normal',
+                  height: 'auto',
+                  minHeight: 44,
+                  paddingBlock: 8,
+                },
+              }}
             >
               Otwórz skrzynkę
             </Button>
@@ -307,9 +328,20 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
               variant="light"
               color="gray"
               size="md"
+              fullWidth
               onClick={() => onNavigateTab('innowacje')}
               rightSection={<IconArrowRight size={18} aria-hidden="true" />}
-              styles={{ root: { fontSize: '1rem', fontWeight: 600 } }}
+              styles={{
+                root: {
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  paddingInline: 12,
+                  whiteSpace: 'normal',
+                  height: 'auto',
+                  minHeight: 44,
+                  paddingBlock: 8,
+                },
+              }}
             >
               Uzupełnij bazę
             </Button>

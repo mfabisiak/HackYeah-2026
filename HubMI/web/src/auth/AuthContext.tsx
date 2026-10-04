@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { initKeycloak, keycloak } from './keycloak'
+import { clearAuthSession, initKeycloak, keycloak } from './keycloak'
 
 export interface AuthState {
   ready: boolean
@@ -20,13 +20,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     initKeycloak()
       .then(setAuthenticated)
-      .catch(() => setAuthenticated(false))
+      .catch(() => {
+        clearAuthSession()
+        setAuthenticated(false)
+      })
       .finally(() => setReady(true))
 
     keycloak.onAuthLogout = () => {
+      clearAuthSession()
       setAuthenticated(false)
     }
     keycloak.onAuthRefreshError = () => {
+      clearAuthSession()
       setAuthenticated(false)
     }
   }, [])
@@ -44,8 +49,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       username: keycloak.tokenParsed?.preferred_username as string | undefined,
       roles,
       hasRole: (role: string) => roles.includes(role) || (typeof keycloak.hasRealmRole === 'function' ? keycloak.hasRealmRole(role) : false),
-      login: () => void keycloak.login({ redirectUri: window.location.href }),
-      logout: () => void keycloak.logout({ redirectUri: window.location.origin }),
+      login: () => {
+        clearAuthSession()
+        void keycloak.login({ redirectUri: window.location.href })
+      },
+      logout: () => {
+        clearAuthSession()
+        void keycloak.logout({ redirectUri: window.location.origin })
+      },
     }),
     [ready, authenticated, roles],
   )

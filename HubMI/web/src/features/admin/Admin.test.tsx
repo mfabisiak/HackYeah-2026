@@ -8,6 +8,7 @@ import { TestRequestsModerationQueue } from './TestRequestsModerationQueue'
 import { FeedbackModerationQueue } from './FeedbackModerationQueue'
 import { MaterialsCrud } from './MaterialsCrud'
 import { ContentManagement } from './ContentManagement'
+import { pluralizeSprawy } from './constants'
 import { AdminPage } from '../../pages/AdminPage'
 import { hubApi } from '../../api/hubApi'
 import {
@@ -190,6 +191,36 @@ describe('Panel administratora: moderacja i zarządzanie treścią (FE-08)', () 
       expect(screen.getByText('Luki w bazie (ten tydz.)')).toBeInTheDocument()
       expect(screen.getByText('5')).toBeInTheDocument()
     })
+
+    it('poprawnie odmienia słowo "sprawa oczekująca" w języku polskim dla różnych liczebników', () => {
+      expect(pluralizeSprawy(1).fullPhrase).toBe('1 sprawę oczekującą')
+      expect(pluralizeSprawy(2).fullPhrase).toBe('2 sprawy oczekujące')
+      expect(pluralizeSprawy(4).fullPhrase).toBe('4 sprawy oczekujące')
+      expect(pluralizeSprawy(5).fullPhrase).toBe('5 spraw oczekujących')
+      expect(pluralizeSprawy(12).fullPhrase).toBe('12 spraw oczekujących')
+      expect(pluralizeSprawy(22).fullPhrase).toBe('22 sprawy oczekujące')
+      expect(pluralizeSprawy(25).fullPhrase).toBe('25 spraw oczekujących')
+      expect(pluralizeSprawy(112).fullPhrase).toBe('112 spraw oczekujących')
+    })
+
+    it('wyświetla poprawną odmianę gramatyczną w banerze dla 4 spraw oczekujących', async () => {
+      const summaryWith4: AdminSummaryJs = new AdminSummaryJs(
+        2, // submittedIdeas
+        1, // pendingTestRequests
+        0, // unmatchedNeedsThisWeek
+        1, // pendingThreads
+      )
+      vi.spyOn(hubApi.admin, 'summary').mockResolvedValue(new ApiResult(summaryWith4, null))
+
+      renderWithProviders(<AdminSummaryOverview onNavigateTab={vi.fn()} />)
+
+      await waitFor(() => {
+        expect(screen.getByText('Zadania wymagające uwagi')).toBeInTheDocument()
+      })
+
+      // 2 + 1 + 1 = 4 -> "4 sprawy oczekujące"
+      expect(screen.getByText(/sprawy oczekujące na reakcję pracownika ROPS/i)).toBeInTheDocument()
+    })
   })
 
   describe('Kolejka moderacji pomysłów (IdeasModerationQueue)', () => {
@@ -333,6 +364,25 @@ describe('Panel administratora: moderacja i zarządzanie treścią (FE-08)', () 
       await waitFor(() => {
         expect(decideSpy).toHaveBeenCalledWith('test-req-1', 'ACCEPTED')
       })
+    })
+
+    it('otwiera modal z pełną treścią notatki po kliknięciu "Zobacz całe uzasadnienie"', async () => {
+      vi.spyOn(hubApi.admin, 'testRequests').mockResolvedValue(
+        new ApiResult(mockTestRequestsPage, null),
+      )
+
+      renderWithProviders(<TestRequestsModerationQueue />)
+
+      await waitFor(() => {
+        expect(screen.getByText('Sąsiad dla Seniora')).toBeInTheDocument()
+      })
+
+      const openNoteBtn = screen.getByRole('button', { name: /Zobacz całe uzasadnienie/i })
+      fireEvent.click(openNoteBtn)
+
+      expect(screen.getByText('Uzasadnienie zgłoszenia do testów')).toBeInTheDocument()
+      expect(screen.getByText('Pełna treść uzasadnienia od testera:')).toBeInTheDocument()
+      expect(screen.getAllByText('Chciałbym sprawdzić to rozwiązanie w naszym sołectwie.').length).toBe(2)
     })
   })
 
