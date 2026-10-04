@@ -60,7 +60,11 @@ body {
   text-align: left;
 }
 
+/* A button may grow with a wrapped label, so its height is a minimum: the label is centred in it, not left at the top. */
 .mantine-Button-root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   height: auto;
   min-height: var(--button-height);
   max-width: 100%;
