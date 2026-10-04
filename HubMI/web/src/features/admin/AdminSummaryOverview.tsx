@@ -203,7 +203,7 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
         >
           <Stack justify="space-between" style={{ height: '100%' }}>
             <Group justify="space-between" align="flex-start">
-              <div>
+              <div style={{ width: '100%' }}>
                 <Text size="sm" c="dimmed" fw={600} tt="uppercase" style={{ fontSize: '0.9rem' }}>
                   Nowe pomysły
                 </Text>
@@ -254,7 +254,7 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
         >
           <Stack justify="space-between" style={{ height: '100%' }}>
             <Group justify="space-between" align="flex-start">
-              <div>
+              <div style={{ width: '100%' }}>
                 <Text size="sm" c="dimmed" fw={600} tt="uppercase" style={{ fontSize: '0.9rem' }}>
                   Zgłoszenia do testów
                 </Text>
@@ -305,7 +305,7 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
         >
           <Stack justify="space-between" style={{ height: '100%' }}>
             <Group justify="space-between" align="flex-start">
-              <div>
+              <div style={{ width: '100%' }}>
                 <Text size="sm" c="dimmed" fw={600} tt="uppercase" style={{ fontSize: '0.9rem' }}>
                   Wiadomości ROPS
                 </Text>
@@ -349,7 +349,7 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
         <Card withBorder padding="xl" radius="md">
           <Stack justify="space-between" style={{ height: '100%' }}>
             <Group justify="space-between" align="flex-start">
-              <div>
+              <div style={{ width: '100%' }}>
                 <Text size="sm" c="dimmed" fw={600} tt="uppercase" style={{ fontSize: '0.9rem' }}>
                   Luki w bazie (ten tydz.)
                 </Text>
