@@ -13,29 +13,53 @@ import {
   InnovationsListPage,
   MaterialsListPage,
 } from './features/knowledge'
+import {
+  NotificationsProvider,
+  ThreadDetailPage,
+  ThreadsListPage,
+} from './features/messaging'
 
 export default function App() {
   return (
-    <Routes>
-      <Route element={<Shell />}>
-        <Route index element={<HomePage />} />
-        <Route path="dopasuj" element={<HomePage />} />
-        <Route path="innowacje" element={<InnovationsListPage />} />
-        <Route path="innowacje/:id" element={<InnovationDetailPage />} />
-        <Route path="wyzwania" element={<ChallengesListPage />} />
-        <Route path="materialy" element={<MaterialsListPage />} />
-        <Route path="status" element={<StatusPage />} />
-        <Route
-          path="konto"
-          element={
-            <RequireAuth>
-              <AccountPage />
-            </RequireAuth>
-          }
-        />
-        <Route path="admin" element={<AdminPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
-    </Routes>
+    <NotificationsProvider>
+      <Routes>
+        <Route element={<Shell />}>
+          <Route index element={<HomePage />} />
+          <Route path="dopasuj" element={<HomePage />} />
+          <Route path="innowacje" element={<InnovationsListPage />} />
+          <Route path="innowacje/:id" element={<InnovationDetailPage />} />
+          <Route path="wyzwania" element={<ChallengesListPage />} />
+          <Route path="materialy" element={<MaterialsListPage />} />
+          <Route path="status" element={<StatusPage />} />
+          <Route
+            path="wiadomosci"
+            element={
+              <RequireAuth>
+                <ThreadsListPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="wiadomosci/:threadId"
+            element={
+              <RequireAuth>
+                <ThreadDetailPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="konto"
+            element={
+              <RequireAuth>
+                <AccountPage />
+              </RequireAuth>
+            }
+          />
+          <Route path="admin" element={<AdminPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+      </Routes>
+    </NotificationsProvider>
   )
 }
+
