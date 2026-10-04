@@ -11,6 +11,7 @@ import {
 import { IconAlertCircle, IconSend } from '@tabler/icons-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { useAuth } from '../../auth/AuthContext'
 
@@ -78,7 +79,7 @@ export function NewThreadModal({
           login()
           return
         }
-        setError(res.error.message || 'Nie udało się wysłać wiadomości. Spróbuj ponownie.')
+        setError(toFriendlyErrorMessage(res.error, 'Nie udało się wysłać wiadomości. Spróbuj ponownie.'))
       } else if (res.value) {
         const threadId = res.value.id
         setSubject('')
@@ -91,8 +92,8 @@ export function NewThreadModal({
           navigate(`/wiadomosci/${threadId}`)
         }
       }
-    } catch {
-      setError('Wystąpił błąd sieci. Spróbuj ponownie za chwilę.')
+    } catch (err) {
+      setError(toFriendlyErrorMessage(err, 'Wystąpił błąd sieci. Spróbuj ponownie za chwilę.'))
     } finally {
       setIsSubmitting(false)
     }

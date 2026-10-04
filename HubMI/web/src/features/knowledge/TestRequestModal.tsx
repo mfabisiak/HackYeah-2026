@@ -10,6 +10,7 @@ import {
 } from '@mantine/core'
 import { IconCheck, IconSend } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
+import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { useAuth } from '../../auth/AuthContext'
 import type { TestRequestJs } from 'hubmi-client'
@@ -73,14 +74,14 @@ export function TestRequestModal({
           login()
           return
         }
-        setError(res.error.message || 'Nie udało się przesłać zgłoszenia. Spróbuj ponownie.')
+        setError(toFriendlyErrorMessage(res.error, 'Nie udało się przesłać zgłoszenia. Spróbuj ponownie.'))
       } else if (res.value) {
         setExistingRequest(res.value)
         setIsSuccess(true)
         onRequestUpdated?.(res.value)
       }
-    } catch {
-      setError('Wystąpił błąd sieci. Spróbuj ponownie.')
+    } catch (err) {
+      setError(toFriendlyErrorMessage(err, 'Wystąpił błąd sieci. Spróbuj ponownie.'))
     } finally {
       setIsSubmitting(false)
     }
