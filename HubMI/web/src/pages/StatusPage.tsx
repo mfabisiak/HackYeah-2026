@@ -29,7 +29,7 @@ export function StatusPage() {
 
   return (
     <Stack gap="md" maw={640}>
-      <Title order={2}>Status systemu</Title>
+      <Title order={1} size="h2">Status systemu</Title>
       <Text>Ta strona pyta serwer o stan przez klienta wygenerowanego w Kotlinie.</Text>
       <div role="status" aria-live="polite">
         {state.kind === 'loading' && (

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { Anchor, Box, Breadcrumbs, Group, Stack, Text, Title } from '@mantine/core'
 import { Link } from 'react-router-dom'
 
@@ -20,6 +20,11 @@ export function PageHeader({
   breadcrumbs,
   actions,
 }: PageHeaderProps) {
+  // The title of the browser tab says where the visitor is (WCAG 2.4.2); a page may set a more specific one afterwards.
+  useEffect(() => {
+    document.title = `${title} | HubMI`
+  }, [title])
+
   return (
     <Box mb="xl" component="header">
       {breadcrumbs && breadcrumbs.length > 0 && (

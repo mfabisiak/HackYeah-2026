@@ -1,0 +1,186 @@
+/* Page frame: the footer sticks to the bottom on short pages. */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+main {
+  flex: 1 0 auto;
+  width: 100%;
+}
+
+/* The full navigation from 76em up, the burger and its drawer below: em, so that enlarged text switches sooner. */
+@media (max-width: 75.99em) {
+  .show-desktop {
+    display: none !important;
+  }
+}
+
+@media (min-width: 76em) {
+  .hide-desktop {
+    display: none !important;
+  }
+}
+
+/* ---- Header ---- */
+.site-header {
+  background: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
+  border-bottom: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  box-shadow: 0 1px 3px light-dark(rgb(0 0 0 / 6%), rgb(0 0 0 / 30%));
+}
+
+.site-header__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-md);
+  min-height: 72px;
+}
+
+.site-header__nav {
+  flex: 1;
+  min-width: 0;
+}
+
+.site-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  margin-inline-start: auto;
+}
+
+.nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Brand */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px;
+  border-radius: var(--mantine-radius-md);
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand__mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--mantine-color-blue-9), var(--mantine-color-teal-9));
+  color: var(--mantine-color-white);
+}
+
+.brand__name {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+/* Links and group triggers of the main navigation */
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--mantine-radius-md);
+  background: transparent;
+  color: light-dark(var(--mantine-color-gray-9), var(--mantine-color-gray-2));
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav-link:hover {
+  background: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-5));
+}
+
+/* The current page is marked by weight and an underline, not by colour alone (WCAG 1.4.1). */
+.nav-link[aria-current='page'],
+.nav-link[data-active] {
+  background: light-dark(var(--mantine-color-blue-0), var(--mantine-color-dark-5));
+  color: light-dark(var(--mantine-color-blue-9), var(--mantine-color-blue-1));
+  box-shadow: inset 0 -3px 0 currentcolor;
+}
+
+.nav-link--staff {
+  border: 1px solid currentcolor;
+}
+
+.nav-link:focus-visible,
+.brand:focus-visible {
+  outline: 3px solid light-dark(var(--mantine-color-blue-8), var(--mantine-color-blue-3));
+  outline-offset: 2px;
+}
+
+.nav-link__chevron {
+  transition: transform 150ms ease;
+}
+
+.nav-link[aria-expanded='true'] .nav-link__chevron {
+  transform: rotate(180deg);
+}
+
+/* Mobile menu */
+.mobile-nav__group-title {
+  margin: 0 0 4px;
+  padding-inline: 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mantine-color-dimmed);
+}
+
+.mobile-nav__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mobile-nav__list .nav-link {
+  width: 100%;
+}
+
+/* ---- Footer ---- */
+.site-footer {
+  margin-top: var(--mantine-spacing-xl);
+  border-top: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  background: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
+}
+
+.site-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mantine-spacing-xs) var(--mantine-spacing-lg);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Items of every menu (navigation, account) get a comfortable target and a readable size. */
+.mantine-Menu-item {
+  min-height: 44px;
+  font-size: var(--mantine-font-size-md);
+}
+
+.mantine-Menu-label {
+  font-size: var(--mantine-font-size-xs);
+}

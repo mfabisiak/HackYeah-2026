@@ -1,62 +1,35 @@
-import {
-  Alert,
-  Anchor,
-  Button,
-  Container,
-  Group,
-  Menu,
-  Text,
-  Title,
-  useComputedColorScheme,
-  useMantineColorScheme,
-} from '@mantine/core'
-import { IconCheck, IconChevronDown, IconMoon, IconSun } from '@tabler/icons-react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { useEffect, useRef } from 'react'
+import { Alert, Anchor, Button, Container, Group, Text } from '@mantine/core'
+import { Link, Outlet, useLocation } from 'react-router-dom'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { resetMockHubData } from 'hubmi-client'
-import { useAuth } from '../auth/AuthContext'
 import { MOCK_MODE } from '../auth/keycloak'
-import { NotificationBell } from '../features/messaging/NotificationBell'
+import { SiteHeader } from './SiteHeader'
+import './layout.css'
 
-const contentLinks = [
-  { to: '/', label: 'Start' },
-  { to: '/dopasuj', label: 'Opisz problem' },
-  { to: '/asystent', label: 'Asystent pomysłów' },
-  { to: '/innowacje', label: 'Baza innowacji' },
-  { to: '/wyzwania', label: 'Wyzwania Małopolski' },
-  { to: '/materialy', label: 'Materiały edukacyjne' },
-  { to: '/pomysly', label: 'Moje pomysły' },
-  { to: '/nabory', label: 'Nabory' },
-  { to: '/wnioski', label: 'Moje wnioski' },
-]
-
-const accountLinks = [
-  { to: '/status', label: 'Status' },
-  { to: '/konto', label: 'Moje konto' },
-]
+const DEFAULT_TITLE = 'HubMI – Małopolski Hub Innowacji Społecznych'
 
 export function Shell() {
-  const { ready, authenticated, username, login, logout, hasRole, demo } = useAuth()
-  const navLinks = [
-    ...contentLinks,
-    ...(authenticated
-      ? [
-          { to: '/wiadomosci', label: 'Wiadomości z ROPS' },
-          { to: '/moje-plany', label: 'Moje plany' },
-        ]
-      : []),
-    ...accountLinks,
-    ...(authenticated && hasRole('admin') ? [{ to: '/admin', label: 'Panel admina' }] : []),
-    ...(authenticated && !hasRole('admin') && hasRole('expert') ? [{ to: '/ekspert', label: 'Panel eksperta' }] : []),
-  ]
-  const { setColorScheme } = useMantineColorScheme()
-  const scheme = useComputedColorScheme('light')
   const mainRef = useRef<HTMLElement>(null)
   const { pathname } = useLocation()
+  const shownPath = useRef(pathname)
 
-  // Move focus to the page content on navigation so screen-reader and keyboard users land on the new view.
+  // A page that sets no title of its own must not keep the one of the previous page (WCAG 2.4.2): the title is
+  // reset before the new page runs its effects and, when it stays unset, taken from the heading of the page.
+  useLayoutEffect(() => {
+    document.title = DEFAULT_TITLE
+  }, [pathname])
+
+  // After a navigation screen-reader and keyboard users land on the new view, and everybody starts at its top.
+  // Not on the first load: there the page simply opens at the top with the focus where the browser puts it.
   useEffect(() => {
-    mainRef.current?.focus()
+    if (document.title === DEFAULT_TITLE) {
+      const heading = mainRef.current?.querySelector('h1')?.textContent?.trim()
+      if (heading && pathname !== '/') document.title = `${heading} | HubMI`
+    }
+    if (shownPath.current === pathname) return
+    shownPath.current = pathname
+    window.scrollTo(0, 0)
+    mainRef.current?.focus({ preventScroll: true })
   }, [pathname])
 
   return (
@@ -64,65 +37,35 @@ export function Shell() {
       <a className="skip-link" href="#main">
         Przejdź do treści
       </a>
-      <header>
-        <Container size="lg" py="md">
-          <Group justify="space-between" wrap="wrap" gap="md">
-            <Title order={1} size="h3">
-              HubMI
-            </Title>
-            <nav aria-label="Główna nawigacja">
-              <Group component="ul" gap="md" p={0} m={0} style={{ listStyle: 'none' }}>
-                {navLinks.map((link) => (
-                  <li key={link.to}>
-                    <Anchor component={NavLink} to={link.to} end={link.to === '/'} underline="hover" fw={500}>
-                      {link.label}
-                    </Anchor>
-                  </li>
-                ))}
-              </Group>
-            </nav>
-            <Group gap="sm">
-              {demo ? (
-                <>
-                  {authenticated && <NotificationBell />}
-                  <DemoAccountMenu />
-                </>
-              ) : ready && authenticated ? (
-                <>
-                  <NotificationBell />
-                  <Text span>Zalogowano: {username}</Text>
-                  <Button variant="default" onClick={logout}>
-                    Wyloguj
-                  </Button>
-                </>
-              ) : (
-                <Button onClick={login} disabled={!ready}>
-                  Zaloguj się
-                </Button>
-              )}
-              <Button
-                variant="default"
-                onClick={() => setColorScheme(scheme === 'dark' ? 'light' : 'dark')}
-                aria-label={scheme === 'dark' ? 'Włącz jasny motyw' : 'Włącz ciemny motyw'}
-                leftSection={scheme === 'dark' ? <IconSun aria-hidden size={18} /> : <IconMoon aria-hidden size={18} />}
-              >
-                {scheme === 'dark' ? 'Jasny' : 'Ciemny'}
-              </Button>
-            </Group>
-          </Group>
-        </Container>
-      </header>
+      <SiteHeader />
       {MOCK_MODE && <DemoNotice />}
       <main id="main" ref={mainRef} tabIndex={-1} style={{ outline: 'none' }}>
         <Container size="lg" py="xl">
           <Outlet />
         </Container>
       </main>
-      <footer>
-        <Container size="lg" py="md">
-          <Text size="sm" c="dimmed">
-            Prototyp na potrzeby HackYeah 2026 · dane przykładowe
-          </Text>
+      <footer className="site-footer">
+        <Container size="lg" py="lg">
+          <Group justify="space-between" align="flex-start" gap="lg">
+            <Text size="sm" c="dimmed" maw={420}>
+              Prototyp na potrzeby HackYeah 2026 · dane przykładowe. Platforma Małopolskiego Hubu Innowacji Społecznych
+              dla Regionalnego Ośrodka Polityki Społecznej w Krakowie.
+            </Text>
+            <nav aria-label="Informacje">
+              <ul className="site-footer__links">
+                <li>
+                  <Anchor component={Link} to="/dostepnosc" size="sm">
+                    Deklaracja dostępności
+                  </Anchor>
+                </li>
+                <li>
+                  <Anchor component={Link} to="/status" size="sm">
+                    Status systemu
+                  </Anchor>
+                </li>
+              </ul>
+            </nav>
+          </Group>
         </Container>
       </footer>
     </>
@@ -137,7 +80,7 @@ function DemoNotice() {
   }
 
   return (
-    <Container size="lg" pt="md">
+    <Container size="lg" pt="md" w="100%" component="aside" aria-label="Informacja o wersji demonstracyjnej">
       <Alert color="blue" variant="light" title="Wersja demonstracyjna" role="note">
         <Group justify="space-between" gap="md">
           <Text size="sm" maw={720}>
@@ -150,46 +93,5 @@ function DemoNotice() {
         </Group>
       </Alert>
     </Container>
-  )
-}
-
-/** In the demo there is no Keycloak: one picks the role to sign in as, and can switch to another any time. */
-function DemoAccountMenu() {
-  const { authenticated, logout, demo } = useAuth()
-  if (!demo) return null
-
-  return (
-    <Menu position="bottom-end" withinPortal>
-      <Menu.Target>
-        <Button variant={authenticated ? 'default' : 'filled'} rightSection={<IconChevronDown aria-hidden size={16} />}>
-          {authenticated ? `Zalogowano: ${demo.current.username} (${demo.current.label})` : 'Zaloguj się jako…'}
-        </Button>
-      </Menu.Target>
-      <Menu.Dropdown>
-        <Menu.Label>{authenticated ? 'Zmień konto demo' : 'Wybierz konto demo'}</Menu.Label>
-        {demo.accounts.map((account) => {
-          const isCurrent = authenticated && account.role === demo.current.role
-          return (
-            <Menu.Item
-              key={account.role}
-              onClick={() => demo.signInAs(account.role)}
-              rightSection={isCurrent ? <IconCheck aria-hidden size={16} /> : undefined}
-              aria-current={isCurrent ? 'true' : undefined}
-            >
-              {account.label}
-              <Text size="xs" c="dimmed">
-                {account.username}
-              </Text>
-            </Menu.Item>
-          )
-        })}
-        {authenticated && (
-          <>
-            <Menu.Divider />
-            <Menu.Item onClick={logout}>Wyloguj</Menu.Item>
-          </>
-        )}
-      </Menu.Dropdown>
-    </Menu>
   )
 }

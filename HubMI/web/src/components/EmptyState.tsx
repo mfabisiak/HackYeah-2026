@@ -7,6 +7,8 @@ export interface EmptyStateProps {
   description?: string
   icon?: ReactNode
   action?: ReactNode
+  /** Heading level of the title; the default fits a page whose title is the `h1`. */
+  titleOrder?: 2 | 3 | 4
 }
 
 export function EmptyState({
@@ -14,6 +16,7 @@ export function EmptyState({
   description,
   icon,
   action,
+  titleOrder = 2,
 }: EmptyStateProps) {
   return (
     <Paper
@@ -30,14 +33,14 @@ export function EmptyState({
             width: 56,
             height: 56,
             borderRadius: '50%',
-            backgroundColor: 'var(--mantine-color-gray-1)',
-            color: 'var(--mantine-color-gray-6)',
+            backgroundColor: 'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-5))',
+            color: 'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-3))',
           }}
           aria-hidden="true"
         >
           {icon ?? <IconInbox size={32} />}
         </Center>
-        <Title order={3} size="h4" ta="center">
+        <Title order={titleOrder} size="h4" ta="center">
           {title}
         </Title>
         {description && (

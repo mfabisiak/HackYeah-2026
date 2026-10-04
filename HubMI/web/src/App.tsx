@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { Shell } from './layout/Shell'
 import { AccountPage } from './pages/AccountPage'
+import { AccessibilityPage } from './pages/AccessibilityPage'
 import { AdminPage } from './pages/AdminPage'
 import { ExpertPage } from './pages/ExpertPage'
 import { HomePage } from './pages/HomePage'
@@ -70,6 +71,7 @@ export default function App() {
           <Route path="wnioski" element={signedIn(<ApplicationsListPage />)} />
           <Route path="wnioski/:id" element={signedIn(<ApplicationWizardPage />)} />
           <Route path="status" element={<StatusPage />} />
+          <Route path="dostepnosc" element={<AccessibilityPage />} />
           <Route
             path="wiadomosci"
             element={

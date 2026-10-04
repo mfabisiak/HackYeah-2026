@@ -1,3 +1,8 @@
+body {
+  background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-8));
+  line-height: 1.6;
+}
+
 .skip-link {
   position: absolute;
   left: 8px;
@@ -32,8 +37,16 @@
   --mantine-color-error: var(--mantine-color-red-9);
 }
 
+/* In the dark scheme the default dimmed text is 4.0:1 on the page background. */
+:root[data-mantine-color-scheme='dark'] {
+  --mantine-color-dimmed: var(--mantine-color-dark-1);
+}
+
 /* Long badge and button labels must wrap instead of widening the page on a phone (WCAG 1.4.10 reflow). */
+/* Mantine sets badges in capitals: whole words in capitals are harder to read, for dyslexic readers above all. */
 .mantine-Badge-root {
+  text-transform: none;
+  letter-spacing: 0;
   height: auto !important;
   min-height: var(--badge-height);
   max-width: 100%;

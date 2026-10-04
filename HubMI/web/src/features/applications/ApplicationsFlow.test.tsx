@@ -347,7 +347,8 @@ describe('application wizard (FE-05)', () => {
     const path = currentLocation().split('?')[0]
     fill(/^Tytuł innowacji/, 'Zapisane przy wyjściu')
     // Straight away, well within the 2.5 s autosave delay.
-    await user.click(within(screen.getByRole('navigation', { name: 'Główna nawigacja' })).getByRole('link', { name: 'Moje wnioski' }))
+    await user.click(within(screen.getByRole('navigation', { name: 'Główna nawigacja' })).getByRole('button', { name: 'Pomysły i granty' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Moje wnioski' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Moje wnioski' })).toBeInTheDocument()
     await waitFor(async () => {
       const stored = await fetch(`/api/applications/${path.split('/').pop()}`).then((r) => r.json())
