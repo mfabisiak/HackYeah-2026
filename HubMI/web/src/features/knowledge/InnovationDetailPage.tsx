@@ -41,6 +41,7 @@ import {
 } from './constants'
 import { InnovationFeedbackSection } from './InnovationFeedbackSection'
 import { TestRequestModal } from './TestRequestModal'
+import { AdaptationModal } from '../adaptations/AdaptationModal'
 import type { InnovationJs, TestRequestJs } from 'hubmi-client'
 
 function formatRatingCount(count: number): string {
@@ -61,6 +62,7 @@ export function InnovationDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [testModalOpened, setTestModalOpened] = useState(false)
+  const [adaptationModalOpened, setAdaptationModalOpened] = useState(false)
 
   useEffect(() => {
     if (!id || !authenticated) return
@@ -181,6 +183,17 @@ export function InnovationDetailPage() {
             styles={{ root: { fontSize: '1.05rem', fontWeight: 600 } }}
           >
             Oceń rozwiązanie
+          </Button>
+
+          <Button
+            onClick={() => setAdaptationModalOpened(true)}
+            variant="light"
+            color="grape"
+            size="lg"
+            leftSection={<IconSparkles size={22} aria-hidden="true" />}
+            styles={{ root: { fontSize: '1.05rem', fontWeight: 600 } }}
+          >
+            Dostosuj do mojej instytucji
           </Button>
 
           <Button
@@ -537,6 +550,13 @@ export function InnovationDetailPage() {
         innovationTitle={innovation.title}
         existingRequest={existingRequest}
         onRequestUpdated={setExistingRequest}
+      />
+
+      <AdaptationModal
+        opened={adaptationModalOpened}
+        onClose={() => setAdaptationModalOpened(false)}
+        innovationId={innovation.id}
+        innovationTitle={innovation.title}
       />
     </Stack>
   )

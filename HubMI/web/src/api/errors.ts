@@ -112,3 +112,8 @@ export function extractFieldErrors(error: unknown): Record<string, string> {
   }
   return result
 }
+
+/** The message to show for an error the client returns in an `ApiResult`: the usual wording per code, else the server's. */
+export function describeApiError(error: ApiErrorJs): string {
+  return ERROR_CODE_MESSAGES[error.code] ?? error.message ?? 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.'
+}

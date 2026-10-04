@@ -100,6 +100,10 @@ samples/        + `const val ..._COLLECTION` i `MongoDatabase.xxx` w repozytoriu
                 `XxxRoutes` (cienkie routy: parsowanie → serwis → odpowiedź)
 matching/     dopasowanie potrzeb do innowacji (`POST /api/matches`): silniki (BM25, oczyszczanie danych osobowych, indeks
                 w pamięci – czyste, bez IO poza `InnovationIndex`), `MatchService`, `NeedItem`/`NeedRepository`
+adaptations/  Middleman (`POST /api/innovations/{id}/adaptations`): plan pilotażu innowacji dla instytucji, zapisany do przeglądu
+                admina; prompty i walidator planu, `AdaptationService`; model i kolejka do niego pochodzą z `assistant/`
+assistant/    asystent kreatora pomysłów (`/api/ideas/assist`): port `LlmClient` (Ollama), prompty, walidator odpowiedzi modelu,
+                `AssistService` (strumień zdarzeń); to, co da się policzyć bez modelu (podobne innowacje), nie zależy od modelu
 auth/         Keycloak/JWT: `configureSecurity`, `requireRole`, `CurrentUser`, `/api/me`, `/api/admin`
 health/       `/`, `/api/health`, `/api/health/ready`
 common/       współdzielone: `DomainError`, `RepositoryError`, paginacja, parsowanie i value classes używane przez wiele
@@ -113,7 +117,7 @@ di/           moduły Koin
 ```
 
 Podział jest **domenowy, nie warstwowy**: nowa funkcjonalność = nowy pakiet z własnym `Id`/`Draft`/`Item`/`Repository`/
-`Service`/`Routes`. Domeny nie zależą od siebie wzajemnie (wyjątek: `matching` korzysta z `innovations`); to, co potrzebuje więcej niż jedna, trafia do `common`.
+`Service`/`Routes`. Domeny nie zależą od siebie wzajemnie (wyjątki: `matching` korzysta z `innovations`, `assistant` z `matching`, `innovations` i `ideas`, `adaptations` z `innovations` i `assistant`); to, co potrzebuje więcej niż jedna, trafia do `common`.
 
 W `:core/commonMain` leżą **DTO i żądania/odpowiedzi API** (współdzielone z klientami) – serializowalne,
 niemutowalne, bez zależności od Ktora i Mongo.
@@ -180,12 +184,16 @@ Przepływ: `route (parsowanie do typów domenowych) → service → repository`.
   każdy wynik to `ApiResult<T>` (`value` albo `error`); w Kotlinie `Either` mapujemy na `ApiResult` w jednym miejscu (`toResult`).
 - Nowy endpoint: DTO + `@Resource` w `:core` → implementacja w `:server` → metoda w module `...Api` + typ `...Js` w `:web-client`
   → użycie w React. Po zmianie w Kotlinie przebuduj klienta (komenda wyżej).
-- **Układ `:web-client`** (`web/`, podpakiety per moduł: `innovations`, `knowledge`, `matching`, `ideas`, `messaging`, `admin`):
+- **Układ `:web-client`** (`web/`, podpakiety per moduł: `innovations`, `knowledge`, `matching`, `ideas`, `assistant`, `adaptations`, `messaging`, `admin`):
   `HubApi` trzyma moduły (`hubApi.innovations.list(...)`). W podpakiecie leżą dwa pliki: `XxxApi(s).kt` (klasy `...Api`)
   oraz `XxxTypes.kt` (wszystkie typy `...Js` modułu razem z mapowaniem DTO ↔ `...Js`). Wspólne helpery HTTP (`Fetch.kt`:
   `fetch`, `send`, `sendForUnit`), parsowanie enumów (`Arguments.kt`) i typy wspólne (`JsTypes.kt`: `ApiResult`,
   `ApiErrorJs`, `PageJs`, `EmptyJs`) są w `web/`. Nie mnożymy plików: jeden plik na typ obowiązuje w `:server`, a tu typy
   `...Js` to cienkie kontenery danych grupowane per moduł.
+- **Strumienie (SSE)** też przechodzą granicę jako `Promise`, nie jako wyjątki: metoda zwraca uchwyt (`StreamJs<T>`)
+  z `result` (`Promise<ApiResult<…>>`, rozstrzyga się po końcu strumienia) i `cancel()`, a kolejne części odpowiedzi
+  dostarcza opcjonalny obiekt z callbackami (`external interface`, w TS zwykły literał). `EventSource` odpada, bo nie wysyła
+  `Authorization`; strumień czyta `Flow<SseMessage>` z `EventStream.kt` (`eventStream`, `collectEvents`, `startStream`), a parsuje `SseParser` z `:core`.
 - Enumy przechodzą granicę JS jako nazwy (`"AGING"`), a parsuje je `enumOf`/`enumOrNull`/`enumsOf`; nieznana nazwa to
   `ApiResult` z błędem `INVALID_ARGUMENT` (status `0`), nie wyjątek. `Map` z DTO zamieniamy na tablicę par (`AnswerJs`),
   odpowiedź `204` to `ApiResult<EmptyJs>`. Kody błędów klienta (`NETWORK_ERROR`, `INVALID_RESPONSE`, `HTTP_<status>`) mają

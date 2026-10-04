@@ -181,6 +181,7 @@ Formularz fiszki, „Moje pomysły" ze statusami, lista naborów, formularz wnio
 6. **Generator wniosków:** formularz renderowany z `fields` naboru; typy pól (tekst, długi tekst, liczba, wybór) i **prefill z fiszki** — wymaga rozszerzenia `CallField` (typ, limit znaków, podpowiedź, mapowanie na pole fiszki; zob. #5). Do czasu zmiany kontraktu obsłużyć tylko tekst.
 7. **Canvy innowacji:** link do materiałów typu `CANVAS` w kreatorze („Potrzebujesz pomocy? Pobierz canvę").
 8. **Asystent AI (bonus):** miejsce na panel „Podpowiedzi" (FE-10 poza zakresem), włączane po BE-10.
+   *Stan:* panel jest gotowy jako `AssistantPanel` (`web/src/features/assistant`), na razie na własnej stronie `/asystent`; w kreatorze wystarczy go osadzić, podając `resolveIdea` z formularza fiszki.
 
 ### Kryteria akceptacji
 - [ ] Wysłanie fiszki z samego klawiatury; błędy ogłaszane i powiązane z polami.

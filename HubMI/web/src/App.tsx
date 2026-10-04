@@ -34,6 +34,10 @@ const ApplicationWizardPage = lazy(() =>
   import('./features/applications').then((m) => ({ default: m.ApplicationWizardPage })),
 )
 
+// The assistant and the Middleman screens guard themselves (login, role), so they only need to load on demand.
+const AssistantPage = lazy(() => import('./features/assistant').then((m) => ({ default: m.AssistantPage })))
+const MyAdaptationsPage = lazy(() => import('./features/adaptations').then((m) => ({ default: m.MyAdaptationsPage })))
+
 const signedIn = (page: React.ReactNode) => (
   <RequireAuth>
     <Suspense fallback={<LoadingState message="Ładowanie..." />}>{page}</Suspense>
@@ -58,6 +62,8 @@ export default function App() {
           <Route path="pomysly" element={signedIn(<MyIdeasPage />)} />
           <Route path="pomysly/nowy" element={signedIn(<IdeaWizardPage />)} />
           <Route path="pomysly/:id" element={signedIn(<IdeaDetailPage />)} />
+          <Route path="asystent" element={onDemand(<AssistantPage />)} />
+          <Route path="moje-plany" element={onDemand(<MyAdaptationsPage />)} />
           <Route path="nabory" element={onDemand(<CallsListPage />)} />
           <Route path="nabory/:id" element={onDemand(<CallDetailPage />)} />
           <Route path="wnioski" element={signedIn(<ApplicationsListPage />)} />

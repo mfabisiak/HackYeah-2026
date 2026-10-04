@@ -8,6 +8,7 @@ import { NotificationBell } from '../features/messaging/NotificationBell'
 const contentLinks = [
   { to: '/', label: 'Start' },
   { to: '/dopasuj', label: 'Opisz problem' },
+  { to: '/asystent', label: 'Asystent pomysłów' },
   { to: '/innowacje', label: 'Baza innowacji' },
   { to: '/wyzwania', label: 'Wyzwania Małopolski' },
   { to: '/materialy', label: 'Materiały edukacyjne' },
@@ -25,7 +26,12 @@ export function Shell() {
   const { ready, authenticated, username, login, logout, hasRole } = useAuth()
   const navLinks = [
     ...contentLinks,
-    ...(authenticated ? [{ to: '/wiadomosci', label: 'Wiadomości z ROPS' }] : []),
+    ...(authenticated
+      ? [
+          { to: '/wiadomosci', label: 'Wiadomości z ROPS' },
+          { to: '/moje-plany', label: 'Moje plany' },
+        ]
+      : []),
     ...accountLinks,
     ...(authenticated && hasRole('admin') ? [{ to: '/admin', label: 'Panel admina' }] : []),
   ]

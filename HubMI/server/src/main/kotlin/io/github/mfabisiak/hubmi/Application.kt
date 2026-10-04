@@ -1,6 +1,9 @@
 package io.github.mfabisiak.hubmi
 
+import io.github.mfabisiak.hubmi.adaptations.adaptationRoutes
 import io.github.mfabisiak.hubmi.admin.adminRoutes
+import io.github.mfabisiak.hubmi.assistant.AssistService
+import io.github.mfabisiak.hubmi.assistant.assistRoutes
 import io.github.mfabisiak.hubmi.auth.authRoutes
 import io.github.mfabisiak.hubmi.auth.configureSecurity
 import io.github.mfabisiak.hubmi.calls.grantCallRoutes
@@ -69,6 +72,7 @@ fun Application.module(
 
     // Outside the blocking block above: a slow or absent Ollama must not delay start-up, only the first match
     launch { get<MatchingEngine>().warmUp() }
+    launch { get<AssistService>().warmUp() }
 
     val notificationEventListener = get<NotificationEventListener>()
     notificationEventListener.start()
@@ -83,6 +87,8 @@ fun Application.module(
         matchRoutes()
         testerRoutes()
         ideaRoutes()
+        assistRoutes()
+        adaptationRoutes()
         grantCallRoutes()
         messagingRoutes()
         adminRoutes()

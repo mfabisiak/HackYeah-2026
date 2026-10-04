@@ -4,7 +4,9 @@ import io.github.mfabisiak.hubmi.api.Api
 import io.github.mfabisiak.hubmi.api.Health
 import io.github.mfabisiak.hubmi.api.HealthResponse
 import io.github.mfabisiak.hubmi.api.MeResponse
+import io.github.mfabisiak.hubmi.web.adaptations.AdaptationsApi
 import io.github.mfabisiak.hubmi.web.admin.AdminApi
+import io.github.mfabisiak.hubmi.web.assistant.AssistantApi
 import io.github.mfabisiak.hubmi.web.ideas.ApplicationsApi
 import io.github.mfabisiak.hubmi.web.ideas.CallsApi
 import io.github.mfabisiak.hubmi.web.ideas.IdeasApi
@@ -52,6 +54,8 @@ class HubApi(
     val materials = MaterialsApi(client, scope)
     val matches = MatchesApi(client, scope)
     val ideas = IdeasApi(client, scope)
+    val assistant = AssistantApi(client, scope)
+    val adaptations = AdaptationsApi(client, scope)
     val calls = CallsApi(client, scope)
     val applications = ApplicationsApi(client, scope)
     val threads = ThreadsApi(client, scope)

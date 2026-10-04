@@ -11,7 +11,10 @@ import kotlin.test.assertIs
 class AppConfigTest {
     @Test
     fun emptyEnvironmentGivesDefaults() {
-        assertEquals(Either.Right(AppConfig(matchingMode = MatchingMode.HYBRID)), AppConfig.fromEnv(emptyMap()))
+        assertEquals(
+            Either.Right(AppConfig(matchingMode = MatchingMode.HYBRID, assistantEnabled = true)),
+            AppConfig.fromEnv(emptyMap()),
+        )
     }
 
     @Test
@@ -38,6 +41,16 @@ class AppConfigTest {
             AppConfig.fromEnv(mapOf("OLLAMA_URL" to "http://host.docker.internal:11434", "EMBEDDING_MODEL" to "x"))
         assertEquals("http://host.docker.internal:11434", config.getOrNull()?.ollamaUrl)
         assertEquals("x", config.getOrNull()?.embeddingModel)
+    }
+
+    @Test
+    fun theAssistantIsOnUnlessSwitchedOffAndUsesTheConfiguredModel() {
+        assertEquals(false, AppConfig.fromEnv(mapOf("ASSISTANT_ENABLED" to "false")).getOrNull()?.assistantEnabled)
+        assertEquals("m", AppConfig.fromEnv(mapOf("LLM_MODEL" to "m")).getOrNull()?.llmModel)
+        assertEquals(
+            ConfigError.InvalidBoolean("ASSISTANT_ENABLED", "maybe"),
+            AppConfig.fromEnv(mapOf("ASSISTANT_ENABLED" to "maybe")).leftOrNull(),
+        )
     }
 
     @Test

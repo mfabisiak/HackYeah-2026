@@ -20,6 +20,11 @@ sealed interface ConfigError {
         val key: String,
         val value: String,
     ) : ConfigError
+
+    data class InvalidBoolean(
+        val key: String,
+        val value: String,
+    ) : ConfigError
 }
 
 /**
@@ -29,7 +34,9 @@ sealed interface ConfigError {
  * while [keycloakJwksUrl] is the URL the server itself uses to download signing keys (inside docker it differs).
  *
  * [matchingMode] is [MatchingMode.KEYWORD] here so that code building a config by hand (tests) never reaches for
- * Ollama; the server started from the environment defaults to [MatchingMode.HYBRID].
+ * Ollama; the server started from the environment defaults to [MatchingMode.HYBRID]. The same goes for
+ * [assistantEnabled]: off for a hand-built config, on from the environment (an absent model then just means that the
+ * assistant answers without it).
  */
 data class AppConfig(
     val port: Int = 8080,
@@ -41,6 +48,8 @@ data class AppConfig(
     val matchingMode: MatchingMode = MatchingMode.KEYWORD,
     val ollamaUrl: String = "http://localhost:11434",
     val embeddingModel: String = "bge-m3",
+    val llmModel: String = "SpeakLeash/bielik-4.5b-v3.0-instruct:Q8_0",
+    val assistantEnabled: Boolean = false,
 ) {
     companion object {
         fun fromEnv(env: Map<String, String> = System.getenv()): Either<ConfigError, AppConfig> =
@@ -65,6 +74,12 @@ data class AppConfig(
                 ensureNotNull(Either.catch { URI(ollamaUrl).toURL() }.getOrNull()) {
                     ConfigError.InvalidUrl("OLLAMA_URL", ollamaUrl)
                 }
+                val assistantEnabled =
+                    env[ASSISTANT_ENABLED_KEY]?.let { raw ->
+                        ensureNotNull(
+                            raw.toBooleanStrictOrNull(),
+                        ) { ConfigError.InvalidBoolean(ASSISTANT_ENABLED_KEY, raw) }
+                    } ?: true
                 AppConfig(
                     port = port,
                     keycloakIssuer = issuer,
@@ -75,9 +90,12 @@ data class AppConfig(
                     matchingMode = matchingMode,
                     ollamaUrl = ollamaUrl,
                     embeddingModel = env["EMBEDDING_MODEL"] ?: defaults.embeddingModel,
+                    llmModel = env["LLM_MODEL"] ?: defaults.llmModel,
+                    assistantEnabled = assistantEnabled,
                 )
             }
 
         private const val MATCHING_MODE_KEY = "MATCHING_MODE"
+        private const val ASSISTANT_ENABLED_KEY = "ASSISTANT_ENABLED"
     }
 }

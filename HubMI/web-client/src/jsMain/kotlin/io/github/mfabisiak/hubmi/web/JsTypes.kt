@@ -4,6 +4,7 @@ import io.github.mfabisiak.hubmi.api.ErrorResponse
 import io.github.mfabisiak.hubmi.api.FieldError
 import io.github.mfabisiak.hubmi.api.FieldErrorCode
 import io.github.mfabisiak.hubmi.api.Page
+import kotlin.js.Promise
 
 /**
  * Types exported to TypeScript (this package and its sub-packages) may only use JS-friendly members: no value classes,
@@ -37,6 +38,18 @@ class ApiResult<T>(
     val error: ApiErrorJs?,
 ) {
     val ok: Boolean get() = error == null
+}
+
+/**
+ * A running call that streams its answer: [result] settles when the answer is complete, failed or cancelled (so it
+ * never rejects), and [cancel] aborts the request, after which [result] holds the error `CANCELLED`.
+ */
+@JsExport
+class StreamJs<T> internal constructor(
+    val result: Promise<ApiResult<T>>,
+    private val stop: () -> Unit,
+) {
+    fun cancel() = stop()
 }
 
 /** Value of an [ApiResult] for `204 No Content` responses; check [ApiResult.ok] only. */

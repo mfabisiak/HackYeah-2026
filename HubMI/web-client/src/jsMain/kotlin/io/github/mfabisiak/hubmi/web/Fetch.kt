@@ -33,7 +33,7 @@ internal suspend fun HttpClient.execute(
             if (response.status.isSuccess()) response.right() else response.toApiError().left()
         }
 
-private suspend fun HttpResponse.toApiError(): ApiErrorJs =
+internal suspend fun HttpResponse.toApiError(): ApiErrorJs =
     Either
         .catch { body<ErrorResponse>() }
         .fold(

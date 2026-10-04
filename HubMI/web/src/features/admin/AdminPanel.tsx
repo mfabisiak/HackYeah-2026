@@ -10,11 +10,13 @@ import {
   IconDatabase,
   IconHeartHandshake,
   IconMessageHeart,
+  IconSparkles,
   IconShieldCheck,
 } from '@tabler/icons-react'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { PageHeader } from '../../components/PageHeader'
+import { AdaptationsReviewQueue } from '../adaptations/AdaptationsReviewQueue'
 import { AdminSummaryOverview } from './AdminSummaryOverview'
 import { ContentManagement } from './ContentManagement'
 import { FeedbackModerationQueue } from './FeedbackModerationQueue'
@@ -127,6 +129,13 @@ export function AdminPanel() {
             >
               Opinie testerów
             </Tabs.Tab>
+
+            <Tabs.Tab
+              value="plany"
+              leftSection={<IconSparkles size={20} aria-hidden="true" />}
+            >
+              Plany adaptacji
+            </Tabs.Tab>
           </Tabs.List>
 
           <Tabs.Panel value="wymaga-uwagi" pt="xl">
@@ -147,6 +156,10 @@ export function AdminPanel() {
 
           <Tabs.Panel value="opinie" pt="xl">
             <FeedbackModerationQueue />
+          </Tabs.Panel>
+
+          <Tabs.Panel value="plany" pt="xl">
+            <AdaptationsReviewQueue />
           </Tabs.Panel>
         </Tabs>
       </Stack>
