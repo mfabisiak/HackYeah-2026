@@ -57,7 +57,10 @@ export function initKeycloak(): Promise<boolean> {
 
 export const getAccessToken = (): string | undefined => keycloak.token
 
-/** Mock mode (`VITE_MOCK=true`) runs without Keycloak: the user is always signed in as a fixed test user. */
+/**
+ * Demo mode (`VITE_MOCK=true`) runs without server and Keycloak: `hubApi` is the Kotlin mock and the user is a fixed
+ * demo user, signed in and out by the buttons only.
+ */
 export const MOCK_MODE = import.meta.env.VITE_MOCK === 'true'
 
 /**

@@ -21,6 +21,7 @@ Opis zadania, moduły i kryteria oceny: [docs/TASK.md](docs/TASK.md); plan prac:
 ./gradlew backendCheck             # to samo co CI: ktlint + testy :server i :core
 ./gradlew :web-client:jsBrowserProductionLibraryDistribution   # klient Kotlin/JS dla frontendu (po zmianach w :core/:web-client)
 (cd web && npm run dev)            # frontend na :5173, proxy do serwera :8080
+(cd web && npm run dev:demo)       # frontend na mocku HubApi (bez serwera i Keycloaka), patrz docs/DEMO.md
 (cd web && npm run lint && npm run build)
 ./gradlew :server:run              # serwer lokalnie (wymaga Mongo i Keycloaka)
 docker compose up -d --build       # Mongo + Keycloak + serwer + frontend (:3000)
@@ -179,14 +180,19 @@ Przepływ: `route (parsowanie do typów domenowych) → service → repository`.
 
 - UI to **TypeScript + React** (Vite, Mantine, React Router). Kontrakt z backendem **nie jest pisany w TS**:
   trasy (`@Resource`) i DTO żyją w `:core`, a `:web-client` opakowuje je w klienta Ktor i eksportuje do TS (`HubApi`).
+  `HubApi` i każdy moduł (`InnovationsApi`…) to **`@JsExport interface`** z dwiema implementacjami: `Http*` (prawdziwy
+  serwer, `createHttpHubApi`) i `Mock*` (demo bez serwera, `createMockHubApi`); frontend wybiera jedną w `api/hubApi.ts`.
 - **Granica Kotlin/JS ↔ TS:** w `:web-client` eksportujemy tylko typy przyjazne JS (`String`, `Int`, `Double`, `Boolean`,
   `Array`, nullable) – bez `value class`, `Long`, `List`. Metody `suspend` zwracają `Promise`. Błędy nie są wyjątkami:
   każdy wynik to `ApiResult<T>` (`value` albo `error`); w Kotlinie `Either` mapujemy na `ApiResult` w jednym miejscu (`toResult`).
-- Nowy endpoint: DTO + `@Resource` w `:core` → implementacja w `:server` → metoda w module `...Api` + typ `...Js` w `:web-client`
-  → użycie w React. Po zmianie w Kotlinie przebuduj klienta (komenda wyżej).
+- Nowy endpoint: DTO + `@Resource` w `:core` → implementacja w `:server` → metoda w interfejsie `...Api` + `Http...Api`
+  + `Mock...Api` i typ `...Js` w `:web-client` → użycie w React. Po zmianie w Kotlinie przebuduj klienta (komenda wyżej).
+  Mock jest częścią kontraktu: metoda dodana tylko do interfejsu i `Http...` nie skompiluje się, a demo ma działać w całości.
 - **Układ `:web-client`** (`web/`, podpakiety per moduł: `innovations`, `knowledge`, `matching`, `ideas`, `assistant`, `adaptations`, `messaging`, `admin`):
-  `HubApi` trzyma moduły (`hubApi.innovations.list(...)`). W podpakiecie leżą dwa pliki: `XxxApi(s).kt` (klasy `...Api`)
-  oraz `XxxTypes.kt` (wszystkie typy `...Js` modułu razem z mapowaniem DTO ↔ `...Js`). Wspólne helpery HTTP (`Fetch.kt`:
+  `HubApi` trzyma moduły (`hubApi.innovations.list(...)`). W podpakiecie leżą cztery pliki: `XxxApi(s).kt` (interfejsy
+  `...Api` z KDoc i wartościami domyślnymi parametrów), `HttpXxxApi(s).kt` i `MockXxxApi(s).kt` (implementacje, `internal`;
+  w nich bez domyślnych parametrów, bo dziedziczą je z interfejsu) oraz `XxxTypes.kt` (wszystkie typy `...Js` modułu razem z
+  mapowaniem DTO ↔ `...Js`). Wspólne helpery HTTP (`Fetch.kt`:
   `fetch`, `send`, `sendForUnit`), parsowanie enumów (`Arguments.kt`) i typy wspólne (`JsTypes.kt`: `ApiResult`,
   `ApiErrorJs`, `PageJs`, `EmptyJs`) są w `web/`. Nie mnożymy plików: jeden plik na typ obowiązuje w `:server`, a tu typy
   `...Js` to cienkie kontenery danych grupowane per moduł.
@@ -198,6 +204,12 @@ Przepływ: `route (parsowanie do typów domenowych) → service → repository`.
   `ApiResult` z błędem `INVALID_ARGUMENT` (status `0`), nie wyjątek. `Map` z DTO zamieniamy na tablicę par (`AnswerJs`),
   odpowiedź `204` to `ApiResult<EmptyJs>`. Kody błędów klienta (`NETWORK_ERROR`, `INVALID_RESPONSE`, `HTTP_<status>`) mają
   tę samą konwencję `UPPER_SNAKE` co `ErrorCode`.
+- **Mock (demo)**: pakiet `web/mock/` – `MockDb` (cały stan jako jedna niemutowalna wartość), `MockStore` (zapis do
+  `localStorage` po każdej zmianie, klucz bez `token`/`auth`/`kc`, bo `clearAuthSession` czyści takie klucze),
+  `MockBackend` (`respond { … }` z `Raise<ApiErrorJs>` i opóźnieniem, `stream { … }`), `DemoSeed` (dane startowe z
+  `server/src/main/resources/seed`, wstrzykiwane przez zadanie Gradle `generateDemoSeed`) i `MatchIndex` (proste dopasowanie
+  po rdzeniach słów). Mock stosuje te same reguły stylu co reszta (bez `var`/`throw`, błędy jako wartości); nie sprawdza ról,
+  bo użytkownik dema jest `user` i `admin` naraz.
 - W kodzie TS: `const` zamiast `let`, brak `any`, ESLint z `jsx-a11y` musi przechodzić (`npm run lint`).
 - **WCAG 2.1 AA jest wymaganiem** (20% oceny): semantyczny HTML, obsługa klawiatury, widoczny focus, kontrast ≥ 4.5:1,
   komunikaty błędów tekstem (nie samym kolorem), `aria-live` dla wyników, `lang="pl"`, skalowanie do 200%,

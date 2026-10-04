@@ -12,6 +12,7 @@ import arrow.core.toNonEmptyListOrNull
 import io.github.mfabisiak.hubmi.api.DeclarationId
 import io.github.mfabisiak.hubmi.api.FieldError
 import io.github.mfabisiak.hubmi.api.FieldErrorCode
+import io.github.mfabisiak.hubmi.api.RopsDeclarations
 import io.github.mfabisiak.hubmi.api.SocialArea
 import io.github.mfabisiak.hubmi.common.DomainError
 import io.github.mfabisiak.hubmi.common.asNel

@@ -12,25 +12,19 @@ import { theme } from './theme'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './api/queryClient'
 
-async function prepareApp() {
-  if (import.meta.env.VITE_MOCK === 'true') {
-    const { worker } = await import('./mocks/browser')
-    await worker.start({ onUnhandledRequest: 'bypass' })
-  }
-}
+// The app may be served from a sub-path (the demo on GitHub Pages): Vite's `base` is the router's basename too.
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '')
 
-prepareApp().then(() => {
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <MantineProvider theme={theme} defaultColorScheme="auto">
-          <BrowserRouter>
-            <AuthProvider>
-              <App />
-            </AuthProvider>
-          </BrowserRouter>
-        </MantineProvider>
-      </QueryClientProvider>
-    </StrictMode>,
-  )
-})
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <MantineProvider theme={theme} defaultColorScheme="auto">
+        <BrowserRouter basename={basename}>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </BrowserRouter>
+      </MantineProvider>
+    </QueryClientProvider>
+  </StrictMode>,
+)

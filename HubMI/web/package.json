@@ -6,7 +6,9 @@
   "scripts": {
     "client": "cd .. && ./gradlew :web-client:jsBrowserProductionLibraryDistribution",
     "dev": "vite",
+    "dev:demo": "vite --mode demo",
     "build": "tsc --noEmit && vite build",
+    "build:demo": "tsc --noEmit && vite build --mode demo && node -e \"require('fs').copyFileSync('dist/index.html', 'dist/404.html')\"",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
@@ -45,10 +47,5 @@
     "vite": "^8.3.2",
     "vitest": "^5.0.3",
     "vitest-axe": "^0.1.0"
-  },
-  "msw": {
-    "workerDirectory": [
-      "public"
-    ]
   }
 }

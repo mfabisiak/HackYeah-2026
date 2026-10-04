@@ -13,6 +13,7 @@ import io.github.mfabisiak.hubmi.api.DeclarationsResponse
 import io.github.mfabisiak.hubmi.api.FieldError
 import io.github.mfabisiak.hubmi.api.FieldErrorCode
 import io.github.mfabisiak.hubmi.api.Page
+import io.github.mfabisiak.hubmi.api.RopsDeclarations
 import io.github.mfabisiak.hubmi.api.SaveApplicationDraftRequest
 import io.github.mfabisiak.hubmi.api.TargetGroup
 import io.github.mfabisiak.hubmi.common.DomainError

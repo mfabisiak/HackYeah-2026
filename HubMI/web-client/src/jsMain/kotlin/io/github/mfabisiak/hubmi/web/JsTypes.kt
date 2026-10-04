@@ -84,7 +84,7 @@ class MeJs(
 internal fun ErrorResponse.toJs(status: Int): ApiErrorJs =
     ApiErrorJs(status, code.name, message, details.map { it.toJs() }.toTypedArray())
 
-private fun FieldError.toJs(): FieldErrorJs =
+internal fun FieldError.toJs(): FieldErrorJs =
     when (val reason = code) {
         FieldErrorCode.Required -> FieldErrorJs(field, "REQUIRED", message, null, null)
         FieldErrorCode.Blank -> FieldErrorJs(field, "BLANK", message, null, null)

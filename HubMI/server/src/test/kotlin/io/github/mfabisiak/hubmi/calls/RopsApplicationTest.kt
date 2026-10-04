@@ -20,6 +20,7 @@ import io.github.mfabisiak.hubmi.api.IndividualPartnerDto
 import io.github.mfabisiak.hubmi.api.NonFormalGroupApplicantDto
 import io.github.mfabisiak.hubmi.api.PlanItemDto
 import io.github.mfabisiak.hubmi.api.Role
+import io.github.mfabisiak.hubmi.api.RopsDeclarations
 import io.github.mfabisiak.hubmi.api.SaveApplicationDraftRequest
 import io.github.mfabisiak.hubmi.api.SocialArea
 import io.github.mfabisiak.hubmi.api.UpsertCallRequest

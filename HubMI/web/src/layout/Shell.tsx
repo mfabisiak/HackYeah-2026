@@ -1,8 +1,20 @@
-import { Anchor, Button, Container, Group, Text, Title, useComputedColorScheme, useMantineColorScheme } from '@mantine/core'
+import {
+  Alert,
+  Anchor,
+  Button,
+  Container,
+  Group,
+  Text,
+  Title,
+  useComputedColorScheme,
+  useMantineColorScheme,
+} from '@mantine/core'
 import { IconMoon, IconSun } from '@tabler/icons-react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useRef } from 'react'
+import { resetMockHubData } from 'hubmi-client'
 import { useAuth } from '../auth/AuthContext'
+import { MOCK_MODE } from '../auth/keycloak'
 import { NotificationBell } from '../features/messaging/NotificationBell'
 
 const contentLinks = [
@@ -93,6 +105,7 @@ export function Shell() {
           </Group>
         </Container>
       </header>
+      {MOCK_MODE && <DemoNotice />}
       <main id="main" ref={mainRef} tabIndex={-1} style={{ outline: 'none' }}>
         <Container size="lg" py="xl">
           <Outlet />
@@ -106,5 +119,29 @@ export function Shell() {
         </Container>
       </footer>
     </>
+  )
+}
+
+/** The demo has no server: tells what it runs on, and lets the presenter start over. */
+function DemoNotice() {
+  const startOver = () => {
+    resetMockHubData()
+    window.location.reload()
+  }
+
+  return (
+    <Container size="lg" pt="md">
+      <Alert color="blue" variant="light" title="Wersja demonstracyjna" role="note">
+        <Group justify="space-between" gap="md">
+          <Text size="sm" maw={720}>
+            Aplikacja działa bez serwera, na danych przykładowych. To, co dodasz (pomysły, oceny, wnioski), zapisuje się
+            tylko w tej przeglądarce.
+          </Text>
+          <Button variant="default" size="xs" onClick={startOver}>
+            Przywróć dane początkowe
+          </Button>
+        </Group>
+      </Alert>
+    </Container>
   )
 }

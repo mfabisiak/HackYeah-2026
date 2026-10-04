@@ -47,6 +47,12 @@ Konfiguracja serwera przez zmienne środowiskowe: `KEYCLOAK_ISSUER` (musi równa
 `KEYCLOAK_JWKS_URL`, `MONGO_URI`, `MONGO_DATABASE`, `PORT`, `MATCHING_MODE`, `OLLAMA_URL`, `EMBEDDING_MODEL`. Frontend: `VITE_KEYCLOAK_URL`, `VITE_KEYCLOAK_REALM`,
 `VITE_KEYCLOAK_CLIENT_ID`, a w dev `HUBMI_BACKEND` (adres serwera dla proxy Vite).
 
+### Demo bez backendu
+
+Frontend potrafi działać na mocku `HubApi` (dane przykładowe z seedu, zmiany zapisują się w `localStorage`), bez serwera,
+Mongo i Keycloaka: `cd web && npm run dev:demo`. To samo, zbudowane pod GitHub Pages, publikuje workflow
+[demo.yml](../.github/workflows/demo.yml); szczegóły w [docs/DEMO.md](docs/DEMO.md).
+
 ### Matchmaking: Ollama (embeddingi)
 
 Dopasowanie problemu do innowacji (`POST /api/matches`) działa w trybie `MATCHING_MODE=hybrid` (domyślny): tekst (BM25) +

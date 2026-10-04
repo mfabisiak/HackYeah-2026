@@ -13,6 +13,8 @@ export interface AuthState {
 }
 
 const MOCK_USERNAME = 'jan.kowalski'
+/** The demo user can see everything, the admin panel included. */
+const MOCK_ROLES = ['user', 'admin']
 
 const AuthContext = createContext<AuthState | undefined>(undefined)
 
@@ -51,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const roles = useMemo<string[]>(() => {
     if (!authenticated) return []
-    if (MOCK_MODE) return ['user']
+    if (MOCK_MODE) return MOCK_ROLES
     const realmRoles = (keycloak.tokenParsed?.realm_access?.roles as string[] | undefined) ?? []
     return realmRoles
   }, [authenticated])
@@ -65,13 +67,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasRole: (role: string) => roles.includes(role) || (typeof keycloak.hasRealmRole === 'function' ? keycloak.hasRealmRole(role) : false),
       login: () => {
         clearAuthSession()
-        if (!MOCK_MODE) void keycloak.login({ redirectUri: window.location.href })
+        if (MOCK_MODE) setAuthenticated(true)
+        else void keycloak.login({ redirectUri: window.location.href })
       },
       logout: () => {
         // Nothing the user typed may stay behind on a shared computer.
         clearAuthSession()
         clearIdeaLocalData()
-        if (!MOCK_MODE) void keycloak.logout({ redirectUri: window.location.origin })
+        if (MOCK_MODE) setAuthenticated(false)
+        else void keycloak.logout({ redirectUri: window.location.origin })
       },
     }),
     [ready, authenticated, roles],

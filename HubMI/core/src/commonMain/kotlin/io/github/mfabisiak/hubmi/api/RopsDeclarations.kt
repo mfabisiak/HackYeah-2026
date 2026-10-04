@@ -1,11 +1,6 @@
-package io.github.mfabisiak.hubmi.calls
+package io.github.mfabisiak.hubmi.api
 
-import io.github.mfabisiak.hubmi.api.ApplicantType
-import io.github.mfabisiak.hubmi.api.DeclarationCategory
-import io.github.mfabisiak.hubmi.api.DeclarationDto
-import io.github.mfabisiak.hubmi.api.DeclarationId
-import io.github.mfabisiak.hubmi.api.DeclarationsResponse
-
+/** Declarations and RODO clauses of the ROPS application form; shared by the server and the demo client. */
 object RopsDeclarations {
     const val FORM_VERSION = 1
 
