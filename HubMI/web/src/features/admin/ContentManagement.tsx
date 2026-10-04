@@ -1,4 +1,5 @@
-import { SegmentedControl, Stack } from '@mantine/core'
+import { Stack, Tabs } from '@mantine/core'
+import { IconBulb, IconFileText, IconMapPin } from '@tabler/icons-react'
 import { useState } from 'react'
 import { ChallengesCrud } from './ChallengesCrud'
 import { InnovationsCrud } from './InnovationsCrud'
@@ -9,28 +10,54 @@ export interface ContentManagementProps {
 }
 
 export function ContentManagement({ initialSubTab = 'innowacje' }: ContentManagementProps) {
-  const [activeSubTab, setActiveSubTab] = useState<'innowacje' | 'wyzwania' | 'materialy'>(initialSubTab)
+  const [activeSubTab, setActiveSubTab] = useState<string>(initialSubTab)
 
   return (
     <Stack gap="xl">
-      <SegmentedControl
+      <Tabs
         value={activeSubTab}
-        onChange={(val) => setActiveSubTab(val as 'innowacje' | 'wyzwania' | 'materialy')}
-        data={[
-          { label: 'Baza innowacji społecznych', value: 'innowacje' },
-          { label: 'Katalog wyzwań Małopolski', value: 'wyzwania' },
-          { label: 'Materiały i publikacje edukacyjne', value: 'materialy' },
-        ]}
-        size="md"
+        onChange={(val) => val && setActiveSubTab(val)}
+        variant="pills"
         styles={{
-          root: { maxWidth: 650 },
-          label: { fontSize: '1rem', fontWeight: 600, padding: '8px 16px' },
+          tab: {
+            fontSize: '1.05rem',
+            fontWeight: 600,
+            padding: '10px 18px',
+          },
         }}
-      />
+      >
+        <Tabs.List>
+          <Tabs.Tab
+            value="innowacje"
+            leftSection={<IconBulb size={18} aria-hidden="true" />}
+          >
+            Innowacje społeczne
+          </Tabs.Tab>
+          <Tabs.Tab
+            value="wyzwania"
+            leftSection={<IconMapPin size={18} aria-hidden="true" />}
+          >
+            Wyzwania Małopolski
+          </Tabs.Tab>
+          <Tabs.Tab
+            value="materialy"
+            leftSection={<IconFileText size={18} aria-hidden="true" />}
+          >
+            Materiały i publikacje edukacyjne
+          </Tabs.Tab>
+        </Tabs.List>
 
-      {activeSubTab === 'innowacje' && <InnovationsCrud />}
-      {activeSubTab === 'wyzwania' && <ChallengesCrud />}
-      {activeSubTab === 'materialy' && <MaterialsCrud />}
+        <Tabs.Panel value="innowacje" pt="lg">
+          <InnovationsCrud />
+        </Tabs.Panel>
+        <Tabs.Panel value="wyzwania" pt="lg">
+          <ChallengesCrud />
+        </Tabs.Panel>
+        <Tabs.Panel value="materialy" pt="lg">
+          <MaterialsCrud />
+        </Tabs.Panel>
+      </Tabs>
     </Stack>
   )
 }
+

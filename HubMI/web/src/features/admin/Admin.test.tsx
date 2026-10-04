@@ -7,6 +7,7 @@ import { IdeasModerationQueue } from './IdeasModerationQueue'
 import { TestRequestsModerationQueue } from './TestRequestsModerationQueue'
 import { FeedbackModerationQueue } from './FeedbackModerationQueue'
 import { MaterialsCrud } from './MaterialsCrud'
+import { ContentManagement } from './ContentManagement'
 import { AdminPage } from '../../pages/AdminPage'
 import { hubApi } from '../../api/hubApi'
 import {
@@ -207,6 +208,7 @@ describe('Panel administratora: moderacja i zarządzanie treścią (FE-08)', () 
       expect(screen.getByText('Tytuł pomysłu i istota')).toBeInTheDocument()
       expect(screen.getByText('Zgłoszony (Nowy)')).toBeInTheDocument()
       expect(screen.getByText('Zaakceptowany')).toBeInTheDocument()
+      expect(screen.getAllByText('Seniorzy i osoby starsze').length).toBeGreaterThanOrEqual(1)
     })
 
     it('zmienia status pomysłu i wysyła decyzję z komentarzem', async () => {
@@ -402,5 +404,50 @@ describe('Panel administratora: moderacja i zarządzanie treścią (FE-08)', () 
         expect(createSpy).toHaveBeenCalled()
       })
     })
+
+    it('formularz dodawania materiału rozpoczyna się bez zaznaczonego domyślnego obszaru', async () => {
+      vi.spyOn(hubApi.materials, 'list').mockResolvedValue(
+        new ApiResult(mockMaterialsPage, null),
+      )
+
+      renderWithProviders(<MaterialsCrud />)
+
+      await waitFor(() => {
+        expect(screen.getByText('Film instruktażowy: obsługa platformy dla seniora')).toBeInTheDocument()
+      })
+
+      const addBtn = screen.getByRole('button', { name: 'Dodaj nowy materiał' })
+      fireEvent.click(addBtn)
+
+      // The areas MultiSelect should not have any preselected pills
+      const areasInputs = screen.getAllByLabelText(/Obszary tematyczne/i)
+      expect(areasInputs[0]).toHaveValue('')
+      expect(document.querySelector('.mantine-MultiSelect-pill')).toBeNull()
+    })
+  })
+
+  describe('Zarządzanie treścią ROPS (ContentManagement)', () => {
+    it('wyświetla pełne, nieucięte zakładki dla innowacji, wyzwań i materiałów edukacyjnych', async () => {
+      vi.spyOn(hubApi.innovations, 'list').mockResolvedValue(
+        new ApiResult({ items: [], total: 0, page: 0, size: 10 }, null),
+      )
+      vi.spyOn(hubApi.challenges, 'list').mockResolvedValue(
+        new ApiResult({ items: [], total: 0, page: 0, size: 10 }, null),
+      )
+      vi.spyOn(hubApi.materials, 'list').mockResolvedValue(
+        new ApiResult({ items: [], total: 0, page: 0, size: 10 }, null),
+      )
+
+      renderWithProviders(<ContentManagement />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('tab', { name: /Innowacje społeczne/i })).toBeInTheDocument()
+      })
+      expect(screen.getByRole('tab', { name: /Wyzwania Małopolski/i })).toBeInTheDocument()
+      expect(
+        screen.getByRole('tab', { name: /Materiały i publikacje edukacyjne/i }),
+      ).toBeInTheDocument()
+    })
   })
 })
+

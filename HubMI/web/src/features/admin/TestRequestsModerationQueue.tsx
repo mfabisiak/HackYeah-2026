@@ -4,6 +4,7 @@ import {
   Card,
   Group,
   Modal,
+  Paper,
   Select,
   Stack,
   Table,
@@ -35,6 +36,7 @@ export function TestRequestsModerationQueue() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null)
 
   // Decision confirmation modal state
   const [decisionItem, setDecisionItem] = useState<{
@@ -176,25 +178,25 @@ export function TestRequestsModerationQueue() {
         </Card>
       ) : (
         <Card withBorder padding={0} radius="md" style={{ overflowX: 'auto' }}>
-          <Table striped highlightOnHover verticalSpacing="md" horizontalSpacing="lg">
+          <Table striped highlightOnHover verticalSpacing="md" horizontalSpacing="md" style={{ minWidth: 920 }}>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th scope="col" style={{ fontSize: '1.05rem', fontWeight: 700 }}>
+                <Table.Th scope="col" style={{ width: '22%', fontSize: '1.05rem', fontWeight: 700 }}>
                   Rozwiązanie / Innowacja
                 </Table.Th>
-                <Table.Th scope="col" style={{ fontSize: '1.05rem', fontWeight: 700 }}>
+                <Table.Th scope="col" style={{ width: '14%', fontSize: '1.05rem', fontWeight: 700 }}>
                   Zgłaszający tester
                 </Table.Th>
-                <Table.Th scope="col" style={{ fontSize: '1.05rem', fontWeight: 700 }}>
+                <Table.Th scope="col" style={{ width: '30%', fontSize: '1.05rem', fontWeight: 700 }}>
                   Uzasadnienie (notatka)
                 </Table.Th>
-                <Table.Th scope="col" style={{ fontSize: '1.05rem', fontWeight: 700 }}>
+                <Table.Th scope="col" style={{ width: '13%', fontSize: '1.05rem', fontWeight: 700 }}>
                   Data zgłoszenia
                 </Table.Th>
-                <Table.Th scope="col" style={{ fontSize: '1.05rem', fontWeight: 700 }}>
+                <Table.Th scope="col" style={{ width: '8%', fontSize: '1.05rem', fontWeight: 700 }}>
                   Status
                 </Table.Th>
-                <Table.Th scope="col" style={{ fontSize: '1.05rem', fontWeight: 700, textAlign: 'right' }}>
+                <Table.Th scope="col" style={{ width: '13%', fontSize: '1.05rem', fontWeight: 700, textAlign: 'right' }}>
                   Decyzja ROPS
                 </Table.Th>
               </Table.Tr>
@@ -209,7 +211,7 @@ export function TestRequestsModerationQueue() {
 
                 return (
                   <Table.Tr key={req.id}>
-                    <Table.Td style={{ minWidth: 200 }}>
+                    <Table.Td style={{ minWidth: 180, wordBreak: 'break-word' }}>
                       <Text fw={700} size="md" style={{ fontSize: '1.05rem' }}>
                         {req.innovationTitle}
                       </Text>
@@ -218,19 +220,46 @@ export function TestRequestsModerationQueue() {
                       </Text>
                     </Table.Td>
 
-                    <Table.Td style={{ minWidth: 140 }}>
+                    <Table.Td style={{ minWidth: 120 }}>
                       <Text size="sm" fw={600} style={{ fontSize: '0.95rem' }}>
                         {req.userId}
                       </Text>
                     </Table.Td>
 
-                    <Table.Td style={{ minWidth: 240 }}>
-                      <Text size="sm" style={{ fontSize: '0.95rem', lineHeight: 1.5 }}>
-                        {req.note || <Text span c="dimmed" fs="italic">Brak dodatkowej notatki</Text>}
-                      </Text>
+                    <Table.Td style={{ maxWidth: 300, minWidth: 200, wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                      {req.note ? (
+                        <div>
+                          <Text
+                            size="sm"
+                            lineClamp={expandedNoteId === req.id ? undefined : 2}
+                            style={{ fontSize: '0.95rem', lineHeight: 1.5 }}
+                          >
+                            {req.note}
+                          </Text>
+                          {req.note.length > 70 && (
+                            <Button
+                              variant="subtle"
+                              size="compact-xs"
+                              color="blue"
+                              mt={2}
+                              p={0}
+                              onClick={() =>
+                                setExpandedNoteId(expandedNoteId === req.id ? null : req.id)
+                              }
+                              styles={{ root: { height: 'auto', fontWeight: 600 } }}
+                            >
+                              {expandedNoteId === req.id ? 'Zwiń treść' : 'Pokaż pełną treść'}
+                            </Button>
+                          )}
+                        </div>
+                      ) : (
+                        <Text size="sm" c="dimmed" fs="italic">
+                          Brak dodatkowej notatki
+                        </Text>
+                      )}
                     </Table.Td>
 
-                    <Table.Td style={{ minWidth: 140 }}>
+                    <Table.Td style={{ minWidth: 130 }}>
                       <Group gap={6} align="center">
                         <IconClock size={16} color="var(--mantine-color-gray-6)" aria-hidden="true" />
                         <Text component="time" dateTime={req.createdAt} size="sm" style={{ fontSize: '0.95rem' }}>
@@ -239,7 +268,7 @@ export function TestRequestsModerationQueue() {
                       </Group>
                     </Table.Td>
 
-                    <Table.Td style={{ minWidth: 150 }}>
+                    <Table.Td style={{ minWidth: 100 }}>
                       <Badge
                         color={cfg.color}
                         size="lg"
@@ -250,9 +279,9 @@ export function TestRequestsModerationQueue() {
                       </Badge>
                     </Table.Td>
 
-                    <Table.Td style={{ textAlign: 'right', minWidth: 200 }}>
+                    <Table.Td style={{ textAlign: 'right', whiteSpace: 'nowrap', minWidth: 190 }}>
                       {isPending ? (
-                        <Group gap="xs" justify="flex-end">
+                        <Group gap="xs" justify="flex-end" wrap="nowrap">
                           <Button
                             size="sm"
                             color="teal"
@@ -329,6 +358,17 @@ export function TestRequestsModerationQueue() {
             <Text size="sm" c="dimmed">
               Uwaga: Decyzja jest wiążąca i użytkownik zobaczy zaktualizowany status w swoim profilu.
             </Text>
+
+            {decisionItem.item.note && (
+              <Paper withBorder p="sm" radius="md" bg="var(--mantine-color-gray-0)">
+                <Text size="xs" c="dimmed" fw={700} tt="uppercase" mb={4}>
+                  Uzasadnienie zgłoszenia przez testera:
+                </Text>
+                <Text size="sm" style={{ lineHeight: 1.5, wordBreak: 'break-word' }}>
+                  {decisionItem.item.note}
+                </Text>
+              </Paper>
+            )}
 
             {decisionError && <ErrorAlert message={decisionError} />}
 

@@ -26,6 +26,7 @@ import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
 import { AccessiblePagination } from '../../components/Pagination'
 import { formatPolishDateTime } from '../messaging/constants'
+import { TARGET_GROUP_NAMES } from '../knowledge/constants'
 import { IDEA_STATUS_CONFIG } from './constants'
 import type { IdeaJs, PageJs } from 'hubmi-client'
 
@@ -248,7 +249,7 @@ export function IdeasModerationQueue() {
                       <Group gap={6} wrap="wrap">
                         {idea.targetGroups.map((g) => (
                           <Badge key={g} size="sm" variant="light" color="blue">
-                            {g}
+                            {TARGET_GROUP_NAMES[g] ?? g}
                           </Badge>
                         ))}
                       </Group>
@@ -338,6 +339,20 @@ export function IdeasModerationQueue() {
                   <Text size="sm" c="dimmed" style={{ fontSize: '1.05rem', lineHeight: 1.5 }}>
                     {selectedIdea.essence}
                   </Text>
+                  {selectedIdea.targetGroups && selectedIdea.targetGroups.length > 0 && (
+                    <div>
+                      <Text size="xs" c="dimmed" fw={600} tt="uppercase" mt="xs" mb={4}>
+                        Grupy odbiorców
+                      </Text>
+                      <Group gap={6} wrap="wrap">
+                        {selectedIdea.targetGroups.map((g) => (
+                          <Badge key={g} size="sm" variant="light" color="blue">
+                            {TARGET_GROUP_NAMES[g] ?? g}
+                          </Badge>
+                        ))}
+                      </Group>
+                    </div>
+                  )}
                 </Stack>
               </Card>
 

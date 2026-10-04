@@ -21,6 +21,7 @@ import {
 } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { hubApi } from '../../api/hubApi'
+import { getAccessToken } from '../../auth/keycloak'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
 import type { AdminSummaryJs } from 'hubmi-client'
@@ -40,16 +41,53 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
 
     const fetchSummary = async () => {
       try {
-        const res = await hubApi.admin.summary()
-        if (cancelled) return
-        if (res.error) {
-          setError(res.error.message || 'Nie udało się pobrać podsumowania administratora.')
-        } else if (res.value) {
-          setSummary(res.value)
-          setError(null)
+        let loadedSummary: AdminSummaryJs | null = null
+
+        // Try typed client call first
+        if (typeof hubApi.admin?.summary === 'function') {
+          try {
+            const res = await hubApi.admin.summary()
+            if (cancelled) return
+            if (res.value) {
+              loadedSummary = res.value
+            } else if (res.error) {
+              console.warn('hubApi.admin.summary returned error:', res.error)
+            }
+          } catch (clientErr) {
+            console.warn('hubApi.admin.summary threw error:', clientErr)
+          }
         }
-      } catch {
+
+        // Fallback to fetch with Bearer token if typed client didn't succeed
+        if (!loadedSummary && !cancelled) {
+          const token = getAccessToken()
+          const resp = await fetch('/api/admin/summary', {
+            headers: {
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              Accept: 'application/json',
+            },
+          })
+          if (resp.ok) {
+            const json = await resp.json()
+            if (!cancelled) {
+              loadedSummary = json as AdminSummaryJs
+            }
+          } else {
+            console.error('Direct /api/admin/summary failed with status:', resp.status)
+          }
+        }
+
+        if (cancelled) return
+
+        if (loadedSummary) {
+          setSummary(loadedSummary)
+          setError(null)
+        } else {
+          setError('Nie udało się pobrać danych podsumowania administratora. Sprawdź połączenie z serwerem.')
+        }
+      } catch (err) {
         if (!cancelled) {
+          console.error('Error fetching admin summary:', err)
           setError('Wystąpił błąd podczas ładowania danych podsumowania.')
         }
       } finally {
@@ -79,10 +117,7 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
   if (error) {
     return (
       <Stack gap="md">
-        <ErrorAlert message={error} />
-        <Button variant="default" onClick={handleRefresh} leftSection={<IconRefresh size={18} />}>
-          Spróbuj ponownie
-        </Button>
+        <ErrorAlert message={error} onRetry={handleRefresh} />
       </Stack>
     )
   }
