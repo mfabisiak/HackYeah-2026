@@ -1,11 +1,13 @@
 package io.github.mfabisiak.hubmi.web.ideas
 
 import arrow.core.raise.either
+import io.github.mfabisiak.hubmi.api.ApplicantType
 import io.github.mfabisiak.hubmi.api.ApplicationDto
 import io.github.mfabisiak.hubmi.api.CallStatus
 import io.github.mfabisiak.hubmi.api.Calls
 import io.github.mfabisiak.hubmi.api.CreateApplicationDraftRequest
 import io.github.mfabisiak.hubmi.api.CreateIdeaRequest
+import io.github.mfabisiak.hubmi.api.DeclarationsResponse
 import io.github.mfabisiak.hubmi.api.GrantCallDto
 import io.github.mfabisiak.hubmi.api.IdeaDto
 import io.github.mfabisiak.hubmi.api.Ideas
@@ -81,6 +83,29 @@ class CallsApi internal constructor(
             client
                 .fetch<Calls.Active, List<GrantCallDto>>(Calls.Active())
                 .map { calls -> calls.map { it.toJs() }.toTypedArray() }
+        }
+
+    fun get(id: String): Promise<ApiResult<GrantCallJs>> =
+        scope.promiseResult { client.fetch<Calls.ById, GrantCallDto>(Calls.ById(id = id)).map { it.toJs() } }
+
+    /**
+     * Declarations and RODO clauses of a call.
+     *
+     * @param applicantType `ApplicantType` name; without it the clauses of every applicant variant are returned.
+     */
+    fun declarations(
+        id: String,
+        applicantType: String? = null,
+    ): Promise<ApiResult<DeclarationsJs>> =
+        scope.promiseResult {
+            either {
+                val resource =
+                    Calls.ById.Declarations(
+                        parent = Calls.ById(id = id),
+                        applicantType = enumOrNull<ApplicantType>(applicantType, "applicantType"),
+                    )
+                client.fetch<Calls.ById.Declarations, DeclarationsResponse>(resource).bind().toJs()
+            }
         }
 
     fun create(request: UpsertCallJs): Promise<ApiResult<GrantCallJs>> =

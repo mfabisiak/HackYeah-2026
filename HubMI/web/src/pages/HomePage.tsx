@@ -38,9 +38,17 @@ const modules = [
   },
   {
     title: 'Kreator pomysłów na innowacje',
-    text: 'Zgłoś własny pomysł na innowację społeczną w formie zwięzłej fiszki i ubiegaj się o mikrogrant ROPS.',
-    badge: 'W kolejnym module',
-    badgeColor: 'gray',
+    text: 'Zgłoś własny pomysł na innowację społeczną w formie zwięzłej fiszki i śledź, co się z nim dzieje.',
+    to: '/pomysly/nowy',
+    badge: 'Dostępne teraz',
+    badgeColor: 'teal',
+  },
+  {
+    title: 'Nabory i wnioski o mikrogrant',
+    text: 'Sprawdź trwające nabory ROPS i złóż wniosek krok po kroku. Szkic zapisuje się na bieżąco.',
+    to: '/nabory',
+    badge: 'Dostępne teraz',
+    badgeColor: 'teal',
   },
 ]
 
