@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>HubMI – Małopolski Hub Innowacji Społecznych</title>
+<style>
+  @page { size: 1920px 1080px; margin: 0; }
+  :root {
+    --navy: #0b2a4a;
+    --navy-2: #123a63;
+    --blue: #1864ab;
+    --blue-soft: #e7f1fb;
+    --teal: #087f5b;
+    --teal-soft: #e3f7ef;
+    --grape: #862e9c;
+    --grape-soft: #f6e9fa;
+    --amber: #8a4b00;
+    --amber-soft: #fff1d6;
+    --ink: #14213d;
+    --muted: #46536a;
+    --line: #d5deea;
+    --bg: #f4f8fc;
+    --white: #fff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #888; }
+  body { font-family: -apple-system, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  .slide { width: 1920px; height: 1080px; position: relative; overflow: hidden; background: var(--white); page-break-after: always; break-after: page; padding: 64px 88px 0; display: flex; flex-direction: column; }
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+  .slide.alt { background: var(--bg); }
+  .slide.dark { background: var(--navy); color: #fff; }
+
+  .kicker { font-size: 22px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--blue); margin-bottom: 14px; }
+  .dark .kicker { color: #9cc8f2; }
+  h1.title { font-size: 54px; line-height: 1.12; font-weight: 800; letter-spacing: -.01em; max-width: 1600px; }
+  h2 { font-size: 30px; font-weight: 800; margin-bottom: 12px; }
+  h3 { font-size: 25px; font-weight: 750; margin-bottom: 6px; }
+  p, li { font-size: 24px; line-height: 1.4; color: var(--muted); }
+  b, strong { color: var(--ink); font-weight: 700; }
+  .dark p, .dark li, .dark b { color: #dbe8f6; }
+  .dark b { color: #fff; }
+  .body { flex: 1; display: flex; gap: 48px; min-height: 0; padding-top: 34px; padding-bottom: 28px; }
+  .foot { height: 62px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); font-size: 18px; color: #5a6a82; margin: 0 -88px; padding: 0 88px; flex: none; }
+  .dark .foot { border-color: #274a73; color: #9db6d2; }
+
+  .shot { border-radius: 14px; overflow: hidden; background: #fff; border: 1px solid #c6d3e3; box-shadow: 0 18px 40px rgba(11,42,74,.18); position: relative; flex: none; }
+  .shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+  .shot .cap { position: absolute; left: 0; bottom: 0; right: 0; padding: 10px 18px; background: rgba(11,42,74,.88); color: #fff; font-size: 19px; font-weight: 600; }
+
+  ul.ticks { list-style: none; display: grid; gap: 14px; }
+  ul.ticks li { position: relative; padding-left: 38px; }
+  ul.ticks li::before { content: ""; position: absolute; left: 0; top: 7px; width: 22px; height: 22px; border-radius: 50%; background: var(--teal); }
+  ul.ticks li::after { content: ""; position: absolute; left: 7px; top: 12px; width: 7px; height: 12px; border: solid #fff; border-width: 0 3px 3px 0; transform: rotate(45deg); }
+  .dark ul.ticks li::before { background: #38b48b; }
+
+  .pill { display: inline-block; font-size: 19px; font-weight: 700; padding: 5px 14px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); }
+  .pill.teal { background: var(--teal-soft); color: var(--teal); }
+  .pill.grape { background: var(--grape-soft); color: var(--grape); }
+  .pill.amber { background: var(--amber-soft); color: var(--amber); }
+
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 24px 28px; }
+  .alt .card { box-shadow: 0 2px 10px rgba(11,42,74,.06); }
+  .card p { font-size: 22px; }
+  .num { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 800; font-size: 22px; flex: none; }
+  .num.s { width: 34px; height: 34px; font-size: 19px; }
+  .small { font-size: 19px; line-height: 1.4; color: #54627a; }
+
+  /* slide 1 */
+  .s1 .hero { display: flex; gap: 70px; flex: 1; align-items: center; padding-bottom: 20px; }
+  .s1 .name { font-size: 150px; font-weight: 900; letter-spacing: -.03em; line-height: 1; color: #fff; }
+  .s1 .name span { color: #7fc0ff; }
+  .s1 .sub { font-size: 40px; font-weight: 600; color: #cfe3f8; margin-top: 10px; }
+  .s1 .lead { font-size: 31px; line-height: 1.38; color: #e6f0fb; margin-top: 34px; max-width: 880px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-bottom: 30px; }
+  .stat { background: rgba(255,255,255,.08); border: 1px solid #2c5280; border-radius: 16px; padding: 18px 24px; }
+  .stat .v { font-size: 52px; font-weight: 850; color: #fff; line-height: 1.05; }
+  .stat .l { font-size: 20px; color: #bcd2ea; line-height: 1.3; margin-top: 6px; }
+
+  /* slide 2 */
+  .chain { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; }
+  .stage { position: relative; background: var(--navy); color: #fff; padding: 22px 26px 22px 40px; font-size: 25px; font-weight: 800; clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 0 100%, 28px 50%); margin-right: -12px; }
+  .stage:first-child { clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 0 100%); padding-left: 28px; }
+  .stage small { display: block; font-size: 17px; font-weight: 600; color: #9cc8f2; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 2px; }
+  .mods { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 18px; }
+  .mod { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: grid; gap: 10px; align-content: start; }
+  .mod .row { display: flex; gap: 12px; align-items: flex-start; font-size: 22px; line-height: 1.3; color: var(--ink); font-weight: 600; }
+  .admin-bar { margin-top: 16px; background: var(--blue-soft); border: 1px solid #b7d3ee; border-radius: 14px; padding: 14px 22px; display: flex; gap: 14px; align-items: center; font-size: 22px; font-weight: 600; color: var(--ink); }
+
+  /* slide 3 */
+  .bars { display: grid; gap: 18px; }
+  .bar-row .t { font-size: 21px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+  .bar { display: flex; align-items: center; gap: 12px; margin-bottom: 5px; }
+  .bar .lab { width: 118px; font-size: 18px; color: var(--muted); font-weight: 600; flex: none; }
+  .bar .track { flex: 1; height: 26px; background: #e8eef6; border-radius: 6px; overflow: hidden; }
+  .bar .fill { height: 100%; border-radius: 6px; }
+  .bar .val { width: 64px; font-size: 22px; font-weight: 800; text-align: right; flex: none; }
+  .steps { display: grid; gap: 14px; }
+  .step { display: flex; gap: 16px; align-items: flex-start; }
+  .step p { font-size: 22px; line-height: 1.35; }
+
+  /* slide 4 */
+  .principles { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .principles .card h3 { display: flex; align-items: center; gap: 12px; font-size: 25px; }
+
+  /* slide 7 */
+  .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-bottom: 4px; }
+  .flow .stage { font-size: 23px; background: var(--blue); }
+  .flow .stage:nth-child(2) { background: #1f6fb5; }
+  .flow .stage:nth-child(3) { background: #2b7cc4; }
+  .flow .stage:nth-child(4) { background: var(--teal); }
+
+  /* tables */
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: 14px 18px; font-size: 22px; vertical-align: top; border-bottom: 1px solid var(--line); line-height: 1.35; }
+  th { font-size: 19px; text-transform: uppercase; letter-spacing: .08em; color: var(--blue); background: var(--blue-soft); }
+  td.k { font-weight: 800; color: var(--ink); white-space: nowrap; }
+  td b { color: var(--ink); }
+
+  .arch { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .box { border-radius: 14px; padding: 24px 24px; border: 2px solid var(--blue); background: #fff; }
+  .box h4 { font-size: 27px; font-weight: 800; color: var(--ink); }
+  .box p { font-size: 22px; line-height: 1.3; margin-top: 4px; }
+  .box.teal { border-color: var(--teal); }
+  .box.grape { border-color: var(--grape); }
+  .box.gray { border-color: #8ea0b8; }
+  .arrow { text-align: center; font-size: 28px; padding: 8px 0; color: var(--blue); font-weight: 800; line-height: 1; }
+
+  .stats2 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-bottom: 26px; }
+  .stats2 div { background: var(--navy); border-radius: 14px; padding: 14px 22px; display: flex; align-items: baseline; gap: 14px; }
+  .stats2 b { color: #fff; font-size: 34px; font-weight: 850; white-space: nowrap; }
+  .stats2 span { color: #c8dcf1; font-size: 20px; line-height: 1.25; }
+  .link { display: flex; align-items: baseline; gap: 14px; font-size: 24px; margin: 8px 0; color: var(--ink); }
+  .link .k { width: 190px; font-weight: 800; color: var(--blue); flex: none; }
+  .ph { background: var(--amber-soft); color: var(--amber); padding: 2px 10px; border-radius: 6px; font-weight: 700; }
+
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @media screen {
+    html, body { background: #5b6678; }
+    .slide { margin: 24px auto; box-shadow: 0 10px 40px rgba(0,0,0,.35); }
+  }
+  .export-bar { position: fixed; top: 16px; right: 16px; z-index: 10; display: flex; gap: 12px; align-items: center; background: #fff; border-radius: 12px; padding: 10px 14px; box-shadow: 0 6px 24px rgba(0,0,0,.3); font: 600 15px/1.3 -apple-system, "Segoe UI", Roboto, sans-serif; color: #14213d; max-width: 360px; }
+  .export-bar button { font: inherit; font-weight: 700; color: #fff; background: #1864ab; border: 0; border-radius: 8px; padding: 10px 16px; cursor: pointer; white-space: nowrap; }
+  .export-bar button:hover { background: #0b2a4a; }
+  .export-bar small { font-weight: 500; font-size: 13px; color: #46536a; }
+  @media print { .export-bar { display: none !important; } html, body { background: #fff; } }
+</style>
+</head>
+<body>
+<div class="export-bar" role="region" aria-label="Eksport do PDF">
+  <button type="button" id="export-pdf">Zapisz jako PDF</button>
+  <small>W oknie wydruku wybierz „Zapisz jako PDF”, marginesy: brak, włącz „Grafika w tle”.</small>
+</div>
+<script>
+  // Scale slides to the window on screen; print always uses the native 1920x1080 page.
+  (function () {
+    function slides() { return document.querySelectorAll('.slide'); }
+    function fit() {
+      var z = Math.min(1, (window.innerWidth - 48) / 1920);
+      slides().forEach(function (s) { s.style.zoom = z; });
+    }
+    function unfit() { slides().forEach(function (s) { s.style.zoom = ''; }); }
+    window.addEventListener('resize', fit);
+    window.addEventListener('beforeprint', unfit);
+    window.addEventListener('afterprint', fit);
+    document.addEventListener('DOMContentLoaded', fit);
+    document.getElementById('export-pdf').addEventListener('click', function () { window.print(); });
+    if (location.search.indexOf('print') !== -1) window.addEventListener('load', function () { setTimeout(function () { window.print(); }, 400); });
+  })();
+</script>
+
+<!-- 1 · TYTUŁ -->
+<section class="slide dark s1">
+  <div class="hero">
+    <div style="flex:1">
+      <div class="kicker">HackYeah 2026 · wyzwanie ROPS Kraków</div>
+      <div class="name">Hub<span>MI</span></div>
+      <div class="sub">Małopolski Hub Innowacji Społecznych</div>
+      <p class="lead">Cyfrowe serce Hubu. Opisujesz problem – dostajesz sprawdzoną innowację. Masz pomysł – dostajesz pomoc w drodze do grantu. AI działa lokalnie, a decyzje zostają po stronie ludzi.</p>
+    </div>
+    <div class="shot" style="width:760px;height:560px"><img src="img/match.png" alt="Ekran wyników matchmakingu"></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="v">7 z 7</div><div class="l">modułów wyzwania w działającym prototypie</div></div>
+    <div class="stat"><div class="v">100%</div><div class="l">trafień w top 3 w teście matchmakingu (48 zapytań)</div></div>
+    <div class="stat"><div class="v">0</div><div class="l">danych wysyłanych do zewnętrznych usług AI</div></div>
+    <div class="stat"><div class="v">0</div><div class="l">naruszeń w automatycznym audycie WCAG 2.1 AA (axe-core, 9 widoków)</div></div>
+  </div>
+  <div class="foot"><span>HubMI · prototyp na dane przykładowe, bez danych osobowych</span><span>1 / 10</span></div>
+</section>
+
+<!-- 2 · PROBLEM I POMYSŁ -->
+<section class="slide alt">
+  <div class="kicker">Problem i pomysł</div>
+  <h1 class="title">Blisko 200 innowacji społecznych. Brakuje miejsca, które łączy je z potrzebami</h1>
+  <div class="body" style="flex-direction:column;gap:0;padding-top:30px">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-bottom:34px">
+      <div class="card"><h3>Mieszkaniec</h3><p>Nie wie, że rozwiązanie jego problemu już istnieje i działa kilka gmin dalej.</p></div>
+      <div class="card"><h3>Gmina i NGO</h3><p>Zaczynają od zera zamiast wdrożyć sprawdzone rozwiązanie z własnym budżetem.</p></div>
+      <div class="card"><h3>Pomysłodawca</h3><p>Gubi się między fiszką, wnioskiem grantowym i kontaktem z ROPS.</p></div>
+    </div>
+    <p style="font-size:23px;font-weight:700;color:var(--ink);margin-bottom:12px">HubMI spina cały łańcuch z wyzwania ROPS w jednej platformie (numery to moduły z opisu wyzwania):</p>
+    <div class="chain">
+      <div class="stage"><small>Krok 1</small>Diagnozowanie problemów</div>
+      <div class="stage"><small>Krok 2</small>Rozwój pomysłów</div>
+      <div class="stage"><small>Krok 3</small>Testowanie innowacji</div>
+      <div class="stage"><small>Krok 4</small>Upowszechnianie</div>
+      <div class="stage"><small>Krok 5</small>Partnerstwa</div>
+    </div>
+    <div class="mods">
+      <div class="mod"><div class="row"><span class="num s">1</span>Matchmaking społeczny: opis problemu, dopasowanie innowacji</div><div class="row"><span class="num s">2</span>Luki w bazie i trendy potrzeb dla admina</div></div>
+      <div class="mod"><div class="row"><span class="num s">3</span>Kreator pomysłów: fiszka, generator wniosku, Asystent AI</div></div>
+      <div class="mod"><div class="row"><span class="num s">4</span>Tester: zgłoszenia do testów, oceny i opinie</div></div>
+      <div class="mod"><div class="row"><span class="num s">2</span>Zasobnik wiedzy: innowacje, wyzwania, materiały</div><div class="row"><span class="num s">7</span>Middleman: plan wdrożenia dla instytucji</div></div>
+      <div class="mod"><div class="row"><span class="num s">5</span>Komunikacja z ROPS i ekspertami, powiadomienia</div></div>
+    </div>
+    <div class="admin-bar"><span class="num s">6</span>Panel administratora ROPS nad całością: moderacja pomysłów, treści, plany Middlemana, zgłoszenia do testów, wiadomości</div>
+  </div>
+  <div class="foot"><span>HubMI · Małopolski Hub Innowacji Społecznych</span><span>2 / 10</span></div>
+</section>
+
+<!-- 3 · MATCHMAKING -->
+<section class="slide">
+  <div class="kicker">Moduł 1 · obligatoryjny · Matchmaking społeczny</div>
+  <h1 class="title" style="font-size:48px">Opisz problem własnymi słowami. Zobacz sprawdzone rozwiązania i dlaczego pasują</h1>
+  <div class="body">
+    <div class="shot" style="width:820px;height:100%"><img src="img/match-wide.png" alt="Wyniki dopasowania z uzasadnieniem"></div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:20px;min-width:0">
+      <div class="steps">
+        <div class="step"><span class="num">1</span><p><b>Prywatność od pierwszego znaku.</b> PESEL, telefon i e-mail są wycinane, zanim tekst trafi do bazy lub modelu.</p></div>
+        <div class="step"><span class="num">2</span><p><b>Szukanie hybrydowe.</b> Słowa kluczowe po polsku (BM25) plus znaczenie zdania (embeddingi bge-m3), liczone lokalnie.</p></div>
+        <div class="step"><span class="num">3</span><p><b>Uczciwy wynik.</b> Dla każdej innowacji uzasadnienie i dopasowane frazy. Gdy nic nie pasuje, mówimy to wprost i prowadzimy do zgłoszenia pomysłu.</p></div>
+      </div>
+      <div class="card" style="padding:20px 26px">
+        <h2 style="font-size:25px;margin-bottom:12px">Trafność na zestawie testowym</h2>
+        <div class="bars">
+          <div class="bar-row"><div class="t">Oczekiwana innowacja w top 3 (hit@3)</div>
+            <div class="bar"><span class="lab">Słowa kl.</span><div class="track"><div class="fill" style="width:83%;background:#8ea0b8"></div></div><span class="val">83%</span></div>
+            <div class="bar"><span class="lab">Hybryda</span><div class="track"><div class="fill" style="width:100%;background:var(--blue)"></div></div><span class="val" style="color:var(--blue)">100%</span></div></div>
+          <div class="bar-row"><div class="t">Zapytania w języku seniorów (hit@3)</div>
+            <div class="bar"><span class="lab">Słowa kl.</span><div class="track"><div class="fill" style="width:33%;background:#8ea0b8"></div></div><span class="val">33%</span></div>
+            <div class="bar"><span class="lab">Hybryda</span><div class="track"><div class="fill" style="width:100%;background:var(--blue)"></div></div><span class="val" style="color:var(--blue)">100%</span></div></div>
+        </div>
+        <p class="small" style="margin-top:12px">48 zapytań (potoczne, urzędowe, seniorów) i 11 bez dobrej odpowiedzi, na 36 innowacjach. MRR 0,79 → 0,95; poprawne „brak dopasowania” 82% → 91%. Zestaw pisał zespół, więc wynik potwierdzimy na danych ROPS.</p>
+      </div>
+      <p class="small"><b>Odporność:</b> awaria modelu AI nie wyłącza modułu, wyszukiwanie wraca do słów kluczowych w ok. 10–40 ms. Zapytania bez dopasowania trafiają do admina jako luki w bibliotece.</p>
+    </div>
+  </div>
+  <div class="foot"><span>HubMI · Matchmaking · dane przykładowe</span><span>3 / 10</span></div>
+</section>
+
+<!-- 4 · AI -->
+<section class="slide alt">
+  <div class="kicker">Moduły 3 i 7 · Asystent kreatora i Middleman Innowacji</div>
+  <h1 class="title" style="font-size:48px">AI, która pomaga i podpowiada, ale o niczym nie decyduje</h1>
+  <div class="body">
+    <div style="display:flex;flex-direction:column;gap:22px;width:1010px;flex:none">
+      <div style="display:flex;gap:22px">
+        <div class="shot" style="width:495px;height:520px"><img src="img/assist.png" alt="Asystent: podobne innowacje i kierunki rozwoju"><div class="cap">Asystent kreatora: podobne + 3 kierunki</div></div>
+        <div class="shot" style="width:495px;height:520px"><img src="img/plan.png" alt="Middleman: plan pilotażu"><div class="cap">Middleman: plan pilotażu dla instytucji</div></div>
+      </div>
+      <div class="card" style="padding:22px 28px"><p style="font-size:25px"><b>Asystent kreatora</b> sprawdza, czy pomysł już istnieje, podpowiada kierunki rozwoju, ryzyka i rozpisuje przepływ krok po kroku jako dostępny diagram. <b>Middleman</b> układa plan pilotażu: forma usługi, kroki z miesiącem startu, zasoby, ryzyka i koszt porównany z budżetem instytucji. Pierwszy krok pojawia się po ok. 6 s, a cały plan po 15–18 s na laptopie.</p></div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:16px;min-width:0">
+      <div class="card"><h3><span class="pill teal">Lokalnie</span></h3><p style="margin-top:8px">Modele działają na serwerze ROPS (Ollama: Bielik 4,5B i bge-m3). Żadne dane nie trafiają do zewnętrznych usług AI.</p></div>
+      <div class="card"><h3><span class="pill">Fakty najpierw</span></h3><p style="margin-top:8px">„Podobne innowacje” i wskaźnik nowości liczy wyszukiwarka, nie model, więc nie da się ich zmyślić.</p></div>
+      <div class="card"><h3><span class="pill amber">Walidacja</span></h3><p style="margin-top:8px">Odpowiedź modelu jest sprawdzana (długości, spójność kroków, budżet). Błędne części są odrzucane, a nie pokazywane.</p></div>
+      <div class="card"><h3><span class="pill grape">Człowiek w pętli</span></h3><p style="margin-top:8px">Plan trafia do kolejki ROPS: zatwierdź albo odrzuć z komentarzem. Wszystko oznaczone „Wygenerowane przez AI”.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>HubMI · Asystent AI · Bielik 4,5B Q8 na Apple M1 Pro</span><span>4 / 10</span></div>
+</section>
+
+<!-- 5 · ZASOBNIK + TESTER -->
+<section class="slide">
+  <div class="kicker">Moduły 2 i 4 · Zasobnik wiedzy i Tester innowacji</div>
+  <h1 class="title" style="font-size:48px">Biblioteka innowacji, wyzwania i materiały w jednym miejscu</h1>
+  <div class="body">
+    <div style="display:flex;flex-direction:column;gap:22px;width:1000px;flex:none">
+      <div class="shot" style="width:1000px;height:500px"><img src="img/innovations.png" alt="Baza innowacji z filtrami"><div class="cap">Baza innowacji: wyszukiwarka i filtry obszaru oraz grupy docelowej</div></div>
+      <div style="display:flex;gap:22px">
+        <div class="shot" style="width:489px;height:240px"><img src="img/detail.png" alt="Karta innowacji"></div>
+        <div class="shot" style="width:489px;height:240px"><img src="img/challenges.png" alt="Wyzwania Małopolski"></div>
+      </div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:20px;min-width:0">
+      <ul class="ticks">
+        <li><b>36 innowacji, 10 wyzwań, 15 materiałów</b> (raporty, canvy, poradniki, wideo) jako dane przykładowe.</li>
+        <li><b>Karta innowacji wg formularza ROPS:</b> diagnoza, odbiorcy, zmiana, wizja, etap (ikoną i słowem).</li>
+        <li><b>Wyzwania Małopolski</b> z filtrem gminy: lista zamiast mapy, więc działa z czytnikiem ekranu.</li>
+        <li><b>Aktualizacja bez programisty:</b> admin dodaje, edytuje i archiwizuje treści w panelu, zmiana od razu zasila dopasowania.</li>
+      </ul>
+      <div class="card" style="border-left:6px solid var(--teal)"><h3>Tester innowacji</h3><p>Zgłoś chęć testowania, oceń rozwiązanie (1–5) i dodaj uwagi. ROPS widzi kolejkę zgłoszeń do akceptacji i opinie testerów.</p></div>
+      <div class="card" style="border-left:6px solid var(--blue)"><h3>Trendy tylko dla admina</h3><p>Potrzeby z matchmakingu są agregowane per obszar i gmina (API trendów, progi prywatności). Na pulpicie licznik luk w bazie, wykresy to następny krok.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>HubMI · Zasobnik wiedzy · Tester</span><span>5 / 10</span></div>
+</section>
+
+<!-- 6 · KREATOR -->
+<section class="slide alt">
+  <div class="kicker">Moduł 3 · Kreator pomysłów</div>
+  <h1 class="title" style="font-size:48px">Od fiszki do wniosku grantowego, który sam pilnuje zasad naboru</h1>
+  <div class="body">
+    <div style="flex:1;display:flex;flex-direction:column;gap:18px;min-width:0">
+      <div class="card"><h3><span class="pill">Zawsze dostępna</span>&nbsp; Fiszka pomysłu</h3><p style="margin-top:8px">4 proste kroki: istota pomysłu, adresaci, etap realizacji. Obok linki do canv innowacji społecznych i Asystent AI.</p></div>
+      <div class="card"><h3><span class="pill teal">W czasie naboru</span>&nbsp; Generator wniosku</h3>
+        <ul class="ticks" style="margin-top:12px;gap:10px">
+          <li style="font-size:22px"><b>Wzór ROPS (Załącznik nr 3)</b> jako 8 kroków, trzy typy wnioskodawców: osoba, podmiot, grupa nieformalna.</li>
+          <li style="font-size:22px">Walidacja <b>NIP, REGON, KRS</b>, kodów pocztowych, telefonów i e-maili.</li>
+          <li style="font-size:22px">Pilnuje reguł: <b>max 3 mies.</b> przygotowania, <b>max 9 mies.</b> testów, max 2 wnioski w naborze, wersjonowane oświadczenia RODO.</li>
+          <li style="font-size:22px">Szkic zapisuje się automatycznie, składać może tylko autor.</li>
+        </ul></div>
+      <p class="small"><b>Nowa jakość:</b> zamiast PDF-a do wypełnienia, formularz, który prowadzi, waliduje i podpowiada. Nabory mają statusy: otwarty, wkrótce, zamknięty.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:22px;width:960px;flex:none">
+      <div class="shot" style="width:960px;height:520px"><img src="img/wizard.png" alt="Kreator wniosku, krok 1 z 8"><div class="cap">Wniosek o mikrogrant: krok 1 z 8 (pkt 1 wzoru ROPS)</div></div>
+      <div class="shot" style="width:960px;height:250px"><img src="img/calls.png" alt="Lista naborów"></div>
+    </div>
+  </div>
+  <div class="foot"><span>HubMI · Kreator pomysłów · formularz wg Załącznika nr 3 ROPS</span><span>6 / 10</span></div>
+</section>
+
+<!-- 7 · KOMUNIKACJA + ADMIN -->
+<section class="slide">
+  <div class="kicker">Moduły 5 i 6 · Komunikacja i panel administratora</div>
+  <h1 class="title" style="font-size:48px">Szybka ścieżka: pomysł, powiadomienie, odpowiedź ROPS</h1>
+  <div class="body" style="flex-direction:column;gap:22px;padding-top:26px">
+    <div class="flow">
+      <div class="stage"><small>1</small>Autor zgłasza pomysł</div>
+      <div class="stage"><small>2</small>Admin widzi powiadomienie</div>
+      <div class="stage"><small>3</small>Kolejka „Wymaga uwagi”</div>
+      <div class="stage"><small>4</small>Status i wątek z autorem</div>
+    </div>
+    <div style="display:flex;gap:30px;flex:1;min-height:0">
+      <div class="shot" style="width:760px;height:528px"><img src="img/admin.png" alt="Panel administratora"><div class="cap">Panel admina: zadania wymagające reakcji</div></div>
+      <div class="shot" style="width:560px;height:640px"><img src="img/thread.png" alt="Wątek rozmowy z ROPS"><div class="cap">Wątek autora z ROPS</div></div>
+      <ul class="ticks" style="flex:1;min-width:0;align-content:start;gap:12px">
+        <li style="font-size:22px"><b>Powiadomienia w aplikacji</b> (dzwonek z licznikiem): nowy pomysł, zmiana statusu, nowa wiadomość.</li>
+        <li style="font-size:22px"><b>Wątki z ROPS i ekspertami</b> przy pomyśle lub pytaniu, widoczne tylko dla uczestników.</li>
+        <li style="font-size:22px"><b>Moderacja:</b> status pomysłu z komentarzem do autora, niedozwolone przejścia są blokowane.</li>
+        <li style="font-size:22px"><b>Zarządzanie treścią</b> i przegląd planów Middlemana w jednym panelu.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>HubMI · Panel administratora · dane przykładowe</span><span>7 / 10</span></div>
+</section>
+
+<!-- 8 · DOSTĘPNOŚĆ -->
+<section class="slide alt">
+  <div class="kicker">Dostępność i intuicyjność · WCAG 2.1 AA</div>
+  <h1 class="title" style="font-size:48px">Zaprojektowana dla seniora i dla urzędnika, z klawiatury i z telefonu</h1>
+  <div class="body">
+    <div style="display:flex;gap:22px;flex:none">
+      <div class="shot" style="width:320px;height:690px"><img src="img/mobile.png" alt="Widok mobilny wyników"><div class="cap">Telefon</div></div>
+      <div class="shot" style="width:600px;height:690px"><img src="img/errors.png" alt="Podsumowanie błędów formularza"><div class="cap">Błędy tekstem, z linkami do pól</div></div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:18px;min-width:0">
+      <ul class="ticks" style="gap:11px">
+        <li style="font-size:22px"><b>Jedno pole, jeden przycisk</b> i przykładowe problemy do kliknięcia dla osób, które nie wiedzą, co wpisać.</li>
+        <li style="font-size:22px">Link „Przejdź do treści”, landmarki, <b>lang="pl"</b>, fokus przenoszony na treść po zmianie widoku.</li>
+        <li style="font-size:22px">Wyniki w regionach <b>aria-live</b>, błędy w podsumowaniu z linkami do pól, status zawsze <b>ikoną i tekstem</b>.</li>
+        <li style="font-size:22px">Duże cele dotykowe i teksty, <b>prefers-reduced-motion</b>, układ responsywny bez przewijania w poziomie.</li>
+        <li style="font-size:22px"><b>Zero zewnętrznych usług</b> w przeglądarce (CDN, analityka). Token tylko w pamięci aplikacji.</li>
+      </ul>
+      <div class="card" style="padding:18px 24px;border-left:6px solid var(--teal)">
+        <h3 style="font-size:24px">Audyt axe-core (reguły WCAG 2.1 A i AA)</h3>
+        <p style="font-size:21px"><b>0 naruszeń na 9 widokach</b> w motywie jasnym: wyniki dopasowania (desktop i telefon), baza innowacji, wyzwania, kreator pomysłu, asystent, nabory, wątek, panel admina. Przy pomiarze znaleźliśmy i poprawiliśmy kontrast linków i plakietek.</p>
+        <p class="small" style="margin-top:8px">Dodatkowo ESLint z jsx-a11y i testy vitest-axe. Następny krok: test z osobami 55+ i czytnikiem ekranu oraz formalna deklaracja dostępności.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>HubMI · Dostępność</span><span>8 / 10</span></div>
+</section>
+
+<!-- 9 · POTENCJAŁ WDROŻENIOWY -->
+<section class="slide">
+  <div class="kicker">Potencjał wdrożeniowy</div>
+  <h1 class="title" style="font-size:48px">Gotowa do pilotażu, zaprojektowana do skali województwa</h1>
+  <div class="body">
+    <div style="width:760px;flex:none;display:flex;flex-direction:column;gap:10px">
+      <div class="box gray"><h4>Przeglądarka: React + TypeScript + Mantine</h4><p>Prawdziwy DOM (dostępność), klient API z Kotlin/JS</p></div>
+      <div class="arrow">↓ REST / JSON, kontrakt współdzielony z serwerem</div>
+      <div class="box"><h4>Serwer Ktor (Kotlin), bezstanowy</h4><p>Moduły domenowe: innowacje, matching, pomysły, nabory, komunikacja, asystent</p></div>
+      <div class="arch" style="margin-top:6px">
+        <div class="box teal"><h4>MongoDB</h4><p>dokument na agregat</p></div>
+        <div class="box gray"><h4>Keycloak</h4><p>OIDC, role user, admin, expert</p></div>
+        <div class="box grape"><h4>Ollama (lokalnie)</h4><p>bge-m3, Bielik 4,5B</p></div>
+      </div>
+      <p class="small" style="margin-top:6px">Całość startuje jednym poleceniem: docker compose up.</p>
+    </div>
+    <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:18px;align-content:start;min-width:0">
+      <div class="card"><h3>Skalowalność</h3><p>Szczyt kampanii (200 tys. wizyt/mies.) to ok. 56 żądań/s (założenie), więc jedna instancja wystarcza. Wąskim gardłem jest GPU dla AI, a nie ruch; matching działa bez LLM.</p></div>
+      <div class="card"><h3>Integracje</h3><p>Jeden kontrakt REST współdzielony z klientem, API powiadomień ze strumieniem SSE. Baza grantowa i inne systemy Hubu mogą korzystać z tego samego API.</p></div>
+      <div class="card"><h3>Bezpieczeństwo i RODO</h3><p>Keycloak, role, czyszczenie danych osobowych, brak danych w logach, dane i AI na infrastrukturze ROPS.</p></div>
+      <div class="card"><h3>Jakość kodu</h3><p><b>259 testów</b> serwera i kontraktu oraz <b>126</b> testów frontu, CI z ktlint, błędy jako wartości (Arrow), brak rzucania wyjątków w domenie.</p></div>
+      <div class="card" style="grid-column:1/-1;border-left:6px solid var(--blue)"><h3>Droga na inne regiony</h3><p>Najpierw instancja na region (ten sam obraz), potem wspólny krajowy katalog innowacji i regionalne dane osobowe. Wzór wniosku do wymiany na konfigurację.</p></div>
+    </div>
+  </div>
+  <div class="stats2">
+    <div><b>3,4 mln</b><span>mieszkańców Małopolski</span></div>
+    <div><b>182</b><span>gminy w zasięgu platformy</span></div>
+    <div><b>1 instancja</b><span>aplikacji wystarcza na pilotaż i region</span></div>
+    <div><b>1 GPU</b><span>dla AI w pilotażu, drugi dla dostępności</span></div>
+  </div>
+  <div class="foot"><span>HubMI · Architektura i wdrożenie</span><span>9 / 10</span></div>
+</section>
+
+<!-- 10 · KOSZTY -->
+<section class="slide alt">
+  <div class="kicker">Koszt utrzymania i niezbędne zasoby</div>
+  <h1 class="title" style="font-size:48px">Tani w sprzęcie. O wartości decyduje redaktor treści</h1>
+  <div class="body" style="gap:40px">
+    <div style="flex:1.45;display:flex;flex-direction:column;gap:18px;min-width:0">
+      <table>
+        <tr><th>Wariant</th><th>Zasoby</th><th>Koszt (wynajem w UE)</th></tr>
+        <tr><td class="k">Pilotaż (minimum)</td><td>1 VM: 4 vCPU, 16 GB RAM, 200 GB SSD + maszyna AI z GPU 16–24 GB VRAM</td><td><b>ok. 240 € / mies.</b><br>(ok. 12 tys. zł / rok)</td></tr>
+        <tr><td class="k">Bez GPU</td><td>j.w. z Ollamą na CPU, tylko wyszukiwanie (bez generowania planów)</td><td><b>ok. 40–80 € / mies.</b></td></tr>
+        <tr><td class="k">Region (HA, SLA ok. 99,5%)</td><td>2× serwer, 2× Keycloak, Mongo na 3 węzłach, Postgres z repliką, 1 GPU</td><td>do wyceny; własna serwerownia: koszt zależny od infrastruktury ROPS</td></tr>
+      </table>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+        <div class="card" style="padding:18px 24px"><h3 style="font-size:23px">Ludzie</h3><p style="font-size:21px">Administrator IT <b>0,1–0,2 etatu</b>. Redaktor i kurator treści <b>0,25–0,5 etatu</b>. Rozwój kodu wg potrzeb (nowe wzory naborów).</p></div>
+        <div class="card" style="padding:18px 24px"><h3 style="font-size:23px">Jednorazowo</h3><p style="font-size:21px">Audyt bezpieczeństwa, audyt WCAG z deklaracją dostępności, migracja treści i szkolenie redaktorów.</p></div>
+      </div>
+      <p class="small">Ceny orientacyjne, bez VAT (październik 2026). Liczby ruchu to założenia do weryfikacji testem obciążeniowym. Przed produkcją: rate limiting, Keycloak w trybie produkcyjnym, Mongo z uwierzytelnianiem.</p>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:18px;min-width:0">
+      <div class="card" style="background:var(--navy);border-color:var(--navy)">
+        <h2 style="color:#fff">Demo i materiały</h2>
+        <div class="link" style="color:#fff"><span class="k" style="color:#9cc8f2">Działające demo</span><span class="ph">[tu wstaw adres dema]</span></div>
+        <div class="link" style="color:#fff"><span class="k" style="color:#9cc8f2">Makiety UX/UI</span><span class="ph">[tu wstaw link do makiet]</span></div>
+        <div class="link" style="color:#fff"><span class="k" style="color:#9cc8f2">Kod</span><span>github.com/mfabisiak/HackYeah-2026</span></div>
+        <p class="small" style="color:#bcd2ea;margin-top:8px">Ekrany na slajdach 1 i 3–8 pochodzą z działającego prototypu i służą jako makiety.</p>
+      </div>
+      <div class="card"><h3>Następne kroki z ROPS</h3>
+        <ul class="ticks" style="gap:8px;margin-top:8px">
+          <li style="font-size:21px">Pilotaż w kilku gminach i NGO, dane ROPS zamiast przykładowych.</li>
+          <li style="font-size:21px">Wykresy trendów i integracja z bazą grantową.</li>
+          <li style="font-size:21px">Test z użytkownikami 55+ i audyt WCAG.</li>
+        </ul></div>
+    </div>
+  </div>
+  <div style="margin:0 0 26px;background:var(--navy);border-radius:16px;padding:20px 32px;display:flex;justify-content:space-between;align-items:center">
+    <span style="font-size:30px;font-weight:800;color:#fff">Od problemu mieszkańca do wdrożonej innowacji. Pokażemy HubMI na żywo.</span>
+    <span style="font-size:24px;font-weight:700;color:#9cc8f2">Dziękujemy!</span>
+  </div>
+  <div class="foot"><span>HubMI · Dziękujemy</span><span>10 / 10</span></div>
+</section>
+
+</body>
+</html>

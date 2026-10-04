@@ -31,3 +31,30 @@
   --mantine-color-dimmed: var(--mantine-color-gray-7);
   --mantine-color-error: var(--mantine-color-red-9);
 }
+
+/* Long badge and button labels must wrap instead of widening the page on a phone (WCAG 1.4.10 reflow). */
+.mantine-Badge-root {
+  height: auto !important;
+  min-height: var(--badge-height);
+  max-width: 100%;
+  padding-block: 3px;
+}
+
+.mantine-Badge-label {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  text-align: left;
+}
+
+.mantine-Button-root {
+  height: auto;
+  min-height: var(--button-height);
+  max-width: 100%;
+  padding-block: 6px;
+}
+
+.mantine-Button-label {
+  white-space: normal;
+  text-align: center;
+}

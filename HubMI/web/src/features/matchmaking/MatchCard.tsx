@@ -158,7 +158,7 @@ export function MatchCard({ match }: MatchCardProps) {
                 key={idx}
                 style={{
                   backgroundColor: 'var(--mantine-color-yellow-light)',
-                  color: 'var(--mantine-color-yellow-light-color)',
+                  color: 'light-dark(#664d03, var(--mantine-color-yellow-light-color))',
                   border: '1px solid var(--mantine-color-yellow-filled)',
                   padding: '4px 10px',
                   borderRadius: 6,
