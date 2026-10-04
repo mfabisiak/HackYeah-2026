@@ -5,12 +5,11 @@ import io.github.mfabisiak.hubmi.api.AdminTestRequests
 import io.github.mfabisiak.hubmi.api.CreateFeedbackRequest
 import io.github.mfabisiak.hubmi.api.CreateTestRequest
 import io.github.mfabisiak.hubmi.api.Innovations
-import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.UpdateTestRequestStatusRequest
 import io.github.mfabisiak.hubmi.auth.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.auth.UserId
 import io.github.mfabisiak.hubmi.auth.currentUser
-import io.github.mfabisiak.hubmi.auth.requireRole
+import io.github.mfabisiak.hubmi.auth.requireStaff
 import io.github.mfabisiak.hubmi.common.http.respondEither
 import io.github.mfabisiak.hubmi.common.orValidationError
 import io.github.mfabisiak.hubmi.common.validatePageRequest
@@ -73,7 +72,7 @@ fun Route.testerRoutes() {
             }
         }
 
-        requireRole(Role.ADMIN) {
+        requireStaff {
             get<AdminFeedback> { resource ->
                 respondEither {
                     val pageRequest = validatePageRequest(resource.page, resource.size).bind()

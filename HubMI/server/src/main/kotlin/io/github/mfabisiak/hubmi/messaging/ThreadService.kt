@@ -11,6 +11,7 @@ import io.github.mfabisiak.hubmi.api.ParticipantRole
 import io.github.mfabisiak.hubmi.api.PostMessageRequest
 import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.ThreadDto
+import io.github.mfabisiak.hubmi.api.isStaff
 import io.github.mfabisiak.hubmi.common.DomainError
 import io.github.mfabisiak.hubmi.common.orValidationError
 import io.github.mfabisiak.hubmi.common.toDomainError
@@ -106,7 +107,7 @@ class ThreadService(
         either {
             val pageRequest = validatePageRequest(page, size).bind()
             val threadsPage =
-                if (Role.ADMIN in callerRoles) {
+                if (callerRoles.isStaff()) {
                     threadRepository.findAll(pageRequest)
                 } else {
                     threadRepository.findByParticipant(callerId, pageRequest)
@@ -137,7 +138,7 @@ class ThreadService(
                     DomainError.NotFound("Nie znaleziono wątku o id: $threadIdString")
                 }
 
-            val canAccess = thread.ownerId == callerId || callerId in thread.participantIds || Role.ADMIN in callerRoles
+            val canAccess = thread.ownerId == callerId || callerId in thread.participantIds || callerRoles.isStaff()
             ensure(canAccess) {
                 DomainError.NotFound("Nie znaleziono wątku o id: $threadIdString")
             }
@@ -174,7 +175,7 @@ class ThreadService(
                     DomainError.NotFound("Nie znaleziono wątku o id: $threadIdString")
                 }
 
-            val canAccess = thread.ownerId == callerId || callerId in thread.participantIds || Role.ADMIN in callerRoles
+            val canAccess = thread.ownerId == callerId || callerId in thread.participantIds || callerRoles.isStaff()
             ensure(canAccess) {
                 DomainError.NotFound("Nie znaleziono wątku o id: $threadIdString")
             }
@@ -230,5 +231,63 @@ class ThreadService(
             )
 
             savedMessage.toDto()
+        }
+
+    /** Idempotent for the official who already handles the thread; a thread taken by somebody else is a conflict. */
+    suspend fun assign(
+        threadIdString: String,
+        callerId: String,
+        callerName: String,
+    ): Either<DomainError, ThreadDto> =
+        either {
+            val thread = findStaffThread(threadIdString).bind()
+            if (thread.assigneeId == callerId) {
+                thread.toDto(callerId)
+            } else {
+                val claimed =
+                    threadRepository
+                        .claim(thread.id, callerId, callerName, clock.instant())
+                        .mapLeft { it.toDomainError() }
+                        .bind()
+                ensureNotNull(claimed) { DomainError.Conflict("Ten wątek obsługuje już inny pracownik ROPS") }
+                    .toDto(callerId)
+            }
+        }
+
+    /** Only the assignee or an admin hands a thread back; a thread nobody handles stays as it is. */
+    suspend fun unassign(
+        threadIdString: String,
+        callerId: String,
+        callerRoles: Set<Role>,
+    ): Either<DomainError, ThreadDto> =
+        either {
+            val thread = findStaffThread(threadIdString).bind()
+            val assigneeId = thread.assigneeId
+            if (assigneeId == null) {
+                thread.toDto(callerId)
+            } else {
+                ensure(assigneeId == callerId || Role.ADMIN in callerRoles) {
+                    DomainError.Forbidden("Wątek obsługuje inny pracownik ROPS")
+                }
+                val released =
+                    threadRepository
+                        .release(thread.id, assigneeId, clock.instant())
+                        .mapLeft { it.toDomainError() }
+                        .bind()
+                ensureNotNull(released) { DomainError.Conflict("Przypisanie wątku właśnie się zmieniło") }
+                    .toDto(callerId)
+            }
+        }
+
+    private suspend fun findStaffThread(threadIdString: String): Either<DomainError, ThreadItem> =
+        either {
+            ensure(ObjectId.isValid(threadIdString)) {
+                DomainError.NotFound("Nie znaleziono wątku o id: $threadIdString")
+            }
+            ensureNotNull(
+                threadRepository.findById(ObjectId(threadIdString)).mapLeft { it.toDomainError() }.bind(),
+            ) {
+                DomainError.NotFound("Nie znaleziono wątku o id: $threadIdString")
+            }
         }
 }

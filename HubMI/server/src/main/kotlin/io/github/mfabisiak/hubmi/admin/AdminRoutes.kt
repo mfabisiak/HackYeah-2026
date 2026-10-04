@@ -6,6 +6,7 @@ import io.github.mfabisiak.hubmi.api.AdminTrends
 import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.auth.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.auth.requireRole
+import io.github.mfabisiak.hubmi.auth.requireStaff
 import io.github.mfabisiak.hubmi.common.http.respondEither
 import io.github.mfabisiak.hubmi.common.orValidationError
 import io.ktor.server.auth.*
@@ -29,7 +30,9 @@ fun Route.adminRoutes() {
                     dashboardService.getTrends(months).bind()
                 }
             }
+        }
 
+        requireStaff {
             get<AdminSummary> {
                 respondEither {
                     dashboardService.getSummary().bind()

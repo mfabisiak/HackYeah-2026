@@ -3,11 +3,10 @@ package io.github.mfabisiak.hubmi.ideas
 import io.github.mfabisiak.hubmi.api.AdminIdeas
 import io.github.mfabisiak.hubmi.api.CreateIdeaRequest
 import io.github.mfabisiak.hubmi.api.Ideas
-import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.UpdateIdeaStatusRequest
 import io.github.mfabisiak.hubmi.auth.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.auth.currentUser
-import io.github.mfabisiak.hubmi.auth.requireRole
+import io.github.mfabisiak.hubmi.auth.requireStaff
 import io.github.mfabisiak.hubmi.common.http.respondEither
 import io.ktor.http.*
 import io.ktor.server.auth.*
@@ -47,7 +46,7 @@ fun Route.ideaRoutes() {
             }
         }
 
-        requireRole(Role.ADMIN) {
+        requireStaff {
             get<AdminIdeas> { params ->
                 respondEither {
                     ideaService.listForAdmin(params.status, params.page, params.size).bind()

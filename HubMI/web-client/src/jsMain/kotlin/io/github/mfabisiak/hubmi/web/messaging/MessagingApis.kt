@@ -26,6 +26,15 @@ interface ThreadsApi {
         threadId: String,
         text: String,
     ): Promise<ApiResult<MessageJs>>
+
+    /** ROPS officials only: takes the thread over; a thread somebody else handles answers with a conflict. */
+    fun assign(threadId: String): Promise<ApiResult<ThreadJs>>
+
+    /** ROPS officials only: hands the thread back (the assignee or an admin). */
+    fun unassign(threadId: String): Promise<ApiResult<ThreadJs>>
+
+    /** ROPS officials only: ready-made replies to insert into a message. */
+    fun replyTemplates(): Promise<ApiResult<Array<ReplyTemplateJs>>>
 }
 
 /** `/api/notifications`: notifications of the caller; all calls need login. */

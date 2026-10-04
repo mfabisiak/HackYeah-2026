@@ -25,8 +25,22 @@ class Threads(
         class Messages(
             val parent: ById,
         )
+
+        /** `PUT` (ROPS official) takes the thread over, `DELETE` hands it back; both return the updated [ThreadDto]. */
+        @Serializable
+        @Resource("assignment")
+        class Assignment(
+            val parent: ById,
+        )
     }
 }
+
+/** `GET` (ROPS official): ready-made replies to insert into a message. */
+@Serializable
+@Resource("reply-templates")
+class ReplyTemplates(
+    val parent: Api = Api(),
+)
 
 /** `GET` (authenticated): notifications of the caller. */
 @Serializable
@@ -76,6 +90,17 @@ data class ThreadDto(
     val relatedIdeaId: String?,
     val lastMessageAt: String,
     val unread: Boolean,
+    /** Name of the ROPS official who handles the thread, `null` while nobody does. */
+    val assigneeName: String? = null,
+    /** Whether the caller is the one who handles the thread. */
+    val assignedToMe: Boolean = false,
+)
+
+@Serializable
+data class ReplyTemplateDto(
+    val id: String,
+    val title: String,
+    val text: String,
 )
 
 @Serializable

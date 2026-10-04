@@ -18,6 +18,8 @@ fun ThreadItem.toDto(callerId: String): ThreadDto {
         relatedIdeaId = relatedIdeaId?.toHexString(),
         lastMessageAt = lastMessageAt.toString(),
         unread = isUnread,
+        assigneeName = assigneeName,
+        assignedToMe = assigneeId == callerId,
     )
 }
 

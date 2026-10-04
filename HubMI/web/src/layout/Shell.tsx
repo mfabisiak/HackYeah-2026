@@ -47,6 +47,7 @@ export function Shell() {
       : []),
     ...accountLinks,
     ...(authenticated && hasRole('admin') ? [{ to: '/admin', label: 'Panel admina' }] : []),
+    ...(authenticated && !hasRole('admin') && hasRole('expert') ? [{ to: '/ekspert', label: 'Panel eksperta' }] : []),
   ]
   const { setColorScheme } = useMantineColorScheme()
   const scheme = useComputedColorScheme('light')

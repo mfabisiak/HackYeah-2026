@@ -99,11 +99,11 @@ class AdaptationService(
     suspend fun get(
         id: AdaptationId,
         caller: UserId,
-        callerIsAdmin: Boolean,
+        callerIsStaff: Boolean,
     ): Either<DomainError, AdaptationDto> =
         either {
             val item = find(id).bind()
-            ensure(callerIsAdmin || item.authorId == caller.value) { DomainError.Forbidden() }
+            ensure(callerIsStaff || item.authorId == caller.value) { DomainError.Forbidden() }
             item.toDto(titleOf(item.innovationId).bind())
         }
 

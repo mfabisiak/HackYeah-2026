@@ -48,6 +48,7 @@ object TestSecurityHelper {
         username: String = "test-user",
         email: String = "test@hubmi.local",
         roles: Set<Role> = setOf(Role.USER),
+        name: String? = null,
     ): String =
         JWT
             .create()
@@ -56,6 +57,7 @@ object TestSecurityHelper {
             .withSubject(userId)
             .withClaim("preferred_username", username)
             .withClaim("email", email)
+            .withClaim("name", name)
             .withClaim("realm_access", mapOf("roles" to roles.map { it.keycloakName }))
             .withExpiresAt(Date(System.currentTimeMillis() + 3600_000))
             .sign(Algorithm.RSA256(publicKey, privateKey))

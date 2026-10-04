@@ -2,6 +2,7 @@ package io.github.mfabisiak.hubmi.web.messaging
 
 import io.github.mfabisiak.hubmi.api.MessageDto
 import io.github.mfabisiak.hubmi.api.NotificationDto
+import io.github.mfabisiak.hubmi.api.ReplyTemplateDto
 import io.github.mfabisiak.hubmi.api.ThreadDto
 
 @JsExport
@@ -11,6 +12,16 @@ class ThreadJs(
     val relatedIdeaId: String?,
     val lastMessageAt: String,
     val unread: Boolean,
+    /** Name of the ROPS official who handles the thread, `null` while nobody does. */
+    val assigneeName: String?,
+    val assignedToMe: Boolean,
+)
+
+@JsExport
+class ReplyTemplateJs(
+    val id: String,
+    val title: String,
+    val text: String,
 )
 
 @JsExport
@@ -34,7 +45,10 @@ class NotificationJs(
     val read: Boolean,
 )
 
-internal fun ThreadDto.toJs(): ThreadJs = ThreadJs(id, subject, relatedIdeaId, lastMessageAt, unread)
+internal fun ThreadDto.toJs(): ThreadJs =
+    ThreadJs(id, subject, relatedIdeaId, lastMessageAt, unread, assigneeName, assignedToMe)
+
+internal fun ReplyTemplateDto.toJs(): ReplyTemplateJs = ReplyTemplateJs(id, title, text)
 
 internal fun MessageDto.toJs(): MessageJs = MessageJs(id, authorName, authorRole.name, text, sentAt)
 

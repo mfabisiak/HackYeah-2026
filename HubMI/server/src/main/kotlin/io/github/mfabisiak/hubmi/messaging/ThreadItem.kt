@@ -17,6 +17,8 @@ data class ThreadItem(
     val lastMessageBy: String,
     val lastMessageRole: ParticipantRole,
     val lastReadAt: Map<String, Instant> = emptyMap(),
+    val assigneeId: String? = null,
+    val assigneeName: String? = null,
     val createdAt: Instant,
     val updatedAt: Instant,
 )

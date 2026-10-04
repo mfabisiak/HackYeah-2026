@@ -34,13 +34,19 @@ fun Application.configureSecurity() {
     }
 }
 
-/** Authenticated user extracted from JWT claims (`id = sub`, `username`, `roles`). */
+/** Authenticated user extracted from JWT claims (`id = sub`, `username`, `name`, `roles`). */
 data class CurrentUser(
     val id: String,
     val username: String?,
     val roles: Set<Role>,
     val email: String? = null,
-)
+    val name: String? = null,
+) {
+    /** How the user is shown to others, e.g. as the author of a message: full name, else username. */
+    val displayName: String get() = name ?: username ?: ANONYMOUS_NAME
+}
+
+private const val ANONYMOUS_NAME = "Użytkownik"
 
 /**
  * Realm roles assigned in Keycloak (`realm_access.roles` claim); the JWT library exposes claims untyped.
@@ -67,6 +73,11 @@ val ApplicationCall.currentUser: Either<DomainError.Unauthorized, CurrentUser>
             id = subject,
             username = principal.payload.getClaim("preferred_username").asString(),
             email = principal.payload.getClaim("email").asString(),
+            name =
+                principal.payload
+                    .getClaim("name")
+                    .asString()
+                    ?.takeIf(String::isNotBlank),
             roles = principal.realmRoles,
         ).right()
     }
@@ -98,6 +109,9 @@ fun Route.requireAnyRole(
     route.build()
     return route
 }
+
+/** Allows the request only for ROPS officials ([Role.staff]); use inside an `authenticate { }` block. */
+fun Route.requireStaff(build: Route.() -> Unit): Route = requireAnyRole(*Role.staff.toTypedArray(), build = build)
 
 /** Allows the request only if the authenticated user has [role]; use inside an `authenticate { }` block. */
 fun Route.requireRole(

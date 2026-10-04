@@ -108,12 +108,6 @@ class AdminRouteTest {
                     bearerAuth(expertToken)
                 }
             assertEquals(HttpStatusCode.Forbidden, expertTrends.status)
-
-            val expertSummary =
-                client.get(AdminSummary()) {
-                    bearerAuth(expertToken)
-                }
-            assertEquals(HttpStatusCode.Forbidden, expertSummary.status)
         }
 
     @Test
@@ -413,7 +407,7 @@ class AdminRouteTest {
                     createdAt = now,
                     updatedAt = now,
                 )
-            // Thread 2: admin replied -> not pending
+            // Thread 2: admin replied -> not pending (an official answered)
             val thread2 =
                 ThreadItem(
                     ownerId = "user2",
@@ -425,7 +419,7 @@ class AdminRouteTest {
                     createdAt = now,
                     updatedAt = now,
                 )
-            // Thread 3: expert sent last message -> pending
+            // Thread 3: expert replied -> not pending, experts answer in the name of ROPS
             val thread3 =
                 ThreadItem(
                     ownerId = "user3",
@@ -451,6 +445,6 @@ class AdminRouteTest {
             assertEquals(2, summary.submittedIdeas)
             assertEquals(3, summary.pendingTestRequests)
             assertEquals(2, summary.unmatchedNeedsThisWeek)
-            assertEquals(2, summary.pendingThreads)
+            assertEquals(1, summary.pendingThreads)
         }
 }

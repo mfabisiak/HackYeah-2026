@@ -3,11 +3,14 @@ package io.github.mfabisiak.hubmi.messaging
 import io.github.mfabisiak.hubmi.api.CreateThreadRequest
 import io.github.mfabisiak.hubmi.api.Notifications
 import io.github.mfabisiak.hubmi.api.PostMessageRequest
-import io.github.mfabisiak.hubmi.api.Role
+import io.github.mfabisiak.hubmi.api.ReplyTemplateCatalog
+import io.github.mfabisiak.hubmi.api.ReplyTemplates
 import io.github.mfabisiak.hubmi.api.Threads
+import io.github.mfabisiak.hubmi.api.isStaff
 import io.github.mfabisiak.hubmi.auth.CurrentUser
 import io.github.mfabisiak.hubmi.auth.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.auth.currentUser
+import io.github.mfabisiak.hubmi.auth.requireStaff
 import io.github.mfabisiak.hubmi.common.http.respondEither
 import io.github.mfabisiak.hubmi.ideas.CallChanged
 import io.github.mfabisiak.hubmi.ideas.CallPublished
@@ -18,8 +21,10 @@ import io.github.mfabisiak.hubmi.ideas.MessageReceived
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
+import io.ktor.server.resources.delete
 import io.ktor.server.resources.get
 import io.ktor.server.resources.post
+import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.flow.filter
@@ -46,7 +51,7 @@ fun Route.messagingRoutes() {
                     threadService
                         .createThread(
                             callerId = user.id,
-                            callerName = user.username ?: "Użytkownik",
+                            callerName = user.displayName,
                             callerRoles = user.roles,
                             request = request,
                         ).bind()
@@ -70,10 +75,30 @@ fun Route.messagingRoutes() {
                     .postMessage(
                         threadIdString = params.parent.id,
                         callerId = user.id,
-                        callerName = user.username ?: "Użytkownik",
+                        callerName = user.displayName,
                         callerRoles = user.roles,
                         request = request,
                     ).bind()
+            }
+        }
+
+        requireStaff {
+            put<Threads.ById.Assignment> { params ->
+                respondEither {
+                    val user = call.currentUser.bind()
+                    threadService.assign(params.parent.id, user.id, user.displayName).bind()
+                }
+            }
+
+            delete<Threads.ById.Assignment> { params ->
+                respondEither {
+                    val user = call.currentUser.bind()
+                    threadService.unassign(params.parent.id, user.id, user.roles).bind()
+                }
+            }
+
+            get<ReplyTemplates> {
+                call.respond(ReplyTemplateCatalog.all)
             }
         }
 
@@ -124,8 +149,8 @@ fun Route.messagingRoutes() {
 
 private fun DomainEvent.isVisibleTo(user: CurrentUser): Boolean =
     when (this) {
-        is IdeaSubmitted -> Role.ADMIN in user.roles
+        is IdeaSubmitted -> user.roles.isStaff()
         is IdeaStatusChanged -> authorId == user.id
-        is MessageReceived -> user.id in recipientIds || (recipientIds.isEmpty() && Role.ADMIN in user.roles)
+        is MessageReceived -> user.id in recipientIds || (recipientIds.isEmpty() && user.roles.isStaff())
         is CallPublished, is CallChanged -> true
     }

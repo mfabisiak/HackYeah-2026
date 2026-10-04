@@ -121,7 +121,7 @@ class AdminDashboardService(
 
             val pendingThreads =
                 threadRepository
-                    .countPendingAdminReply()
+                    .countPendingStaffReply()
                     .mapLeft { it.toDomainError() }
                     .bind()
 
