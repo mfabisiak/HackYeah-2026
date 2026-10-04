@@ -495,53 +495,53 @@ export function TrendsDashboard({ onNavigateTab }: TrendsDashboardProps) {
               withColumnBorders
               aria-label="Tabela potrzeb według obszarów społecznych"
             >
-              <caption style={{ textAlign: 'left', padding: '8px 0', fontWeight: 600, color: 'var(--mantine-color-dimmed)' }}>
+              <caption style={{ textAlign: 'left', padding: '8px 0', fontWeight: 600, color: 'light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-2))' }}>
                 Tabela 1: Liczba zgłoszonych potrzeb per obszar wyzwań wraz z dynamiką zmian
               </caption>
-              <thead>
-                <tr style={{ backgroundColor: 'var(--mantine-color-gray-1)' }}>
-                  <th scope="col" style={{ padding: '12px' }}>Obszar wyzwań społecznych</th>
-                  <th scope="col" style={{ padding: '12px', textAlign: 'right' }}>Liczba zgłoszeń (bieżący okres)</th>
-                  <th scope="col" style={{ padding: '12px', textAlign: 'right' }}>Poprzedni okres</th>
-                  <th scope="col" style={{ padding: '12px', textAlign: 'right' }}>Zmiana</th>
-                  <th scope="col" style={{ padding: '12px', textAlign: 'right' }}>Udział w całości</th>
-                </tr>
-              </thead>
-              <tbody>
+              <Table.Thead style={{ backgroundColor: 'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6))' }}>
+                <Table.Tr>
+                  <Table.Th scope="col" style={{ padding: '12px', color: 'light-dark(var(--mantine-color-dark-8), var(--mantine-color-gray-1))' }}>Obszar wyzwań społecznych</Table.Th>
+                  <Table.Th scope="col" style={{ padding: '12px', textAlign: 'right', color: 'light-dark(var(--mantine-color-dark-8), var(--mantine-color-gray-1))' }}>Liczba zgłoszeń (bieżący okres)</Table.Th>
+                  <Table.Th scope="col" style={{ padding: '12px', textAlign: 'right', color: 'light-dark(var(--mantine-color-dark-8), var(--mantine-color-gray-1))' }}>Poprzedni okres</Table.Th>
+                  <Table.Th scope="col" style={{ padding: '12px', textAlign: 'right', color: 'light-dark(var(--mantine-color-dark-8), var(--mantine-color-gray-1))' }}>Zmiana</Table.Th>
+                  <Table.Th scope="col" style={{ padding: '12px', textAlign: 'right', color: 'light-dark(var(--mantine-color-dark-8), var(--mantine-color-gray-1))' }}>Udział w całości</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
                 {sortedAreas.map((item) => {
                   const delta = calculateTrendDelta(item)
                   const share = totalNeedsInPeriod > 0 ? Math.round((item.count / totalNeedsInPeriod) * 100) : 0
                   return (
-                    <tr key={item.area}>
-                      <th scope="row" style={{ fontWeight: 600, padding: '12px' }}>
+                    <Table.Tr key={item.area}>
+                      <Table.Th scope="row" style={{ fontWeight: 600, padding: '12px', color: 'inherit' }}>
                         {formatAreaName(item.area)}
-                      </th>
-                      <td style={{ textAlign: 'right', padding: '12px', fontWeight: 700 }}>
+                      </Table.Th>
+                      <Table.Td style={{ textAlign: 'right', padding: '12px', fontWeight: 700 }}>
                         {item.count}
-                      </td>
-                      <td style={{ textAlign: 'right', padding: '12px' }}>
+                      </Table.Td>
+                      <Table.Td style={{ textAlign: 'right', padding: '12px' }}>
                         {item.previousCount}
-                      </td>
-                      <td style={{ textAlign: 'right', padding: '12px' }}>
+                      </Table.Td>
+                      <Table.Td style={{ textAlign: 'right', padding: '12px' }}>
                         {delta.diff > 0 ? (
-                          <span style={{ color: 'var(--mantine-color-teal-7)', fontWeight: 700 }}>
+                          <span style={{ color: 'light-dark(var(--mantine-color-teal-7), var(--mantine-color-teal-4))', fontWeight: 700 }}>
                             +{delta.percent}% (+{delta.diff})
                           </span>
                         ) : delta.diff < 0 ? (
-                          <span style={{ color: 'var(--mantine-color-blue-7)', fontWeight: 700 }}>
+                          <span style={{ color: 'light-dark(var(--mantine-color-blue-7), var(--mantine-color-blue-4))', fontWeight: 700 }}>
                             {delta.percent}% ({delta.diff})
                           </span>
                         ) : (
-                          <span style={{ color: 'var(--mantine-color-gray-6)' }}>0% (0)</span>
+                          <span style={{ color: 'light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2))' }}>0% (0)</span>
                         )}
-                      </td>
-                      <td style={{ textAlign: 'right', padding: '12px' }}>
+                      </Table.Td>
+                      <Table.Td style={{ textAlign: 'right', padding: '12px' }}>
                         {share}%
-                      </td>
-                    </tr>
+                      </Table.Td>
+                    </Table.Tr>
                   )
                 })}
-              </tbody>
+              </Table.Tbody>
             </Table>
           </div>
         </Stack>
@@ -622,31 +622,31 @@ export function TrendsDashboard({ onNavigateTab }: TrendsDashboardProps) {
                 withColumnBorders
                 aria-label="Tabela dynamiki zgłoszeń w czasie"
               >
-                <caption style={{ textAlign: 'left', padding: '8px 0', fontWeight: 600, color: 'var(--mantine-color-dimmed)' }}>
+                <caption style={{ textAlign: 'left', padding: '8px 0', fontWeight: 600, color: 'light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-2))' }}>
                   Tabela 2: Rozkład liczby potrzeb w ujęciu chronologicznym
                 </caption>
-                <thead>
-                  <tr style={{ backgroundColor: 'var(--mantine-color-gray-1)' }}>
-                    <th scope="col" style={{ padding: '12px' }}>Miesiąc (RRRR-MM)</th>
-                    <th scope="col" style={{ padding: '12px', textAlign: 'right' }}>Liczba zgłoszonych potrzeb</th>
-                    <th scope="col" style={{ padding: '12px', textAlign: 'right' }}>Wskaźnik dynamiki</th>
-                  </tr>
-                </thead>
-                <tbody>
+                <Table.Thead style={{ backgroundColor: 'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6))' }}>
+                  <Table.Tr>
+                    <Table.Th scope="col" style={{ padding: '12px', color: 'light-dark(var(--mantine-color-dark-8), var(--mantine-color-gray-1))' }}>Miesiąc (RRRR-MM)</Table.Th>
+                    <Table.Th scope="col" style={{ padding: '12px', textAlign: 'right', color: 'light-dark(var(--mantine-color-dark-8), var(--mantine-color-gray-1))' }}>Liczba zgłoszonych potrzeb</Table.Th>
+                    <Table.Th scope="col" style={{ padding: '12px', textAlign: 'right', color: 'light-dark(var(--mantine-color-dark-8), var(--mantine-color-gray-1))' }}>Wskaźnik dynamiki</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
                   {series.map((point) => (
-                    <tr key={point.month}>
-                      <th scope="row" style={{ fontWeight: 600, padding: '12px' }}>
+                    <Table.Tr key={point.month}>
+                      <Table.Th scope="row" style={{ fontWeight: 600, padding: '12px', color: 'inherit' }}>
                         {point.month}
-                      </th>
-                      <td style={{ textAlign: 'right', padding: '12px', fontWeight: 700 }}>
+                      </Table.Th>
+                      <Table.Td style={{ textAlign: 'right', padding: '12px', fontWeight: 700 }}>
                         {point.count}
-                      </td>
-                      <td style={{ textAlign: 'right', padding: '12px' }}>
+                      </Table.Td>
+                      <Table.Td style={{ textAlign: 'right', padding: '12px' }}>
                         {Math.round((point.count / maxSeriesCount) * 100)}% szczytu
-                      </td>
-                    </tr>
+                      </Table.Td>
+                    </Table.Tr>
                   ))}
-                </tbody>
+                </Table.Tbody>
               </Table>
             </div>
           </Stack>
@@ -710,33 +710,33 @@ export function TrendsDashboard({ onNavigateTab }: TrendsDashboardProps) {
               withColumnBorders
               aria-label="Tabela rozkładu potrzeb w gminach"
             >
-              <caption style={{ textAlign: 'left', padding: '8px 0', fontWeight: 600, color: 'var(--mantine-color-dimmed)' }}>
+              <caption style={{ textAlign: 'left', padding: '8px 0', fontWeight: 600, color: 'light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-2))' }}>
                 Tabela 3: Zgłoszone potrzeby w podziale na gminy i powiaty województwa
               </caption>
-              <thead>
-                <tr style={{ backgroundColor: 'var(--mantine-color-gray-1)' }}>
-                  <th scope="col" style={{ padding: '12px' }}>Gmina / Miejscowość</th>
-                  <th scope="col" style={{ padding: '12px', textAlign: 'right' }}>Liczba zgłoszonych potrzeb</th>
-                  <th scope="col" style={{ padding: '12px', textAlign: 'right' }}>Status prywatności</th>
-                </tr>
-              </thead>
-              <tbody>
+              <Table.Thead style={{ backgroundColor: 'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6))' }}>
+                <Table.Tr>
+                  <Table.Th scope="col" style={{ padding: '12px', color: 'light-dark(var(--mantine-color-dark-8), var(--mantine-color-gray-1))' }}>Gmina / Miejscowość</Table.Th>
+                  <Table.Th scope="col" style={{ padding: '12px', textAlign: 'right', color: 'light-dark(var(--mantine-color-dark-8), var(--mantine-color-gray-1))' }}>Liczba zgłoszeń</Table.Th>
+                  <Table.Th scope="col" style={{ padding: '12px', textAlign: 'right', color: 'light-dark(var(--mantine-color-dark-8), var(--mantine-color-gray-1))' }}>Status prywatności</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
                 {sortedMunicipalities.map((item) => (
-                  <tr key={item.municipality}>
-                    <th scope="row" style={{ fontWeight: 600, padding: '12px' }}>
+                  <Table.Tr key={item.municipality}>
+                    <Table.Th scope="row" style={{ fontWeight: 600, padding: '12px', color: 'inherit' }}>
                       {item.municipality}
-                    </th>
-                    <td style={{ textAlign: 'right', padding: '12px', fontWeight: 700 }}>
+                    </Table.Th>
+                    <Table.Td style={{ textAlign: 'right', padding: '12px', fontWeight: 700 }}>
                       {item.count}
-                    </td>
-                    <td style={{ textAlign: 'right', padding: '12px' }}>
+                    </Table.Td>
+                    <Table.Td style={{ textAlign: 'right', padding: '12px' }}>
                       <Badge color="green" size="sm" variant="light">
                         Powyżej progu (≥{privacyThreshold})
                       </Badge>
-                    </td>
-                  </tr>
+                    </Table.Td>
+                  </Table.Tr>
                 ))}
-              </tbody>
+              </Table.Tbody>
             </Table>
           </div>
         </Stack>
