@@ -6,7 +6,6 @@ import {
   Modal,
   Paper,
   Select,
-  SimpleGrid,
   Stack,
   Table,
   Text,
@@ -180,25 +179,25 @@ export function TestRequestsModerationQueue() {
         </Card>
       ) : (
         <Card withBorder padding={0} radius="md" style={{ overflowX: 'auto' }}>
-          <Table striped highlightOnHover verticalSpacing="md" horizontalSpacing="md" style={{ minWidth: 920 }}>
+          <Table striped highlightOnHover verticalSpacing="md" horizontalSpacing="sm">
             <Table.Thead>
               <Table.Tr>
-                <Table.Th scope="col" style={{ width: '22%', fontSize: '1.05rem', fontWeight: 700 }}>
+                <Table.Th scope="col" style={{ width: '25%', fontSize: '1rem', fontWeight: 700 }}>
                   Rozwiązanie / Innowacja
                 </Table.Th>
-                <Table.Th scope="col" style={{ width: '14%', fontSize: '1.05rem', fontWeight: 700 }}>
+                <Table.Th scope="col" style={{ width: '15%', fontSize: '1rem', fontWeight: 700 }}>
                   Zgłaszający tester
                 </Table.Th>
-                <Table.Th scope="col" style={{ width: '30%', fontSize: '1.05rem', fontWeight: 700 }}>
+                <Table.Th scope="col" style={{ width: '16%', fontSize: '1rem', fontWeight: 700 }}>
                   Uzasadnienie (notatka)
                 </Table.Th>
-                <Table.Th scope="col" style={{ width: '13%', fontSize: '1.05rem', fontWeight: 700 }}>
+                <Table.Th scope="col" style={{ width: '15%', fontSize: '1rem', fontWeight: 700 }}>
                   Data zgłoszenia
                 </Table.Th>
-                <Table.Th scope="col" style={{ width: '8%', fontSize: '1.05rem', fontWeight: 700 }}>
+                <Table.Th scope="col" style={{ width: '11%', fontSize: '1rem', fontWeight: 700 }}>
                   Status
                 </Table.Th>
-                <Table.Th scope="col" style={{ width: '13%', fontSize: '1.05rem', fontWeight: 700, textAlign: 'right' }}>
+                <Table.Th scope="col" style={{ width: '18%', fontSize: '1rem', fontWeight: 700, textAlign: 'right' }}>
                   Decyzja ROPS
                 </Table.Th>
               </Table.Tr>
@@ -213,8 +212,8 @@ export function TestRequestsModerationQueue() {
 
                 return (
                   <Table.Tr key={req.id}>
-                    <Table.Td style={{ minWidth: 180, wordBreak: 'break-word' }}>
-                      <Text fw={700} size="md" style={{ fontSize: '1.05rem' }}>
+                    <Table.Td style={{ wordBreak: 'break-word' }}>
+                      <Text fw={700} size="sm" style={{ fontSize: '0.98rem' }}>
                         {req.innovationTitle}
                       </Text>
                       <Text size="xs" c="dimmed">
@@ -222,19 +221,20 @@ export function TestRequestsModerationQueue() {
                       </Text>
                     </Table.Td>
 
-                    <Table.Td style={{ minWidth: 120 }}>
-                      <Text size="sm" fw={600} style={{ fontSize: '0.95rem' }}>
+                    <Table.Td>
+                      <Text size="sm" fw={600}>
                         {req.userId}
                       </Text>
                     </Table.Td>
 
-                    <Table.Td style={{ maxWidth: 300, minWidth: 220, wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                    <Table.Td style={{ wordBreak: 'break-word' }}>
                       {req.note ? (
-                        <Stack gap={4}>
+                        <Stack gap={4} align="flex-start">
                           <Text
-                            size="sm"
-                            lineClamp={2}
-                            style={{ fontSize: '0.95rem', lineHeight: 1.4 }}
+                            size="xs"
+                            c="dimmed"
+                            lineClamp={1}
+                            style={{ fontSize: '0.85rem', lineHeight: 1.3 }}
                           >
                             {req.note}
                           </Text>
@@ -243,14 +243,13 @@ export function TestRequestsModerationQueue() {
                             size="xs"
                             color="blue"
                             onClick={() => setPreviewNoteItem(req)}
-                            leftSection={<IconFileText size={15} aria-hidden="true" />}
+                            leftSection={<IconFileText size={13} aria-hidden="true" />}
                             styles={{
                               root: {
-                                height: 28,
+                                height: 26,
                                 paddingInline: 8,
-                                fontSize: '0.85rem',
+                                fontSize: '0.82rem',
                                 fontWeight: 600,
-                                alignSelf: 'flex-start',
                               },
                             }}
                           >
@@ -259,24 +258,24 @@ export function TestRequestsModerationQueue() {
                         </Stack>
                       ) : (
                         <Text size="sm" c="dimmed" fs="italic">
-                          Brak dodatkowego uzasadnienia
+                          Brak
                         </Text>
                       )}
                     </Table.Td>
 
-                    <Table.Td style={{ minWidth: 130 }}>
-                      <Group gap={6} align="center">
-                        <IconClock size={16} color="var(--mantine-color-gray-6)" aria-hidden="true" />
-                        <Text component="time" dateTime={req.createdAt} size="sm" style={{ fontSize: '0.95rem' }}>
+                    <Table.Td>
+                      <Group gap={4} align="center" wrap="nowrap">
+                        <IconClock size={15} color="var(--mantine-color-gray-6)" aria-hidden="true" />
+                        <Text component="time" dateTime={req.createdAt} size="xs" style={{ fontSize: '0.88rem' }}>
                           {formatPolishDateTime(req.createdAt)}
                         </Text>
                       </Group>
                     </Table.Td>
 
-                    <Table.Td style={{ minWidth: 120 }}>
+                    <Table.Td>
                       <Badge
                         color={cfg.color}
-                        size="md"
+                        size="sm"
                         variant="filled"
                         styles={accessibleBadgeStyles}
                       >
@@ -284,37 +283,37 @@ export function TestRequestsModerationQueue() {
                       </Badge>
                     </Table.Td>
 
-                    <Table.Td style={{ textAlign: 'right', whiteSpace: 'nowrap', minWidth: 190 }}>
+                    <Table.Td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                       {isPending ? (
-                        <Group gap="xs" justify="flex-end" wrap="nowrap">
+                        <Group gap={6} justify="flex-end" wrap="nowrap">
                           <Button
-                            size="sm"
+                            size="xs"
                             color="teal"
                             variant="light"
-                            leftSection={<IconCheck size={16} />}
+                            leftSection={<IconCheck size={14} />}
                             onClick={() =>
                               setDecisionItem({ item: req, targetStatus: 'ACCEPTED' })
                             }
-                            styles={{ root: { fontSize: '0.95rem', fontWeight: 600 } }}
+                            styles={{ root: { height: 32, fontWeight: 600, paddingInline: 8 } }}
                           >
                             Zaakceptuj
                           </Button>
                           <Button
-                            size="sm"
+                            size="xs"
                             color="red"
                             variant="subtle"
-                            leftSection={<IconX size={16} />}
+                            leftSection={<IconX size={14} />}
                             onClick={() =>
                               setDecisionItem({ item: req, targetStatus: 'DECLINED' })
                             }
-                            styles={{ root: { fontSize: '0.95rem', fontWeight: 600 } }}
+                            styles={{ root: { height: 32, fontWeight: 600, paddingInline: 8 } }}
                           >
                             Odrzuć
                           </Button>
                         </Group>
                       ) : (
-                        <Text size="sm" c="dimmed" fs="italic">
-                          Decyzja ostateczna
+                        <Text size="xs" c="dimmed" fs="italic">
+                          Decyzja podjęta
                         </Text>
                       )}
                     </Table.Td>
@@ -365,7 +364,7 @@ export function TestRequestsModerationQueue() {
             </Text>
 
             {decisionItem.item.note && (
-              <Paper withBorder p="sm" radius="md" bg="var(--mantine-color-gray-0)">
+              <Paper withBorder p="sm" radius="md">
                 <Text size="xs" c="dimmed" fw={700} tt="uppercase" mb={4}>
                   Uzasadnienie zgłoszenia przez testera:
                 </Text>
@@ -398,34 +397,48 @@ export function TestRequestsModerationQueue() {
         )}
       </Modal>
 
-      {/* Note Preview Modal - Safe against arbitrarily long text without breaking table layout */}
+      {/* Note Preview Modal - Vertical stacked layout, fully adapted for Dark Mode */}
       <Modal
         opened={!!previewNoteItem}
         onClose={() => setPreviewNoteItem(null)}
         title="Uzasadnienie zgłoszenia do testów"
-        size="lg"
+        size="md"
         radius="md"
         transitionProps={{ duration: 0 }}
         styles={{ title: { fontSize: '1.25rem', fontWeight: 700 } }}
       >
         {previewNoteItem && (
           <Stack gap="md">
-            <Paper withBorder p="md" radius="sm" bg="var(--mantine-color-gray-0)">
-              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="xs">
+            <Paper withBorder p="md" radius="md">
+              <Stack gap="xs">
                 <div>
-                  <Text size="xs" c="dimmed" fw={600} tt="uppercase">Innowacja</Text>
-                  <Text size="sm" fw={700}>{previewNoteItem.innovationTitle}</Text>
+                  <Text size="xs" c="dimmed" fw={700} tt="uppercase">
+                    Rozwiązanie / Innowacja:
+                  </Text>
+                  <Text size="md" fw={700}>
+                    {previewNoteItem.innovationTitle}
+                  </Text>
                 </div>
                 <div>
-                  <Text size="xs" c="dimmed" fw={600} tt="uppercase">Tester (zgłaszający)</Text>
-                  <Text size="sm" fw={700}>{previewNoteItem.userId}</Text>
+                  <Text size="xs" c="dimmed" fw={700} tt="uppercase">
+                    Tester (zgłaszający):
+                  </Text>
+                  <Text size="sm" fw={600}>
+                    {previewNoteItem.userId}
+                  </Text>
                 </div>
                 <div>
-                  <Text size="xs" c="dimmed" fw={600} tt="uppercase">Data zgłoszenia</Text>
-                  <Text size="sm">{formatPolishDateTime(previewNoteItem.createdAt)}</Text>
+                  <Text size="xs" c="dimmed" fw={700} tt="uppercase">
+                    Data zgłoszenia:
+                  </Text>
+                  <Text size="sm">
+                    {formatPolishDateTime(previewNoteItem.createdAt)}
+                  </Text>
                 </div>
                 <div>
-                  <Text size="xs" c="dimmed" fw={600} tt="uppercase">Aktualny status</Text>
+                  <Text size="xs" c="dimmed" fw={700} tt="uppercase" mb={2}>
+                    Aktualny status:
+                  </Text>
                   <Badge
                     color={TEST_REQUEST_STATUS_CONFIG[previewNoteItem.status]?.color ?? 'gray'}
                     size="sm"
@@ -434,11 +447,13 @@ export function TestRequestsModerationQueue() {
                     {TEST_REQUEST_STATUS_CONFIG[previewNoteItem.status]?.label ?? previewNoteItem.status}
                   </Badge>
                 </div>
-              </SimpleGrid>
+              </Stack>
             </Paper>
 
             <div>
-              <Text size="sm" fw={700} mb={6}>Pełna treść uzasadnienia od testera:</Text>
+              <Text size="sm" fw={700} mb={6}>
+                Pełna treść uzasadnienia od testera:
+              </Text>
               <Paper
                 withBorder
                 p="md"
@@ -446,10 +461,9 @@ export function TestRequestsModerationQueue() {
                 style={{
                   maxHeight: 350,
                   overflowY: 'auto',
-                  backgroundColor: 'white',
                   whiteSpace: 'pre-wrap',
                   lineHeight: 1.6,
-                  fontSize: '1.02rem',
+                  fontSize: '1rem',
                 }}
               >
                 {previewNoteItem.note}

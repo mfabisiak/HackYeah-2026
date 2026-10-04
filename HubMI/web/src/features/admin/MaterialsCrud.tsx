@@ -248,7 +248,7 @@ export function MaterialsCrud() {
                     <Badge
                       variant="light"
                       color={item.type === 'VIDEO' ? 'red' : 'indigo'}
-                      size="md"
+                      size="sm"
                       styles={accessibleBadgeStyles}
                       leftSection={
                         item.type === 'VIDEO' ? (
@@ -263,9 +263,9 @@ export function MaterialsCrud() {
                   </Table.Td>
 
                   <Table.Td style={{ minWidth: 160 }}>
-                    <Group gap={6} wrap="wrap">
+                    <Group gap={4} wrap="wrap">
                       {item.areas.map((a) => (
-                        <Badge key={a} size="sm" variant="outline" color="gray" styles={accessibleBadgeStyles}>
+                        <Badge key={a} size="xs" variant="outline" color="gray" styles={accessibleBadgeStyles}>
                           {SOCIAL_AREA_NAMES[a] || a}
                         </Badge>
                       ))}

@@ -109,19 +109,19 @@ export function pluralizeSprawy(count: number): {
 export const accessibleBadgeStyles = {
   root: {
     height: 'auto',
-    minHeight: 28,
-    paddingTop: 4,
-    paddingBottom: 4,
-    paddingInline: 10,
+    minHeight: 22,
+    paddingTop: 2,
+    paddingBottom: 2,
+    paddingInline: 8,
     whiteSpace: 'normal' as const,
   },
   label: {
     whiteSpace: 'normal' as const,
     overflow: 'visible' as const,
     textOverflow: 'clip' as const,
-    fontSize: '0.88rem',
+    fontSize: '0.8rem',
     fontWeight: 600,
-    lineHeight: 1.3,
+    lineHeight: 1.25,
     textAlign: 'center' as const,
   },
 }

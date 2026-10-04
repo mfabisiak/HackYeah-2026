@@ -88,7 +88,12 @@ export function IdeasModerationQueue() {
 
   const handleOpenDrawer = (idea: IdeaJs) => {
     setSelectedIdea(idea)
-    setNewStatus(idea.status)
+    // In ROPS workflow, a newly submitted idea must first go into review
+    if (idea.status === 'SUBMITTED') {
+      setNewStatus('IN_REVIEW')
+    } else {
+      setNewStatus(idea.status)
+    }
     setAdminComment(idea.adminComment || '')
     setDrawerError(null)
   }
@@ -120,10 +125,12 @@ export function IdeasModerationQueue() {
       )
 
       if (res.error) {
-        if (res.error.status === 409) {
+        if (res.error.message && res.error.message.includes('Niedozwolona zmiana statusu')) {
+          setDrawerError(res.error.message)
+        } else if (res.error.status === 409) {
           setDrawerError('Ktoś już zmienił ten status — odśwież listę pomysłów.')
         } else {
-          setDrawerError(res.error.message || 'Nie udało się zaktualizować statusu.')
+          setDrawerError(res.error.message || 'Nie udało się zaktualizować statusu pomysłu.')
         }
       } else if (res.value) {
         handleCloseDrawer()
@@ -368,6 +375,18 @@ export function IdeasModerationQueue() {
                 </Alert>
               )}
 
+              {selectedIdea.status === 'SUBMITTED' && (
+                <Alert color="blue" radius="md" title="Procedura weryfikacji nowego pomysłu ROPS">
+                  Ten pomysł jest nowo zgłoszony. Zgodnie z procedurą ROPS pierwszym krokiem jest skierowanie go do weryfikacji (status: <strong>W trakcie weryfikacji</strong>). Po przeprowadzeniu weryfikacji odblokuje się możliwość akceptacji lub odrzucenia.
+                </Alert>
+              )}
+
+              {(selectedIdea.status === 'ACCEPTED' || selectedIdea.status === 'REJECTED') && (
+                <Alert color="gray" radius="md" title="Decyzja ostateczna">
+                  Ten pomysł został już ostatecznie rozpatrzony (status: <strong>{IDEA_STATUS_CONFIG[selectedIdea.status]?.label ?? selectedIdea.status}</strong>). Jego status nie podlega dalszym modyfikacjom.
+                </Alert>
+              )}
+
               <div>
                 <Text fw={600} style={{ fontSize: '1.1rem', marginBottom: 8 }}>
                   Wybierz nowy status pomysłu:
@@ -380,19 +399,33 @@ export function IdeasModerationQueue() {
                   <Stack gap="sm">
                     <Radio
                       value="IN_REVIEW"
-                      label="W trakcie weryfikacji (analiza formalna / uzupełnienia)"
+                      label="W trakcie weryfikacji (analiza formalna / ocena merytoryczna)"
+                      description={selectedIdea.status === 'IN_REVIEW' ? 'Aktualny status pomysłu' : undefined}
                       size="md"
+                      disabled={selectedIdea.status === 'IN_REVIEW' || selectedIdea.status === 'ACCEPTED' || selectedIdea.status === 'REJECTED'}
                       styles={{ label: { fontSize: '1rem', fontWeight: 500 } }}
                     />
                     <Radio
                       value="ACCEPTED"
                       label="Zaakceptowany (kwalifikacja do inkubacji / bazy)"
+                      description={
+                        selectedIdea.status === 'SUBMITTED'
+                          ? 'Wymaga uprzedniego skierowania pomysłu do weryfikacji'
+                          : undefined
+                      }
+                      disabled={selectedIdea.status === 'SUBMITTED' || selectedIdea.status === 'ACCEPTED' || selectedIdea.status === 'REJECTED'}
                       size="md"
                       styles={{ label: { fontSize: '1rem', fontWeight: 500 } }}
                     />
                     <Radio
                       value="REJECTED"
                       label="Odrzucony (wymaga podania uzasadnienia)"
+                      description={
+                        selectedIdea.status === 'SUBMITTED'
+                          ? 'Wymaga uprzedniego skierowania pomysłu do weryfikacji'
+                          : undefined
+                      }
+                      disabled={selectedIdea.status === 'SUBMITTED' || selectedIdea.status === 'ACCEPTED' || selectedIdea.status === 'REJECTED'}
                       size="md"
                       styles={{ label: { fontSize: '1rem', fontWeight: 500 } }}
                     />

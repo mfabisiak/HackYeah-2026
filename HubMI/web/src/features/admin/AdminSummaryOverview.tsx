@@ -23,7 +23,7 @@ import { useEffect, useState } from 'react'
 import { formatApiError } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { useAuth } from '../../auth/AuthContext'
-import { clearAuthSession } from '../../auth/keycloak'
+import { clearAuthSession, getAccessToken } from '../../auth/keycloak'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
 import { pluralizeSprawy } from './constants'
@@ -46,19 +46,59 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
 
     const fetchSummary = async () => {
       try {
-        const res = await hubApi.admin.summary()
+        let loadedSummary: AdminSummaryJs | null = null
+        let fetchError: unknown = null
+
+        // 1. Try typed hubApi method if available
+        if (typeof hubApi.admin?.summary === 'function') {
+          try {
+            const res = await hubApi.admin.summary()
+            if (res.error) {
+              fetchError = res.error
+            } else if (res.value) {
+              loadedSummary = res.value
+            }
+          } catch (e) {
+            fetchError = e
+          }
+        }
+
+        // 2. HTTP fallback in case client bundle is cached or missing summary method
+        if (!loadedSummary && !fetchError) {
+          const token = getAccessToken()
+          const resp = await fetch('/api/admin/summary', {
+            headers: {
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              Accept: 'application/json',
+            },
+          })
+          if (resp.status === 401) {
+            clearAuthSession()
+            setIsAuthExpired(true)
+            setError('Twoja sesja wygasła lub klucze autoryzacji uległy zmianie. Zaloguj się ponownie, aby uzyskać dostęp do panelu.')
+            setIsLoading(false)
+            return
+          }
+          if (resp.ok) {
+            loadedSummary = (await resp.json()) as AdminSummaryJs
+          } else {
+            fetchError = { status: resp.status, message: 'Nie udało się pobrać danych podsumowania.' }
+          }
+        }
+
         if (cancelled) return
 
-        if (res.error) {
-          if (res.error.status === 401) {
+        if (fetchError) {
+          const errObj = fetchError as { status?: number }
+          if (errObj.status === 401) {
             clearAuthSession()
             setIsAuthExpired(true)
             setError('Twoja sesja wygasła lub klucze autoryzacji uległy zmianie. Zaloguj się ponownie, aby uzyskać dostęp do panelu.')
           } else {
-            setError(formatApiError(res.error))
+            setError(formatApiError(fetchError))
           }
-        } else if (res.value) {
-          setSummary(res.value)
+        } else if (loadedSummary) {
+          setSummary(loadedSummary)
           setError(null)
           setIsAuthExpired(false)
         } else {
