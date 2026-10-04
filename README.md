@@ -3,7 +3,7 @@
 > **Cyfrowe serce innowacji społecznych dla Województwa Małopolskiego**
 > Prototyp platformy opracowany w ramach wyzwania **Regionalnego Ośrodka Polityki Społecznej w Krakowie (ROPS)** na hackathonie **HackYeah 2026**.
 
-### 🚀 [Wypróbuj demo na żywo: mfabisiak.github.io/HackYeah-2026](https://mfabisiak.github.io/HackYeah-2026/)
+### 🚀 [Wypróbuj demo na żywo](https://mfabisiak.github.io/HackYeah-2026/)
 
 Demo działa w przeglądarce, bez serwera, na danych przykładowych. W menu konta (prawy górny róg) przełączysz się między użytkownikiem, ekspertem ROPS i administratorem. Szczegóły: [HubMI/docs/DEMO.md](HubMI/docs/DEMO.md).
 
