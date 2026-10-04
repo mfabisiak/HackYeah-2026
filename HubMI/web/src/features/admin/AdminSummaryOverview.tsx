@@ -31,9 +31,11 @@ import type { AdminSummaryJs } from 'hubmi-client'
 
 export interface AdminSummaryOverviewProps {
   onNavigateTab: (tab: string) => void
+  /** Whether the shortcut to the content tabs is offered; the expert panel has none. */
+  canEditContent?: boolean
 }
 
-export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProps) {
+export function AdminSummaryOverview({ onNavigateTab, canEditContent = true }: AdminSummaryOverviewProps) {
   const { login } = useAuth()
   const [summary, setSummary] = useState<AdminSummaryJs | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -364,27 +366,29 @@ export function AdminSummaryOverview({ onNavigateTab }: AdminSummaryOverviewProp
             <Text size="sm" c="dimmed" style={{ fontSize: '0.95rem' }}>
               Wyszukiwania mieszkańców, dla których nie znaleziono gotowego rozwiązania.
             </Text>
-            <Button
-              variant="light"
-              color="gray"
-              size="md"
-              fullWidth
-              onClick={() => onNavigateTab('innowacje')}
-              rightSection={<IconArrowRight size={18} aria-hidden="true" />}
-              styles={{
-                root: {
-                  fontSize: '1rem',
-                  fontWeight: 600,
-                  paddingInline: 12,
-                  whiteSpace: 'normal',
-                  height: 'auto',
-                  minHeight: 44,
-                  paddingBlock: 8,
-                },
-              }}
-            >
-              Uzupełnij bazę
-            </Button>
+            {canEditContent && (
+              <Button
+                variant="light"
+                color="gray"
+                size="md"
+                fullWidth
+                onClick={() => onNavigateTab('innowacje')}
+                rightSection={<IconArrowRight size={18} aria-hidden="true" />}
+                styles={{
+                  root: {
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    paddingInline: 12,
+                    whiteSpace: 'normal',
+                    height: 'auto',
+                    minHeight: 44,
+                    paddingBlock: 8,
+                  },
+                }}
+              >
+                Uzupełnij bazę
+              </Button>
+            )}
           </Stack>
         </Card>
       </SimpleGrid>

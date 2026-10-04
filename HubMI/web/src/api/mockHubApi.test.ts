@@ -95,4 +95,31 @@ describe('createMockHubApi', () => {
     expect(api.currentAccount().role).toBe('ADMIN')
     expect(Array.from(api.signInAs('USER')?.roles ?? [])).toEqual(['user'])
   })
+
+  it('lets one official handle a thread at a time and an admin free it', async () => {
+    const api = createMockHubApi()
+    const threads = await api.threads.list()
+    const threadId = threads.value?.items[0].id ?? ''
+
+    api.signInAs('EXPERT')
+    const taken = await api.threads.assign(threadId)
+    expect(taken.value?.assigneeName).toBe('Anna Nowak')
+    expect(taken.value?.assignedToMe).toBe(true)
+
+    api.signInAs('ADMIN')
+    const rival = await api.threads.assign(threadId)
+    expect(rival.error?.status).toBe(409)
+    const seen = await api.threads.list()
+    expect(seen.value?.items.find((thread) => thread.id === threadId)?.assignedToMe).toBe(false)
+
+    const freed = await api.threads.unassign(threadId)
+    expect(freed.value?.assigneeName).toBeNull()
+  })
+
+  it('serves the reply templates', async () => {
+    const templates = await createMockHubApi().threads.replyTemplates()
+
+    expect(templates.value?.length).toBeGreaterThan(3)
+    expect(templates.value?.every((template) => template.text.length > 0)).toBe(true)
+  })
 })

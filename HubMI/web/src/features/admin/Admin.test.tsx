@@ -10,6 +10,7 @@ import { MaterialsCrud } from './MaterialsCrud'
 import { ContentManagement } from './ContentManagement'
 import { pluralizeSprawy } from './constants'
 import { AdminPage } from '../../pages/AdminPage'
+import { ExpertPage } from '../../pages/ExpertPage'
 import { hubApi } from '../../api/hubApi'
 import {
   AdminFeedbackJs,
@@ -165,6 +166,31 @@ describe('Panel administratora: moderacja i zarządzanie treścią (FE-08)', () 
         expect(screen.getByRole('heading', { level: 1, name: 'Panel administratora ROPS' })).toBeInTheDocument()
       })
       expect(screen.getByText(/Strefa administratora – Regionalny Ośrodek Polityki Społecznej/i)).toBeInTheDocument()
+    })
+  })
+
+  describe('Panel eksperta (urzędnik ROPS bez zarządzania treścią)', () => {
+    it('pokazuje ekspertowi kolejki moderacji, ale bez zakładki zarządzania treścią', async () => {
+      mockAuth.roles = ['user', 'expert']
+      vi.spyOn(hubApi.admin, 'summary').mockResolvedValue(new ApiResult(mockSummary, null))
+
+      renderWithProviders(<ExpertPage />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { level: 1, name: 'Panel eksperta ROPS' })).toBeInTheDocument()
+      })
+      expect(screen.getByRole('tab', { name: /Kolejka pomysłów/i })).toBeInTheDocument()
+      expect(screen.getByRole('tab', { name: /Plany adaptacji/i })).toBeInTheDocument()
+      expect(screen.queryByRole('tab', { name: /Zarządzanie treścią/i })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /Uzupełnij bazę/i })).not.toBeInTheDocument()
+    })
+
+    it('blokuje panel eksperta zwykłemu użytkownikowi', () => {
+      mockAuth.roles = ['user']
+
+      renderWithProviders(<ExpertPage />)
+
+      expect(screen.getByRole('heading', { name: 'Brak uprawnień (403)' })).toBeInTheDocument()
     })
   })
 

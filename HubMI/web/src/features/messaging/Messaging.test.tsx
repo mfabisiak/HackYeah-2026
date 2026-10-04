@@ -16,6 +16,7 @@ import {
   MessageJs,
   NotificationJs,
   PageJs,
+  ReplyTemplateJs,
   ThreadJs,
 } from 'hubmi-client'
 
@@ -69,12 +70,16 @@ const mockThreads: ThreadJs[] = [
     'idea-123',
     '2026-10-04T11:00:00Z',
     true,
+    null,
+    false,
   ),
   new ThreadJs(
     'thread-002',
     'Pytanie o procedurę testowania innowacji',
     null,
     '2026-10-02T09:00:00Z',
+    false,
+    null,
     false,
   ),
 ]
@@ -221,7 +226,7 @@ describe('Komunikacja i powiadomienia (FE-07)', () => {
     it('waliduje formularz i wysyła nową wiadomość do ROPS', async () => {
       const createSpy = vi.spyOn(hubApi.threads, 'create').mockResolvedValue(
         new ApiResult(
-          new ThreadJs('new-1', 'Nowy temat', null, '2026-10-04T12:00:00Z', false),
+          new ThreadJs('new-1', 'Nowy temat', null, '2026-10-04T12:00:00Z', false, null, false),
           null,
         ),
       )
@@ -266,6 +271,91 @@ describe('Komunikacja i powiadomienia (FE-07)', () => {
     })
   })
 
+  describe('Opiekun wątku i szablony odpowiedzi (urzędnik ROPS)', () => {
+    const freeThread = mockThreads[0]
+    const takenBy = (name: string, mine: boolean) =>
+      new ThreadJs(freeThread.id, freeThread.subject, null, freeThread.lastMessageAt, false, name, mine)
+
+    function openThread(thread: ThreadJs, roles: string[]) {
+      mockAuth.roles = roles
+      vi.spyOn(hubApi.threads, 'messages').mockResolvedValue(new ApiResult(mockMessages, null))
+      vi.spyOn(hubApi.threads, 'list').mockResolvedValue(
+        new ApiResult({ items: [thread], total: 1, page: 0, size: 50 } as PageJs<ThreadJs>, null),
+      )
+      vi.spyOn(hubApi.threads, 'replyTemplates').mockResolvedValue(
+        new ApiResult([new ReplyTemplateJs('potwierdzenie', 'Potwierdzenie przyjęcia', 'Dziękujemy za zgłoszenie.')], null),
+      )
+      renderWithProviders(
+        <Routes>
+          <Route path="/wiadomosci/:threadId" element={<ThreadDetailPage />} />
+        </Routes>,
+        [`/wiadomosci/${thread.id}`],
+      )
+    }
+
+    it('pozwala urzędnikowi przejąć wolny wątek i oddać go z powrotem', async () => {
+      const assignSpy = vi.spyOn(hubApi.threads, 'assign').mockResolvedValue(
+        new ApiResult(takenBy('Anna Nowak', true), null),
+      )
+      const unassignSpy = vi.spyOn(hubApi.threads, 'unassign').mockResolvedValue(
+        new ApiResult(freeThread, null),
+      )
+      openThread(freeThread, ['user', 'expert'])
+
+      expect(await screen.findByText('Nikt jeszcze nie zajął się tym wątkiem.')).toBeInTheDocument()
+      fireEvent.click(screen.getByRole('button', { name: 'Przejmuję ten wątek' }))
+
+      expect(await screen.findByText('Obsługujesz ten wątek.')).toBeInTheDocument()
+      expect(assignSpy).toHaveBeenCalledWith('thread-001')
+
+      fireEvent.click(screen.getByRole('button', { name: 'Oddaj wątek' }))
+      expect(await screen.findByText('Nikt jeszcze nie zajął się tym wątkiem.')).toBeInTheDocument()
+      expect(unassignSpy).toHaveBeenCalledWith('thread-001')
+    })
+
+    it('pokazuje konflikt, gdy wątek zdążył przejąć kolega', async () => {
+      vi.spyOn(hubApi.threads, 'assign').mockResolvedValue(
+        new ApiResult<ThreadJs>(null, new ApiErrorJs(409, 'CONFLICT', 'Ten wątek obsługuje już inny pracownik ROPS', [])),
+      )
+      openThread(freeThread, ['user', 'expert'])
+
+      fireEvent.click(await screen.findByRole('button', { name: 'Przejmuję ten wątek' }))
+
+      expect(await screen.findByText('Ten wątek obsługuje już inny pracownik ROPS')).toBeInTheDocument()
+    })
+
+    it('nie daje zwykłemu urzędnikowi przycisków przy cudzym wątku, adminowi daje zwolnienie', async () => {
+      openThread(takenBy('Anna Nowak', false), ['user', 'expert'])
+      expect(await screen.findByText('Sprawą zajmuje się: Anna Nowak (ROPS).')).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /Przejmuję|Oddaj|Zwolnij/ })).not.toBeInTheDocument()
+    })
+
+    it('autorowi pokazuje opiekuna bez przycisków i bez szablonów', async () => {
+      const templatesSpy = vi.spyOn(hubApi.threads, 'replyTemplates')
+      openThread(takenBy('Anna Nowak', false), ['user'])
+
+      expect(await screen.findByText('Sprawą zajmuje się: Anna Nowak (ROPS).')).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /Przejmuję|Oddaj|Zwolnij/ })).not.toBeInTheDocument()
+      expect(screen.queryByLabelText('Wstaw gotową odpowiedź')).not.toBeInTheDocument()
+      expect(templatesSpy).not.toHaveBeenCalled()
+    })
+
+    it('wstawia szablon do pola odpowiedzi urzędnika, nie kasując tego, co już napisał', async () => {
+      openThread(takenBy('Anna Nowak', true), ['user', 'expert'])
+
+      const picker = await screen.findByRole('combobox', { name: 'Wstaw gotową odpowiedź' })
+      const reply = screen.getByLabelText('Treść Twojej odpowiedzi', { exact: false })
+      fireEvent.change(reply, { target: { value: 'Pani Janino,' } })
+
+      fireEvent.click(picker)
+      fireEvent.click(await screen.findByRole('option', { name: 'Potwierdzenie przyjęcia', hidden: true }))
+
+      await waitFor(() => {
+        expect(reply).toHaveValue('Pani Janino,\n\nDziękujemy za zgłoszenie.')
+      })
+    })
+  })
+
   describe('Szczegóły rozmowy i odpowiedzi (ThreadDetailPage)', () => {
     it('wyświetla historię wiadomości z etykietami ról (ROPS, Autor, Ekspert)', async () => {
       vi.spyOn(hubApi.threads, 'messages').mockResolvedValue(
@@ -295,7 +385,7 @@ describe('Komunikacja i powiadomienia (FE-07)', () => {
       // Sender roles
       expect(screen.getByText('Pracownik ROPS')).toBeInTheDocument()
       expect(screen.getByText('Ty (Autor)')).toBeInTheDocument()
-      expect(screen.getByText('Ekspert merytoryczny')).toBeInTheDocument()
+      expect(screen.getByText('Ekspert ROPS')).toBeInTheDocument()
 
       // Message texts
       expect(screen.getByText(/kiedy rusza nabór na testowanie innowacji/i)).toBeInTheDocument()

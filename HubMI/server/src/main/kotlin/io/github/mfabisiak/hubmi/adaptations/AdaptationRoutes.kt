@@ -6,12 +6,12 @@ import io.github.mfabisiak.hubmi.api.Adaptations
 import io.github.mfabisiak.hubmi.api.AdminAdaptations
 import io.github.mfabisiak.hubmi.api.Innovations
 import io.github.mfabisiak.hubmi.api.InstitutionProfile
-import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.UpdateAdaptationStatusRequest
+import io.github.mfabisiak.hubmi.api.isStaff
 import io.github.mfabisiak.hubmi.auth.KEYCLOAK_AUTH
 import io.github.mfabisiak.hubmi.auth.UserId
 import io.github.mfabisiak.hubmi.auth.currentUser
-import io.github.mfabisiak.hubmi.auth.requireRole
+import io.github.mfabisiak.hubmi.auth.requireStaff
 import io.github.mfabisiak.hubmi.common.DomainError
 import io.github.mfabisiak.hubmi.common.asNel
 import io.github.mfabisiak.hubmi.common.http.respondEither
@@ -78,11 +78,11 @@ fun Route.adaptationRoutes() {
             respondEither {
                 val user = call.currentUser.bind()
                 val id = AdaptationId.parse(resource.id).orValidationError(INVALID_ADAPTATION_ID).bind()
-                service.get(id, UserId(user.id), callerIsAdmin = Role.ADMIN in user.roles).bind()
+                service.get(id, UserId(user.id), callerIsStaff = user.roles.isStaff()).bind()
             }
         }
 
-        requireRole(Role.ADMIN) {
+        requireStaff {
             get<AdminAdaptations> { resource ->
                 respondEither {
                     val pageRequest = validatePageRequest(resource.page, resource.size).bind()

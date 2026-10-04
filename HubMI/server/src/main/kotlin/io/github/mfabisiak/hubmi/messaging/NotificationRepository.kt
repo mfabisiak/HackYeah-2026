@@ -49,36 +49,23 @@ open class NotificationRepository(
         pageRequest: PageRequest,
     ): Either<RepositoryError, Page<NotificationItem>> =
         mongoCatch {
-            val isAdmin = Role.ADMIN in roles
-
             val filter =
-                if (isAdmin) {
-                    if (unreadOnly) {
-                        Filters.or(
-                            Filters.and(
-                                Filters.eq(NotificationItem::recipientId, userId),
-                                Filters.eq(NotificationItem::read, false),
-                            ),
-                            Filters.and(
-                                Filters.eq(NotificationItem::targetRole, Role.ADMIN),
-                                Filters.nin(NotificationItem::readByUserIds, listOf(userId)),
-                            ),
-                        )
-                    } else {
-                        Filters.or(
-                            Filters.eq(NotificationItem::recipientId, userId),
-                            Filters.eq(NotificationItem::targetRole, Role.ADMIN),
-                        )
-                    }
-                } else {
-                    if (unreadOnly) {
+                if (unreadOnly) {
+                    Filters.or(
                         Filters.and(
                             Filters.eq(NotificationItem::recipientId, userId),
                             Filters.eq(NotificationItem::read, false),
-                        )
-                    } else {
-                        Filters.eq(NotificationItem::recipientId, userId)
-                    }
+                        ),
+                        Filters.and(
+                            Filters.`in`(NotificationItem::targetRole, roles),
+                            Filters.nin(NotificationItem::readByUserIds, listOf(userId)),
+                        ),
+                    )
+                } else {
+                    Filters.or(
+                        Filters.eq(NotificationItem::recipientId, userId),
+                        Filters.`in`(NotificationItem::targetRole, roles),
+                    )
                 }
 
             val total = collection.countDocuments(filter).toInt()

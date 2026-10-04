@@ -56,6 +56,8 @@ internal fun notFound(what: String): ApiErrorJs =
 
 internal fun conflict(message: String): ApiErrorJs = ApiErrorJs(STATUS_CONFLICT, ErrorCode.CONFLICT.name, message)
 
+internal fun forbidden(message: String): ApiErrorJs = ApiErrorJs(STATUS_FORBIDDEN, ErrorCode.FORBIDDEN.name, message)
+
 internal fun invalid(vararg errors: FieldError): ApiErrorJs =
     ApiErrorJs(
         STATUS_BAD_REQUEST,
@@ -67,6 +69,7 @@ internal fun invalid(vararg errors: FieldError): ApiErrorJs =
 internal fun blank(field: String): FieldError = FieldError(field, FieldErrorCode.Blank, "Pole nie może być puste")
 
 private const val STATUS_BAD_REQUEST = 400
+private const val STATUS_FORBIDDEN = 403
 private const val STATUS_NOT_FOUND = 404
 private const val STATUS_CONFLICT = 409
 

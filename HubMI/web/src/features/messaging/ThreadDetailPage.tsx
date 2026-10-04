@@ -6,6 +6,7 @@ import {
   Card,
   Divider,
   Group,
+  Select,
   Stack,
   Text,
   Textarea,
@@ -21,20 +22,25 @@ import {
   IconRefresh,
   IconSend,
   IconUser,
+  IconUserCheck,
+  IconUserOff,
 } from '@tabler/icons-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { useAuth } from '../../auth/AuthContext'
+import { isStaff } from '../../auth/staff'
 import { LoadingState } from '../../components/LoadingState'
 import { PageHeader } from '../../components/PageHeader'
 import { PARTICIPANT_ROLE_CONFIG, formatPolishDateTime } from './constants'
-import type { MessageJs, ThreadJs } from 'hubmi-client'
+import type { MessageJs, ReplyTemplateJs, ThreadJs } from 'hubmi-client'
 
 export function ThreadDetailPage() {
   const { threadId } = useParams<{ threadId: string }>()
-  const { login } = useAuth()
+  const { login, hasRole } = useAuth()
+  const isOfficial = isStaff(hasRole)
+  const isAdmin = hasRole('admin')
 
   const [thread, setThread] = useState<ThreadJs | null>(null)
   const [messages, setMessages] = useState<MessageJs[]>([])
@@ -45,6 +51,10 @@ export function ThreadDetailPage() {
   const [replyText, setReplyText] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [replyError, setReplyError] = useState<string | null>(null)
+
+  const [templates, setTemplates] = useState<ReplyTemplateJs[]>([])
+  const [isAssigning, setIsAssigning] = useState(false)
+  const [assignmentError, setAssignmentError] = useState<string | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -98,6 +108,46 @@ export function ThreadDetailPage() {
       cancelled = true
     }
   }, [threadId, refreshTrigger])
+
+  useEffect(() => {
+    if (!isOfficial) return
+    let cancelled = false
+    void hubApi.threads.replyTemplates().then((res) => {
+      if (!cancelled && res.value) setTemplates(Array.from(res.value))
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [isOfficial])
+
+  const changeAssignment = async (action: 'assign' | 'unassign') => {
+    if (!threadId) return
+    setIsAssigning(true)
+    setAssignmentError(null)
+    try {
+      const res = await hubApi.threads[action](threadId)
+      if (res.error) {
+        // The server says who has the thread; the generic wording for a conflict would hide that.
+        const specific = res.error.status === 409 || res.error.status === 403
+        setAssignmentError(
+          specific ? res.error.message : toFriendlyErrorMessage(res.error, 'Nie udało się zmienić przypisania wątku.'),
+        )
+      } else if (res.value) {
+        setThread(res.value)
+      }
+    } catch (err) {
+      setAssignmentError(toFriendlyErrorMessage(err, 'Wystąpił błąd sieci. Spróbuj ponownie za chwilę.'))
+    } finally {
+      setIsAssigning(false)
+    }
+  }
+
+  const insertTemplate = (templateId: string | null) => {
+    const template = templates.find((t) => t.id === templateId)
+    if (!template) return
+    setReplyText((current) => (current.trim() ? `${current.trimEnd()}\n\n${template.text}` : template.text))
+    setReplyError(null)
+  }
 
   const handleSendReply = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -214,6 +264,54 @@ export function ThreadDetailPage() {
           Odśwież wiadomości
         </Button>
       </Group>
+
+      {thread && (isOfficial || thread.assigneeName !== null) && (
+        <Card withBorder padding="lg" radius="md" aria-labelledby="thread-assignment-title">
+          <Stack gap="sm">
+            <Group justify="space-between" align="center" wrap="wrap" gap="md">
+              <div role="status">
+                <Title order={2} size="h4" id="thread-assignment-title" style={{ fontSize: '1.2rem' }}>
+                  Opiekun wątku
+                </Title>
+                <Text style={{ fontSize: '1.1rem' }}>
+                  {thread.assignedToMe
+                    ? 'Obsługujesz ten wątek.'
+                    : thread.assigneeName !== null
+                      ? `Sprawą zajmuje się: ${thread.assigneeName} (ROPS).`
+                      : 'Nikt jeszcze nie zajął się tym wątkiem.'}
+                </Text>
+              </div>
+
+              {isOfficial && thread.assigneeName === null && (
+                <Button
+                  size="md"
+                  loading={isAssigning}
+                  leftSection={<IconUserCheck size={20} aria-hidden="true" />}
+                  onClick={() => void changeAssignment('assign')}
+                >
+                  Przejmuję ten wątek
+                </Button>
+              )}
+              {isOfficial && thread.assigneeName !== null && (thread.assignedToMe || isAdmin) && (
+                <Button
+                  size="md"
+                  variant="default"
+                  loading={isAssigning}
+                  leftSection={<IconUserOff size={20} aria-hidden="true" />}
+                  onClick={() => void changeAssignment('unassign')}
+                >
+                  {thread.assignedToMe ? 'Oddaj wątek' : 'Zwolnij przypisanie'}
+                </Button>
+              )}
+            </Group>
+            {assignmentError && (
+              <Alert icon={<IconAlertCircle size={20} />} color="red" title="Błąd przypisania" radius="md" role="alert">
+                {assignmentError}
+              </Alert>
+            )}
+          </Stack>
+        </Card>
+      )}
 
       {thread?.relatedIdeaId && (
         <Alert color="blue" title="Rozmowa powiązana z pomysłem" radius="md">
@@ -371,6 +469,23 @@ export function ThreadDetailPage() {
               >
                 {replyError}
               </Alert>
+            )}
+
+            {isOfficial && templates.length > 0 && (
+              <Select
+                label="Wstaw gotową odpowiedź"
+                description="Szablon trafi do pola poniżej, możesz go jeszcze zmienić przed wysłaniem."
+                placeholder="Wybierz szablon"
+                data={templates.map((t) => ({ value: t.id, label: t.title }))}
+                value={null}
+                onChange={insertTemplate}
+                size="md"
+                styles={{
+                  label: { fontSize: '1.1rem', fontWeight: 600, marginBottom: 4 },
+                  description: { fontSize: '1rem' },
+                  input: { fontSize: '1.1rem' },
+                }}
+              />
             )}
 
             <Textarea

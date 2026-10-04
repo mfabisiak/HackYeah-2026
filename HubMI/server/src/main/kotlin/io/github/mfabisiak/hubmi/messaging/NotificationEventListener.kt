@@ -45,16 +45,16 @@ class NotificationEventListener(
 private fun DomainEvent.toNotifications(): List<NotificationItem> =
     when (this) {
         is IdeaSubmitted -> {
-            listOf(
+            Role.staff.map { role ->
                 NotificationItem(
-                    targetRole = Role.ADMIN,
+                    targetRole = role,
                     type = NotificationType.IDEA_SUBMITTED,
                     title = "Nowy pomysł zgłoszony",
                     body = "Zgłoszono nowy pomysł: $title",
                     eventId = "IdeaSubmitted-$ideaId",
                     createdAt = occurredAt,
-                ),
-            )
+                )
+            }
         }
 
         is IdeaStatusChanged -> {
@@ -72,7 +72,7 @@ private fun DomainEvent.toNotifications(): List<NotificationItem> =
 
         is MessageReceived -> {
             if (recipientIds.isEmpty()) {
-                listOf(messageNotification(eventSuffix = "admin", targetRole = Role.ADMIN))
+                Role.staff.map { role -> messageNotification(eventSuffix = role.name, targetRole = role) }
             } else {
                 recipientIds.map { messageNotification(eventSuffix = it, recipientId = it) }
             }

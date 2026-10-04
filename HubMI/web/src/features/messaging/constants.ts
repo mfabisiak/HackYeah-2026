@@ -24,9 +24,9 @@ export const PARTICIPANT_ROLE_CONFIG: Record<
     description: 'Nadawca wiadomości',
   },
   EXPERT: {
-    label: 'Ekspert merytoryczny',
+    label: 'Ekspert ROPS',
     badgeColor: 'teal',
-    description: 'Konsultant regionalny',
+    description: 'Pracownik Regionalnego Ośrodka Polityki Społecznej w Krakowie',
   },
 }
 

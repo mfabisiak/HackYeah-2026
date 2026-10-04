@@ -16,7 +16,7 @@ internal enum class DemoAccount(
     val participantRole: ParticipantRole,
 ) {
     USER("Użytkownik", DEMO_USER_NAME, DEMO_AUTHOR_NAME, listOf(Role.USER), ParticipantRole.AUTHOR),
-    EXPERT("Ekspert", "anna.nowak", "Anna Nowak", listOf(Role.USER, Role.EXPERT), ParticipantRole.EXPERT),
+    EXPERT("Ekspert ROPS", "anna.nowak", "Anna Nowak", listOf(Role.USER, Role.EXPERT), ParticipantRole.EXPERT),
     ADMIN(
         "Administrator",
         "piotr.wisniewski",

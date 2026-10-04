@@ -8,7 +8,7 @@
     "realm": [
       { "name": "user", "description": "Regular user" },
       { "name": "admin", "description": "Administrator" },
-      { "name": "expert", "description": "Expert / mentor" }
+      { "name": "expert", "description": "Ekspert ROPS: pracownik moderujący zgłoszenia i odpowiadający mieszkańcom" }
     ]
   },
   "defaultRole": { "name": "default-roles-hubmi" },
@@ -69,8 +69,8 @@
     {
       "username": "expert",
       "email": "expert@hubmi.local",
-      "firstName": "Test",
-      "lastName": "Expert",
+      "firstName": "Anna",
+      "lastName": "Nowak",
       "enabled": true,
       "emailVerified": true,
       "credentials": [{ "type": "password", "value": "expert", "temporary": false }],

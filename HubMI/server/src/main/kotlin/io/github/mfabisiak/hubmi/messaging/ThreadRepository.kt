@@ -1,6 +1,8 @@
 package io.github.mfabisiak.hubmi.messaging
 
 import arrow.core.Either
+import com.mongodb.client.model.FindOneAndUpdateOptions
+import com.mongodb.client.model.ReturnDocument
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import com.mongodb.kotlin.client.model.Filters
 import com.mongodb.kotlin.client.model.Sorts
@@ -95,6 +97,46 @@ class ThreadRepository(
             )
         }.map { }
 
+    /** Takes an unassigned thread over; `null` when the thread is missing or somebody else already handles it. */
+    suspend fun claim(
+        threadId: ObjectId,
+        assigneeId: String,
+        assigneeName: String,
+        at: Instant,
+    ): Either<RepositoryError, ThreadItem?> =
+        mongoCatch {
+            collection.findOneAndUpdate(
+                Filters.and(Filters.eq(ThreadItem::id, threadId), Filters.eq(ThreadItem::assigneeId, null)),
+                Updates.combine(
+                    Updates.set(ThreadItem::assigneeId, assigneeId),
+                    Updates.set(ThreadItem::assigneeName, assigneeName),
+                    Updates.set(ThreadItem::updatedAt, at),
+                ),
+                FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER),
+            )
+        }
+
+    /** Hands the thread back; `null` when it is missing or [currentAssigneeId] no longer handles it. */
+    suspend fun release(
+        threadId: ObjectId,
+        currentAssigneeId: String,
+        at: Instant,
+    ): Either<RepositoryError, ThreadItem?> =
+        mongoCatch {
+            collection.findOneAndUpdate(
+                Filters.and(
+                    Filters.eq(ThreadItem::id, threadId),
+                    Filters.eq(ThreadItem::assigneeId, currentAssigneeId),
+                ),
+                Updates.combine(
+                    Updates.unset(ThreadItem::assigneeId),
+                    Updates.unset(ThreadItem::assigneeName),
+                    Updates.set(ThreadItem::updatedAt, at),
+                ),
+                FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER),
+            )
+        }
+
     suspend fun markRead(
         threadId: ObjectId,
         userId: String,
@@ -107,11 +149,11 @@ class ThreadRepository(
             )
         }.map { }
 
-    suspend fun countPendingAdminReply(): Either<RepositoryError, Int> =
+    suspend fun countPendingStaffReply(): Either<RepositoryError, Int> =
         mongoCatch {
             collection
                 .countDocuments(
-                    Filters.ne(ThreadItem::lastMessageRole, ParticipantRole.ADMIN),
+                    Filters.nin(ThreadItem::lastMessageRole, listOf(ParticipantRole.ADMIN, ParticipantRole.EXPERT)),
                 ).toInt()
         }
 }

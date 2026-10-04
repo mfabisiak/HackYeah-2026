@@ -6,6 +6,8 @@ import io.github.mfabisiak.hubmi.api.NotificationDto
 import io.github.mfabisiak.hubmi.api.Notifications
 import io.github.mfabisiak.hubmi.api.Page
 import io.github.mfabisiak.hubmi.api.PostMessageRequest
+import io.github.mfabisiak.hubmi.api.ReplyTemplateDto
+import io.github.mfabisiak.hubmi.api.ReplyTemplates
 import io.github.mfabisiak.hubmi.api.ThreadDto
 import io.github.mfabisiak.hubmi.api.Threads
 import io.github.mfabisiak.hubmi.web.ApiResult
@@ -15,6 +17,7 @@ import io.github.mfabisiak.hubmi.web.fetch
 import io.github.mfabisiak.hubmi.web.promiseResult
 import io.github.mfabisiak.hubmi.web.send
 import io.github.mfabisiak.hubmi.web.sendForUnit
+import io.github.mfabisiak.hubmi.web.sendWithoutBody
 import io.github.mfabisiak.hubmi.web.toPageJs
 import io.ktor.client.HttpClient
 import io.ktor.http.HttpMethod
@@ -67,6 +70,30 @@ internal class HttpThreadsApi(
                     HttpMethod.Post,
                     Threads.ById.Messages(parent = Threads.ById(id = threadId)),
                     PostMessageRequest(text),
+                ).map { it.toJs() }
+        }
+
+    override fun assign(threadId: String): Promise<ApiResult<ThreadJs>> = changeAssignment(HttpMethod.Put, threadId)
+
+    override fun unassign(threadId: String): Promise<ApiResult<ThreadJs>> =
+        changeAssignment(HttpMethod.Delete, threadId)
+
+    override fun replyTemplates(): Promise<ApiResult<Array<ReplyTemplateJs>>> =
+        scope.promiseResult {
+            client
+                .fetch<ReplyTemplates, List<ReplyTemplateDto>>(ReplyTemplates())
+                .map { templates -> templates.map { it.toJs() }.toTypedArray() }
+        }
+
+    private fun changeAssignment(
+        method: HttpMethod,
+        threadId: String,
+    ): Promise<ApiResult<ThreadJs>> =
+        scope.promiseResult {
+            client
+                .sendWithoutBody<Threads.ById.Assignment, ThreadDto>(
+                    method,
+                    Threads.ById.Assignment(parent = Threads.ById(id = threadId)),
                 ).map { it.toJs() }
         }
 }

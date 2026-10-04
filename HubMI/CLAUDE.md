@@ -134,7 +134,8 @@ Przepływ: `route (parsowanie do typów domenowych) → service → repository`.
 - Błąd zawsze jako `ErrorResponse(code, message)`; `code` to enum `ErrorCode` z `:core` (a `FieldError.code` to sealed `FieldErrorCode`) –
   nigdy wolny string. Nowy rodzaj błędu = nowy wpis w enumie.
 - Listy paginowane (`?page=&size=`), filtry w query. Odpowiedzi nigdy nie zwracają modeli Mongo – tylko DTO.
-- Autoryzacja: `authenticate(KEYCLOAK_AUTH)` + `requireRole(Role.ADMIN)`. Role to enum `Role` z `:core`, mapowany z
+- Autoryzacja: `authenticate(KEYCLOAK_AUTH)` + `requireRole(Role.ADMIN)`; moderacja i wiadomości ROPS są dla pracownika ROPS
+  (`requireStaff`, `Role.staff` = `admin` lub `expert`), a trendy i zarządzanie treścią tylko dla `admin`. Role to enum `Role` z `:core`, mapowany z
   `realm_access.roles` na granicy (nieznane role Keycloaka są pomijane).
   Użytkownik wywołujący pochodzi z tokena (`sub`), nigdy z body żądania.
 

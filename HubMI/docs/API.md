@@ -5,7 +5,7 @@ każdy plik grupuje zasoby i DTO jednego modułu. Zasoby oznaczone w tabeli jako
 pozostałe to plan.
 
 Konwencje: identyfikatory to `String` (hex), czas to ISO-8601 w `String`, listy paginowane (`page`, `size`),
-błąd to zawsze `ErrorResponse(code, message)`. Dostęp: 🌐 publiczny · 🔑 zalogowany · 🛡️ rola `admin`.
+błąd to zawsze `ErrorResponse(code, message)`. Dostęp: 🌐 publiczny · 🔑 zalogowany · 🛡️ rola `admin` · 👔 pracownik ROPS (rola `admin` lub `expert`).
 
 | Moduł | Metoda i ścieżka | Dostęp | Żądanie → odpowiedź |
 |:--|:--|:-:|:--|
@@ -29,8 +29,8 @@ błąd to zawsze `ErrorResponse(code, message)`. Dostęp: 🌐 publiczny · 🔑
 | 3 | `POST /api/ideas/{id}/assist` | 🔑 | `AssistRequest` → `AssistResponse` *(zaimplementowane; dla zapisanego pomysłu, dostęp jak `GET /api/ideas/{id}`: autor, admin lub ekspert)* |
 | 7 | `POST /api/innovations/{id}/adaptations` | 🔑 | `InstitutionProfile` → `AdaptationResponse` *(zaimplementowane; Middleman: plan pilotażu innowacji dla instytucji, zapisany do przeglądu admina; `201` z `Location` gdy plan zapisano, `200` z samym `aiStatus` gdy model go nie dał; JSON albo SSE)* |
 | 7 | `GET /api/adaptations/mine?page&size`, `GET /api/adaptations/{id}` | 🔑 | → `Page<AdaptationDto>`, `AdaptationDto` *(zaimplementowane; plan widzi autor albo admin)* |
-| 7 | `GET /api/admin/adaptations?status&page&size` | 🛡️ | → `Page<AdaptationDto>` *(zaimplementowane; kolejka przeglądu, najnowsze pierwsze)* |
-| 7 | `PATCH /api/admin/adaptations/{id}/status` | 🛡️ | `UpdateAdaptationStatusRequest` → `AdaptationDto` *(zaimplementowane; `PENDING_REVIEW → APPROVED \| REJECTED`, odrzucenie wymaga `comment` (`400`), inne przejścia `409`)* |
+| 7 | `GET /api/admin/adaptations?status&page&size` | 👔 | → `Page<AdaptationDto>` *(zaimplementowane; kolejka przeglądu, najnowsze pierwsze)* |
+| 7 | `PATCH /api/admin/adaptations/{id}/status` | 👔 | `UpdateAdaptationStatusRequest` → `AdaptationDto` *(zaimplementowane; `PENDING_REVIEW → APPROVED \| REJECTED`, odrzucenie wymaga `comment` (`400`), inne przejścia `409`)* |
 | 3 | `GET /api/calls?status`, `GET /api/calls/active`, `GET /api/calls/{id}` | 🌐 | → `List<GrantCallDto>`, `GrantCallDto` *(zaimplementowane)* |
 | 3 | `POST /api/calls`, `PUT`/`DELETE /api/calls/{id}` | 🛡️ | `UpsertCallRequest` → `GrantCallDto` *(zaimplementowane)* |
 | 3 | `GET /api/calls/{id}/declarations?applicantType` | 🌐 | → `DeclarationsResponse` *(zaimplementowane)* |
@@ -43,17 +43,19 @@ błąd to zawsze `ErrorResponse(code, message)`. Dostęp: 🌐 publiczny · 🔑
 | 4 | `PUT /api/innovations/{id}/test-request` | 🔑 | `CreateTestRequest` → `TestRequestDto` *(zaimplementowane; `200`, idempotentne: jedno zgłoszenie na użytkownika, powtórzenie podmienia notatkę, dopóki admin nie rozpatrzy zgłoszenia – potem `409`)* |
 | 4 | `GET /api/innovations/{id}/feedback` | 🔑 | → `FeedbackDto` *(zaimplementowane; własna ocena, `404` gdy brak)* |
 | 4 | `PUT /api/innovations/{id}/feedback` | 🔑 | `CreateFeedbackRequest` → `FeedbackDto` *(zaimplementowane; `200`, jedna ocena na użytkownika – powtórzenie podmienia ocenę)* |
-| 4 | `GET /api/admin/feedback?innovationId&page&size` | 🛡️ | → `Page<AdminFeedbackDto>` *(zaimplementowane; oceny z komentarzami, najnowsze pierwsze)* |
-| 4 | `GET /api/admin/test-requests?innovationId&status&page&size` | 🛡️ | → `Page<AdminTestRequestDto>` *(zaimplementowane)* |
-| 4 | `PATCH /api/admin/test-requests/{id}/status` | 🛡️ | `UpdateTestRequestStatusRequest` → `AdminTestRequestDto` *(zaimplementowane; `NEW → ACCEPTED \| DECLINED`, inne przejścia `409`)* |
-| 5 | `GET`/`POST /api/threads` | 🔑 | → `Page<ThreadDto>`; `CreateThreadRequest` → `ThreadDto` *(zaimplementowane)* |
-| 5 | `GET`/`POST /api/threads/{id}/messages` | 🔑 | → `List<MessageDto>`; `PostMessageRequest` → `MessageDto` *(zaimplementowane)* |
+| 4 | `GET /api/admin/feedback?innovationId&page&size` | 👔 | → `Page<AdminFeedbackDto>` *(zaimplementowane; oceny z komentarzami, najnowsze pierwsze)* |
+| 4 | `GET /api/admin/test-requests?innovationId&status&page&size` | 👔 | → `Page<AdminTestRequestDto>` *(zaimplementowane)* |
+| 4 | `PATCH /api/admin/test-requests/{id}/status` | 👔 | `UpdateTestRequestStatusRequest` → `AdminTestRequestDto` *(zaimplementowane; `NEW → ACCEPTED \| DECLINED`, inne przejścia `409`)* |
+| 5 | `GET`/`POST /api/threads` | 🔑 | → `Page<ThreadDto>`; `CreateThreadRequest` → `ThreadDto` *(zaimplementowane; pracownik ROPS widzi wszystkie wątki, reszta własne)* |
+| 5 | `GET`/`POST /api/threads/{id}/messages` | 🔑 | → `List<MessageDto>`; `PostMessageRequest` → `MessageDto` *(zaimplementowane; pracownik ROPS odpowiada w każdym wątku w imieniu ROPS, autor wiadomości to jego imię i nazwisko z claimu `name`)* |
+| 5 | `PUT`/`DELETE /api/threads/{id}/assignment` | 👔 | → `ThreadDto` *(zaimplementowane; `PUT` przejmuje wątek, idempotentnie dla opiekuna, `409` gdy obsługuje go ktoś inny; `DELETE` oddaje go: opiekun albo admin, inaczej `403`; `ThreadDto` ma `assigneeName` i `assignedToMe`, a nazwę opiekuna widzi też autor)* |
+| 5 | `GET /api/reply-templates` | 👔 | → `List<ReplyTemplateDto>` *(zaimplementowane; gotowe odpowiedzi do wstawienia w wiadomość, lista stała z `:core`, ta sama w demo)* |
 | 5 | `GET /api/notifications?unreadOnly&page&size`, `GET /api/notifications/stream` | 🔑 | → `Page<NotificationDto>`; SSE stream *(zaimplementowane)* |
 | 5 | `POST /api/notifications/{id}/read` | 🔑 | → `204` *(zaimplementowane)* |
 | 6 | `GET /api/admin/trends?months` | 🛡️ | → `TrendsDto` *(zaimplementowane; `months` 1..60, domyślnie 6, poza zakresem `400`; gminy i frazy poniżej `privacyThreshold` zgłoszeń są pomijane)* |
-| 6 | `GET /api/admin/summary` | 🛡️ | → `AdminSummaryDto` *(zaimplementowane)* |
-| 6 | `GET /api/admin/ideas?status&page&size` | 🛡️ | → `Page<IdeaDto>` *(zaimplementowane)* |
-| 6 | `PATCH /api/admin/ideas/{id}/status` | 🛡️ | `UpdateIdeaStatusRequest` → `IdeaDto` *(zaimplementowane)* |
+| 6 | `GET /api/admin/summary` | 👔 | → `AdminSummaryDto` *(zaimplementowane)* |
+| 6 | `GET /api/admin/ideas?status&page&size` | 👔 | → `Page<IdeaDto>` *(zaimplementowane)* |
+| 6 | `PATCH /api/admin/ideas/{id}/status` | 👔 | `UpdateIdeaStatusRequest` → `IdeaDto` *(zaimplementowane)* |
 | 6 | `GET /api/admin/applications?callId&status&page&size` | 🛡️ | → `Page<ApplicationDto>` *(zaimplementowane)* |
 
 `InnovationDto` i `UpsertInnovationRequest` mają opcjonalne sekcje narracyjne zgodne z formularzem aplikacyjnym ROPS
@@ -83,5 +85,7 @@ albo wolny model **nie** jest błędem: odpowiedź ma `aiStatus` (`OK`, `UNAVAIL
 `similar` i `noveltyHint` są w niej zawsze. `aiGenerated` jest zawsze `true`: wszystko spod `suggestions` i `flow` trzeba
 pokazać jako wygenerowane przez AI.
 
+`expert` to urzędnik ROPS z węższymi uprawnieniami niż `admin`: moderuje pomysły, zgłoszenia testów, opinie i plany Middlemana, widzi wskaźniki „wymaga uwagi” i odpowiada mieszkańcom, ale nie widzi trendów (`/api/admin/trends`) i nie zarządza treścią (innowacje, wyzwania, materiały, nabory). W froncie to „Panel eksperta” pod `/ekspert`.
+
 Do ustalenia przy implementacji: autoryzacja „autor lub admin" dla `GET /api/ideas/{id}` i wątków (wymaga sprawdzenia
-właściciela, nie tylko roli), rola `expert` w Keycloaku dla modułu 5, limity (rate limiting) dla `POST /api/matches`.
+właściciela, nie tylko roli), limity (rate limiting) dla `POST /api/matches`.

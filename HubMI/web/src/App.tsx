@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import { Shell } from './layout/Shell'
 import { AccountPage } from './pages/AccountPage'
 import { AdminPage } from './pages/AdminPage'
+import { ExpertPage } from './pages/ExpertPage'
 import { HomePage } from './pages/HomePage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { StatusPage } from './pages/StatusPage'
@@ -94,6 +95,7 @@ export default function App() {
             }
           />
           <Route path="admin" element={<AdminPage />} />
+          <Route path="ekspert" element={<ExpertPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

@@ -13,6 +13,7 @@ import io.github.mfabisiak.hubmi.api.Page
 import io.github.mfabisiak.hubmi.api.Role
 import io.github.mfabisiak.hubmi.api.TargetGroup
 import io.github.mfabisiak.hubmi.api.UpdateIdeaStatusRequest
+import io.github.mfabisiak.hubmi.api.isStaff
 import io.github.mfabisiak.hubmi.common.DomainError
 import io.github.mfabisiak.hubmi.common.orValidationError
 import io.github.mfabisiak.hubmi.common.toDomainError
@@ -99,7 +100,7 @@ class IdeaService(
                     DomainError.NotFound("Nie znaleziono pomysłu o id: $idString")
                 }
 
-            val canAccess = idea.authorId == callerId || Role.ADMIN in callerRoles || Role.EXPERT in callerRoles
+            val canAccess = idea.authorId == callerId || callerRoles.isStaff()
             ensure(canAccess) {
                 DomainError.Forbidden("Brak uprawnień do przeglądania tego pomysłu")
             }

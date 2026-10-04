@@ -24,6 +24,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { useAuth } from '../../auth/AuthContext'
+import { isStaff } from '../../auth/staff'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
 import { PageHeader } from '../../components/PageHeader'
@@ -31,15 +32,31 @@ import { formatPolishDateTime, formatRelativePolishTime } from './constants'
 import { NewThreadModal } from './NewThreadModal'
 import type { ThreadJs } from 'hubmi-client'
 
+type ThreadFilter = 'all' | 'unread' | 'mine' | 'free'
+
+const EMPTY_TITLES: Record<ThreadFilter, string> = {
+  all: 'Nie masz jeszcze żadnych rozpoczętych rozmów',
+  unread: 'Brak wiadomości wymagających odpowiedzi',
+  mine: 'Nie obsługujesz żadnego wątku',
+  free: 'Wszystkie wątki mają już opiekuna',
+}
+
+const EMPTY_HINTS: Record<ThreadFilter, string> = {
+  all: 'Jeśli masz pytanie dotyczące innowacji, naboru lub potrzebujesz porady, kliknij poniższy przycisk, aby napisać pierwszą wiadomość do pracowników ROPS.',
+  unread: 'Wszystkie wątki są aktualnie przeczytane i obsłużone.',
+  mine: 'Przejmij wątek ze zmiany filtra na »Wolne wątki«, a pojawi się tutaj.',
+  free: 'Zmień filtr, aby zobaczyć pozostałe rozmowy.',
+}
+
 export function ThreadsListPage() {
   const { hasRole } = useAuth()
   const [searchParams] = useSearchParams()
-  const isAdmin = hasRole('admin')
+  const isOfficial = isStaff(hasRole)
 
   const [threads, setThreads] = useState<ThreadJs[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [filterMode, setFilterMode] = useState<'all' | 'unread'>('all')
+  const [filterMode, setFilterMode] = useState<ThreadFilter>('all')
   const [newModalOpened, setNewModalOpened] = useState(
     searchParams.get('nowy') === '1',
   )
@@ -86,10 +103,16 @@ export function ThreadsListPage() {
   }
 
   const filteredThreads = threads.filter((t) => {
-    if (filterMode === 'unread') {
-      return t.unread
+    switch (filterMode) {
+      case 'unread':
+        return t.unread
+      case 'mine':
+        return t.assignedToMe
+      case 'free':
+        return t.assigneeName === null
+      default:
+        return true
     }
-    return true
   })
 
   return (
@@ -144,13 +167,16 @@ export function ThreadsListPage() {
         </Button>
 
         <Group gap="sm" wrap="wrap">
-          {isAdmin && (
+          {isOfficial && (
             <SegmentedControl
               value={filterMode}
-              onChange={(val) => setFilterMode(val as 'all' | 'unread')}
+              onChange={(val) => setFilterMode(val as ThreadFilter)}
+              aria-label="Filtr rozmów"
               data={[
                 { label: 'Wszystkie rozmowy', value: 'all' },
                 { label: 'Wymaga odpowiedzi (nowe)', value: 'unread' },
+                { label: 'Moje sprawy', value: 'mine' },
+                { label: 'Wolne wątki', value: 'free' },
               ]}
               size="md"
               styles={{
@@ -182,14 +208,10 @@ export function ThreadsListPage() {
               <IconInbox size={36} aria-hidden="true" />
             </ThemeIcon>
             <Title order={3} size="h3" style={{ fontSize: '1.3rem' }}>
-              {filterMode === 'unread'
-                ? 'Brak wiadomości wymagających odpowiedzi'
-                : 'Nie masz jeszcze żadnych rozpoczętych rozmów'}
+              {EMPTY_TITLES[filterMode]}
             </Title>
             <Text size="lg" c="dimmed" style={{ maxWidth: 600, fontSize: '1.1rem', lineHeight: 1.6 }}>
-              {filterMode === 'unread'
-                ? 'Wszystkie wątki są aktualnie przeczytane i obsłużone.'
-                : 'Jeśli masz pytanie dotyczące innowacji, naboru lub potrzebujesz porady, kliknij poniższy przycisk, aby napisać pierwszą wiadomość do pracowników ROPS.'}
+              {EMPTY_HINTS[filterMode]}
             </Text>
             {filterMode === 'all' && (
               <Button
@@ -257,6 +279,28 @@ export function ThreadsListPage() {
                           >
                             Przeczytane
                           </Badge>
+                        )}
+
+                        {thread.assigneeName !== null ? (
+                          <Badge
+                            color="teal"
+                            size="lg"
+                            variant="light"
+                            styles={{ label: { fontSize: '0.95rem', fontWeight: 600 } }}
+                          >
+                            {thread.assignedToMe ? 'Twoja sprawa' : `Obsługuje: ${thread.assigneeName}`}
+                          </Badge>
+                        ) : (
+                          isOfficial && (
+                            <Badge
+                              color="orange"
+                              size="lg"
+                              variant="outline"
+                              styles={{ label: { fontSize: '0.95rem', fontWeight: 600 } }}
+                            >
+                              Wolny wątek
+                            </Badge>
+                          )
                         )}
 
                         {thread.relatedIdeaId && (
