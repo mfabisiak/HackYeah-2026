@@ -495,7 +495,7 @@ export function TrendsDashboard({ onNavigateTab }: TrendsDashboardProps) {
               withColumnBorders
               aria-label="Tabela potrzeb według obszarów społecznych"
             >
-              <caption style={{ textAlign: 'left', padding: '8px 0', fontWeight: 600, color: 'light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-2))' }}>
+              <caption style={{ textAlign: 'left', padding: '8px 0', fontWeight: 600, color: 'light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1))' }}>
                 Tabela 1: Liczba zgłoszonych potrzeb per obszar wyzwań wraz z dynamiką zmian
               </caption>
               <Table.Thead style={{ backgroundColor: 'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6))' }}>
@@ -524,7 +524,7 @@ export function TrendsDashboard({ onNavigateTab }: TrendsDashboardProps) {
                       </Table.Td>
                       <Table.Td style={{ textAlign: 'right', padding: '12px' }}>
                         {delta.diff > 0 ? (
-                          <span style={{ color: 'light-dark(var(--mantine-color-teal-7), var(--mantine-color-teal-4))', fontWeight: 700 }}>
+                          <span style={{ color: 'light-dark(var(--mantine-color-teal-9), var(--mantine-color-teal-4))', fontWeight: 700 }}>
                             +{delta.percent}% (+{delta.diff})
                           </span>
                         ) : delta.diff < 0 ? (
@@ -532,7 +532,7 @@ export function TrendsDashboard({ onNavigateTab }: TrendsDashboardProps) {
                             {delta.percent}% ({delta.diff})
                           </span>
                         ) : (
-                          <span style={{ color: 'light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2))' }}>0% (0)</span>
+                          <span style={{ color: 'light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1))' }}>0% (0)</span>
                         )}
                       </Table.Td>
                       <Table.Td style={{ textAlign: 'right', padding: '12px' }}>
@@ -622,7 +622,7 @@ export function TrendsDashboard({ onNavigateTab }: TrendsDashboardProps) {
                 withColumnBorders
                 aria-label="Tabela dynamiki zgłoszeń w czasie"
               >
-                <caption style={{ textAlign: 'left', padding: '8px 0', fontWeight: 600, color: 'light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-2))' }}>
+                <caption style={{ textAlign: 'left', padding: '8px 0', fontWeight: 600, color: 'light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1))' }}>
                   Tabela 2: Rozkład liczby potrzeb w ujęciu chronologicznym
                 </caption>
                 <Table.Thead style={{ backgroundColor: 'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6))' }}>
@@ -710,7 +710,7 @@ export function TrendsDashboard({ onNavigateTab }: TrendsDashboardProps) {
               withColumnBorders
               aria-label="Tabela rozkładu potrzeb w gminach"
             >
-              <caption style={{ textAlign: 'left', padding: '8px 0', fontWeight: 600, color: 'light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-2))' }}>
+              <caption style={{ textAlign: 'left', padding: '8px 0', fontWeight: 600, color: 'light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1))' }}>
                 Tabela 3: Zgłoszone potrzeby w podziale na gminy i powiaty województwa
               </caption>
               <Table.Thead style={{ backgroundColor: 'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6))' }}>
