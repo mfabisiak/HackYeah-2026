@@ -15,6 +15,11 @@ import {
   InnovationsListPage,
   MaterialsListPage,
 } from './features/knowledge'
+import {
+  NotificationsProvider,
+  ThreadDetailPage,
+  ThreadsListPage,
+} from './features/messaging'
 
 // The idea and application screens are only needed by people who submit something, so they load on demand.
 const IdeaWizardPage = lazy(() => import('./features/ideas').then((m) => ({ default: m.IdeaWizardPage })))
@@ -41,33 +46,52 @@ const onDemand = (page: React.ReactNode) => (
 
 export default function App() {
   return (
-    <Routes>
-      <Route element={<Shell />}>
-        <Route index element={<HomePage />} />
-        <Route path="dopasuj" element={<HomePage />} />
-        <Route path="innowacje" element={<InnovationsListPage />} />
-        <Route path="innowacje/:id" element={<InnovationDetailPage />} />
-        <Route path="wyzwania" element={<ChallengesListPage />} />
-        <Route path="materialy" element={<MaterialsListPage />} />
-        <Route path="pomysly" element={signedIn(<MyIdeasPage />)} />
-        <Route path="pomysly/nowy" element={signedIn(<IdeaWizardPage />)} />
-        <Route path="pomysly/:id" element={signedIn(<IdeaDetailPage />)} />
-        <Route path="nabory" element={onDemand(<CallsListPage />)} />
-        <Route path="nabory/:id" element={onDemand(<CallDetailPage />)} />
-        <Route path="wnioski" element={signedIn(<ApplicationsListPage />)} />
-        <Route path="wnioski/:id" element={signedIn(<ApplicationWizardPage />)} />
-        <Route path="status" element={<StatusPage />} />
-        <Route
-          path="konto"
-          element={
-            <RequireAuth>
-              <AccountPage />
-            </RequireAuth>
-          }
-        />
-        <Route path="admin" element={<AdminPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
-    </Routes>
+    <NotificationsProvider>
+      <Routes>
+        <Route element={<Shell />}>
+          <Route index element={<HomePage />} />
+          <Route path="dopasuj" element={<HomePage />} />
+          <Route path="innowacje" element={<InnovationsListPage />} />
+          <Route path="innowacje/:id" element={<InnovationDetailPage />} />
+          <Route path="wyzwania" element={<ChallengesListPage />} />
+          <Route path="materialy" element={<MaterialsListPage />} />
+          <Route path="pomysly" element={signedIn(<MyIdeasPage />)} />
+          <Route path="pomysly/nowy" element={signedIn(<IdeaWizardPage />)} />
+          <Route path="pomysly/:id" element={signedIn(<IdeaDetailPage />)} />
+          <Route path="nabory" element={onDemand(<CallsListPage />)} />
+          <Route path="nabory/:id" element={onDemand(<CallDetailPage />)} />
+          <Route path="wnioski" element={signedIn(<ApplicationsListPage />)} />
+          <Route path="wnioski/:id" element={signedIn(<ApplicationWizardPage />)} />
+          <Route path="status" element={<StatusPage />} />
+          <Route
+            path="wiadomosci"
+            element={
+              <RequireAuth>
+                <ThreadsListPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="wiadomosci/:threadId"
+            element={
+              <RequireAuth>
+                <ThreadDetailPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="konto"
+            element={
+              <RequireAuth>
+                <AccountPage />
+              </RequireAuth>
+            }
+          />
+          <Route path="admin" element={<AdminPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+      </Routes>
+    </NotificationsProvider>
   )
 }
+
