@@ -17,7 +17,7 @@ import { hubApi } from '../../api/hubApi'
 import { fakeStream } from '../../test/streams'
 import { AdaptationModal } from './AdaptationModal'
 import { AdaptationPlanView } from './AdaptationPlanView'
-import { AdminAdaptationsPage } from './AdminAdaptationsPage'
+import { AdaptationsReviewQueue } from './AdaptationsReviewQueue'
 import { MyAdaptationsPage } from './MyAdaptationsPage'
 import { ReviewModal } from './ReviewModal'
 
@@ -231,7 +231,7 @@ describe('ReviewModal', () => {
   })
 })
 
-describe('AdminAdaptationsPage', () => {
+describe('AdaptationsReviewQueue', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
   })
@@ -241,7 +241,7 @@ describe('AdminAdaptationsPage', () => {
     const review = vi
       .spyOn(hubApi.admin, 'reviewAdaptation')
       .mockResolvedValue(new ApiResult(adaptation({ status: 'APPROVED' }), null))
-    renderWithProviders(<AdminAdaptationsPage />)
+    renderWithProviders(<AdaptationsReviewQueue />)
 
     expect(await screen.findByText('Transport door-to-door')).toBeInTheDocument()
     expect(list).toHaveBeenCalledWith('PENDING_REVIEW', 0, 10)
@@ -258,7 +258,7 @@ describe('AdminAdaptationsPage', () => {
 
   it('shows an empty state when nothing waits', async () => {
     vi.spyOn(hubApi.admin, 'adaptations').mockResolvedValue(new ApiResult(page([]), null))
-    renderWithProviders(<AdminAdaptationsPage />)
+    renderWithProviders(<AdaptationsReviewQueue />)
 
     expect(await screen.findByText('Brak planów w tym widoku')).toBeInTheDocument()
   })
@@ -267,7 +267,7 @@ describe('AdminAdaptationsPage', () => {
     vi.spyOn(hubApi.admin, 'adaptations').mockResolvedValue(
       new ApiResult<PageJs<AdaptationJs>>(null, new ApiErrorJs(0, 'NETWORK_ERROR', 'fetch failed', [])),
     )
-    renderWithProviders(<AdminAdaptationsPage />)
+    renderWithProviders(<AdaptationsReviewQueue />)
 
     expect(await screen.findByTestId('error-alert')).toHaveTextContent('Nie udało się połączyć z serwerem')
     expect(screen.getByRole('button', { name: 'Spróbuj ponownie' })).toBeInTheDocument()

@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { initKeycloak, keycloak } from './keycloak'
+import { clearIdeaLocalData } from '../features/ideas/localData'
+import { MOCK_MODE, clearAuthSession, initKeycloak, keycloak } from './keycloak'
 
 export interface AuthState {
   ready: boolean
@@ -11,28 +12,46 @@ export interface AuthState {
   logout: () => void
 }
 
+const MOCK_USERNAME = 'jan.kowalski'
+
 const AuthContext = createContext<AuthState | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [ready, setReady] = useState(false)
-  const [authenticated, setAuthenticated] = useState(false)
+  const [ready, setReady] = useState(MOCK_MODE)
+  const [authenticated, setAuthenticated] = useState(MOCK_MODE)
 
   useEffect(() => {
+    if (MOCK_MODE) return
     initKeycloak()
-      .then(setAuthenticated)
-      .catch(() => setAuthenticated(false))
+      .then((signedIn) => {
+        // Nobody is signed in: whatever the previous person left on this computer must not be shown to the next one.
+        if (!signedIn) {
+          clearIdeaLocalData()
+        }
+        setAuthenticated(signedIn)
+      })
+      .catch(() => {
+        clearAuthSession()
+        clearIdeaLocalData()
+        setAuthenticated(false)
+      })
       .finally(() => setReady(true))
 
     keycloak.onAuthLogout = () => {
+      clearAuthSession()
+      clearIdeaLocalData()
       setAuthenticated(false)
     }
     keycloak.onAuthRefreshError = () => {
+      clearAuthSession()
+      clearIdeaLocalData()
       setAuthenticated(false)
     }
   }, [])
 
   const roles = useMemo<string[]>(() => {
     if (!authenticated) return []
+    if (MOCK_MODE) return ['user']
     const realmRoles = (keycloak.tokenParsed?.realm_access?.roles as string[] | undefined) ?? []
     return realmRoles
   }, [authenticated])
@@ -41,11 +60,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       ready,
       authenticated,
-      username: keycloak.tokenParsed?.preferred_username as string | undefined,
+      username: MOCK_MODE ? MOCK_USERNAME : (keycloak.tokenParsed?.preferred_username as string | undefined),
       roles,
       hasRole: (role: string) => roles.includes(role) || (typeof keycloak.hasRealmRole === 'function' ? keycloak.hasRealmRole(role) : false),
-      login: () => void keycloak.login({ redirectUri: window.location.href }),
-      logout: () => void keycloak.logout({ redirectUri: window.location.origin }),
+      login: () => {
+        clearAuthSession()
+        if (!MOCK_MODE) void keycloak.login({ redirectUri: window.location.href })
+      },
+      logout: () => {
+        // Nothing the user typed may stay behind on a shared computer.
+        clearAuthSession()
+        clearIdeaLocalData()
+        if (!MOCK_MODE) void keycloak.logout({ redirectUri: window.location.origin })
+      },
     }),
     [ready, authenticated, roles],
   )

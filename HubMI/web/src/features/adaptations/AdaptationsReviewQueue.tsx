@@ -1,22 +1,21 @@
 import { useEffect, useState } from 'react'
-import { Alert, Button, Group, SegmentedControl, Stack, Text } from '@mantine/core'
+import { Alert, Button, Group, SegmentedControl, Stack, Text, Title } from '@mantine/core'
 import { IconCheck, IconX } from '@tabler/icons-react'
 import type { AdaptationJs } from 'hubmi-client'
 import { hubApi } from '../../api/hubApi'
 import { describeApiError } from '../../api/errors'
-import { RequireRole } from '../../auth/RequireRole'
 import { EmptyState } from '../../components/EmptyState'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { LoadingState } from '../../components/LoadingState'
 import { AccessiblePagination } from '../../components/Pagination'
-import { PageHeader } from '../../components/PageHeader'
 import { AdaptationAccordion } from './AdaptationAccordion'
 import { ADAPTATION_STATUS_FILTERS } from './constants'
 import { ReviewModal, type ReviewModalProps } from './ReviewModal'
 
 const PAGE_SIZE = 10
 
-function AdminAdaptationsContent() {
+/** The plans the Middleman wrote, waiting for an admin to approve or reject them; one tab of the admin panel. */
+export function AdaptationsReviewQueue() {
   const [status, setStatus] = useState<string>('PENDING_REVIEW')
   const [page, setPage] = useState(0)
   const [items, setItems] = useState<AdaptationJs[]>([])
@@ -52,15 +51,15 @@ function AdminAdaptationsContent() {
 
   return (
     <Stack gap="xl">
-      <PageHeader
-        title="Plany adaptacji do przeglądu"
-        subtitle="Plany wdrożenia innowacji, które przygotował asystent AI dla instytucji. Zanim trafią do autora jako sprawdzone, ktoś z ROPS musi je zatwierdzić albo odrzucić."
-        breadcrumbs={[
-          { title: 'Strona główna', href: '/' },
-          { title: 'Administracja', href: '/admin' },
-          { title: 'Plany adaptacji' },
-        ]}
-      />
+      <Stack gap={2}>
+        <Title order={2} size="h3" style={{ fontSize: '1.4rem', fontWeight: 700 }}>
+          Plany adaptacji do przeglądu
+        </Title>
+        <Text size="md" c="dimmed" style={{ fontSize: '1.05rem' }}>
+          Plany wdrożenia innowacji, które przygotował asystent AI dla instytucji. Zanim autor dostanie je jako sprawdzone,
+          ktoś z ROPS musi je zatwierdzić albo odrzucić.
+        </Text>
+      </Stack>
 
       <SegmentedControl
         aria-label="Filtr statusu planów"
@@ -145,13 +144,5 @@ function AdminAdaptationsContent() {
         }}
       />
     </Stack>
-  )
-}
-
-export function AdminAdaptationsPage() {
-  return (
-    <RequireRole requiredRole="admin">
-      <AdminAdaptationsContent />
-    </RequireRole>
   )
 }

@@ -14,6 +14,17 @@ export function ErrorAlert({
   onRetry,
   retryLabel = 'Spróbuj ponownie',
 }: ErrorAlertProps) {
+  let displayMessage = message
+  const lower = (message || '').toLowerCase()
+  if (
+    lower.includes('failed to fetch') ||
+    lower.includes('networkerror') ||
+    lower.includes('network error') ||
+    lower.includes('load failed')
+  ) {
+    displayMessage = 'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie internetowe lub spróbuj ponownie za chwilę.'
+  }
+
   return (
     <Alert
       variant="light"
@@ -24,7 +35,7 @@ export function ErrorAlert({
       data-testid="error-alert"
       mb="md"
     >
-      <Text size="sm">{message}</Text>
+      <Text size="sm">{displayMessage}</Text>
       {onRetry && (
         <Group mt="sm">
           <Button

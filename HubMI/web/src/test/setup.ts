@@ -1,4 +1,8 @@
 import '@testing-library/jest-dom/vitest'
+import * as axeMatchers from 'vitest-axe/matchers'
+import { expect } from 'vitest'
+
+expect.extend(axeMatchers)
 
 // Mock window.matchMedia for Mantine
 Object.defineProperty(window, 'matchMedia', {
@@ -24,7 +28,7 @@ class ResizeObserverMock {
 
 window.ResizeObserver = ResizeObserverMock
 
-// jsdom has no font loading API; Mantine's autosizing Textarea listens to it
+// Mantine's autosizing textarea listens to font loading, which jsdom does not implement.
 Object.defineProperty(document, 'fonts', {
   writable: true,
   value: { addEventListener: () => {}, removeEventListener: () => {} },

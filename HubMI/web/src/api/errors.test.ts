@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ApiClientError, extractFieldErrors, formatApiError } from './errors'
+import { ApiClientError, extractFieldErrors, formatApiError, toFriendlyErrorMessage } from './errors'
 import { ApiErrorJs, FieldErrorJs } from 'hubmi-client'
 
 describe('API errors utility', () => {
@@ -42,5 +42,23 @@ describe('API errors utility', () => {
   it('handles standard Error instances and unknown objects', () => {
     expect(formatApiError(new Error('Błąd połączenia'))).toBe('Błąd połączenia')
     expect(formatApiError('unexpected')).toBe('Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.')
+  })
+
+  it('converts raw technical browser errors like Failed to fetch to friendly Polish', () => {
+    expect(formatApiError(new Error('Failed to fetch'))).toBe(
+      'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie internetowe lub spróbuj ponownie za chwilę.',
+    )
+    expect(formatApiError('TypeError: Failed to fetch')).toBe(
+      'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie internetowe lub spróbuj ponownie za chwilę.',
+    )
+    expect(formatApiError(new ApiErrorJs(0, 'NETWORK_ERROR', 'Failed to fetch'))).toBe(
+      'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie internetowe lub spróbuj ponownie za chwilę.',
+    )
+    expect(
+      toFriendlyErrorMessage(
+        new ApiErrorJs(0, 'NETWORK_ERROR', 'Failed to fetch'),
+        'Nie udało się pobrać danych.',
+      ),
+    ).toBe('Nie udało się połączyć z serwerem. Sprawdź swoje połączenie internetowe lub spróbuj ponownie za chwilę.')
   })
 })

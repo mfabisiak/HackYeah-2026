@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw'
+import { applicationHandlers } from './applications'
 
 const mockInnovations = [
   {
@@ -93,6 +94,8 @@ const mockMaterials = [
 ]
 
 export const handlers = [
+  ...applicationHandlers,
+
   // Health
   http.get('/health', () => {
     return HttpResponse.json({ status: 'ok' })
@@ -240,12 +243,14 @@ export const handlers = [
     const url = new URL(request.url)
     const page = parseInt(url.searchParams.get('page') ?? '0', 10)
     const size = parseInt(url.searchParams.get('size') ?? '10', 10)
+    const type = url.searchParams.get('type')
+    const filtered = mockMaterials.filter((m) => type === null || m.type === type)
 
     return HttpResponse.json({
-      items: mockMaterials.slice(page * size, (page + 1) * size),
+      items: filtered.slice(page * size, (page + 1) * size),
       page,
       size,
-      total: mockMaterials.length,
+      total: filtered.length,
     })
   }),
 

@@ -28,6 +28,7 @@ import {
 } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { toFriendlyErrorMessage } from '../../api/errors'
 import { hubApi } from '../../api/hubApi'
 import { useAuth } from '../../auth/AuthContext'
 import { ErrorAlert } from '../../components/ErrorAlert'
@@ -95,16 +96,16 @@ export function InnovationDetailPage() {
         if (cancelled) return
 
         if (res.error || !res.value) {
-          setError(res.error?.message || 'Nie znaleziono wybranej innowacji społecznej.')
+          setError(toFriendlyErrorMessage(res.error, 'Nie znaleziono wybranej innowacji społecznej.'))
           setInnovation(null)
         } else {
           setInnovation(res.value)
           setError(null)
           document.title = `${res.value.title} | HubMI`
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          setError('Wystąpił błąd podczas pobierania innowacji.')
+          setError(toFriendlyErrorMessage(err, 'Wystąpił błąd podczas pobierania innowacji.'))
           setInnovation(null)
         }
       } finally {

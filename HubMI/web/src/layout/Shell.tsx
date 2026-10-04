@@ -3,14 +3,21 @@ import { IconMoon, IconSun } from '@tabler/icons-react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useRef } from 'react'
 import { useAuth } from '../auth/AuthContext'
+import { NotificationBell } from '../features/messaging/NotificationBell'
 
-const baseLinks = [
+const contentLinks = [
   { to: '/', label: 'Start' },
   { to: '/dopasuj', label: 'Opisz problem' },
   { to: '/asystent', label: 'Asystent pomysłów' },
   { to: '/innowacje', label: 'Baza innowacji' },
   { to: '/wyzwania', label: 'Wyzwania Małopolski' },
   { to: '/materialy', label: 'Materiały edukacyjne' },
+  { to: '/pomysly', label: 'Moje pomysły' },
+  { to: '/nabory', label: 'Nabory' },
+  { to: '/wnioski', label: 'Moje wnioski' },
+]
+
+const accountLinks = [
   { to: '/status', label: 'Status' },
   { to: '/konto', label: 'Moje konto' },
 ]
@@ -18,8 +25,14 @@ const baseLinks = [
 export function Shell() {
   const { ready, authenticated, username, login, logout, hasRole } = useAuth()
   const navLinks = [
-    ...baseLinks,
-    ...(authenticated ? [{ to: '/moje-plany', label: 'Moje plany' }] : []),
+    ...contentLinks,
+    ...(authenticated
+      ? [
+          { to: '/wiadomosci', label: 'Wiadomości z ROPS' },
+          { to: '/moje-plany', label: 'Moje plany' },
+        ]
+      : []),
+    ...accountLinks,
     ...(authenticated && hasRole('admin') ? [{ to: '/admin', label: 'Panel admina' }] : []),
   ]
   const { setColorScheme } = useMantineColorScheme()
@@ -47,7 +60,7 @@ export function Shell() {
               <Group component="ul" gap="md" p={0} m={0} style={{ listStyle: 'none' }}>
                 {navLinks.map((link) => (
                   <li key={link.to}>
-                    <Anchor component={NavLink} to={link.to} end underline="hover" fw={500}>
+                    <Anchor component={NavLink} to={link.to} end={link.to === '/'} underline="hover" fw={500}>
                       {link.label}
                     </Anchor>
                   </li>
@@ -57,6 +70,7 @@ export function Shell() {
             <Group gap="sm">
               {ready && authenticated ? (
                 <>
+                  <NotificationBell />
                   <Text span>Zalogowano: {username}</Text>
                   <Button variant="default" onClick={logout}>
                     Wyloguj

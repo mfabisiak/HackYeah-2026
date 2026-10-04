@@ -111,7 +111,7 @@ zapisany po 15–18 s, `exceedsBudget = false`. Jakościowo plan jest poprawny p
   kroki planu rosną na żywo, na końcu zapisany plan z oznaczeniem AI i statusem. Gdy model nie napisał planu, jest
   komunikat z przyczyną, a formularz zostaje z wpisanymi danymi.
 - **`/moje-plany`**: plany autora ze statusem (tekst i ikona), komentarzem ROPS i pełnym planem po rozwinięciu.
-- **`/admin/plany`**: kolejka przeglądu (filtr statusu), zatwierdzenie i odrzucenie przez okno potwierdzenia, odrzucenie
+- **Panel admina, zakładka „Plany adaptacji"** (`/admin?tab=plany`): kolejka przeglądu (filtr statusu), zatwierdzenie i odrzucenie przez okno potwierdzenia, odrzucenie
   wymaga powodu, `409` daje komunikat „ktoś już zmienił status" i odświeża listę.
 - Dostępność: wynik jest w regionie `aria-live="polite"`, błędy formularzy w `ErrorSummary` z linkami do pól, kroki i
   przepływ to listy numerowane (strzałki dekoracyjne, „do" czytane przez czytnik), koszt ponad budżet i status to tekst, a
