@@ -10,6 +10,9 @@ const baseLinks = [
   { to: '/innowacje', label: 'Baza innowacji' },
   { to: '/wyzwania', label: 'Wyzwania Małopolski' },
   { to: '/materialy', label: 'Materiały edukacyjne' },
+  { to: '/pomysly', label: 'Moje pomysły' },
+  { to: '/nabory', label: 'Nabory' },
+  { to: '/wnioski', label: 'Moje wnioski' },
   { to: '/status', label: 'Status' },
   { to: '/konto', label: 'Moje konto' },
 ]
@@ -45,7 +48,7 @@ export function Shell() {
               <Group component="ul" gap="md" p={0} m={0} style={{ listStyle: 'none' }}>
                 {navLinks.map((link) => (
                   <li key={link.to}>
-                    <Anchor component={NavLink} to={link.to} end underline="hover" fw={500}>
+                    <Anchor component={NavLink} to={link.to} end={link.to === '/'} underline="hover" fw={500}>
                       {link.label}
                     </Anchor>
                   </li>

@@ -161,7 +161,13 @@ Lista i wyszukiwarka innowacji, szczegóły innowacji, wyzwania, materiały.
 Fiszka pomysłu jest dostępna zawsze (istota, komu dedykowany, etap), a w czasie naboru dochodzi **generator wniosków** dopasowany do konkretnego naboru. Autor ma też widzieć, co się dzieje z jego pomysłem (ścieżka odpowiedzi — kryterium *szybkość komunikacji*).
 
 ### Stan obecny
-Brak widoków. Kontrakt: `CreateIdeaRequest`, `IdeaDto`, `GrantCallDto` z polami szablonu (`key`, `label`, `required`).
+Zaimplementowane w `web/src/features/ideas` (fiszka, „Moje pomysły”, szczegóły) i `web/src/features/applications` (nabory, kreator wniosku ROPS, „Moje wnioski”); trasy `/pomysly`, `/pomysly/nowy`, `/nabory`, `/wnioski/:id` (krok kreatora w `?krok=N`). Decyzje:
+- Kreator wniosku to stałe komponenty wg wzoru ROPS (osiem kroków), a nie render z `fields` naboru.
+- Klient `:web-client` oddaje treść wniosku jako `ApplicationJs.contentJson` (JSON `SaveApplicationDraftRequest`, bo wnioskodawca jest typem polimorficznym) i przyjmuje go w `saveDraft`; mapowanie na formularz jest w `features/applications/form.ts`. Doszły `CallsApi.get` i `CallsApi.declarations`.
+- Szkic wniosku jest tylko na serwerze (autozapis po 2,5 s, zapis przy zmianie kroku); w `localStorage` trzymamy wyłącznie szkic fiszki i ostatnio widziane statusy pomysłów, czyszczone przy wylogowaniu.
+- Walidacja po stronie klienta odwzorowuje `RopsApplicationValidator`; błędy z `details` serwera trafiają do tych samych pól.
+- `VITE_MOCK=true` działa bez Keycloaka (użytkownik testowy), a mocki ideas/calls/applications trzymają stan w pamięci (`mocks/applications.ts`).
+- Kontrakt: `CreateIdeaRequest`, `IdeaDto`, `GrantCallDto`, `ApplicationDto`.
 
 ### Zakres
 Formularz fiszki, „Moje pomysły" ze statusami, lista naborów, formularz wniosku generowany z szablonu.
