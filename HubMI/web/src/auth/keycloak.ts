@@ -56,3 +56,19 @@ export function initKeycloak(): Promise<boolean> {
 }
 
 export const getAccessToken = (): string | undefined => keycloak.token
+
+/** Mock mode (`VITE_MOCK=true`) runs without Keycloak: the user is always signed in as a fixed test user. */
+export const MOCK_MODE = import.meta.env.VITE_MOCK === 'true'
+
+/**
+ * Renews the access token when it is about to expire. `false` means no usable token is left (the session ended or the
+ * refresh failed while the old token has already expired); a failed refresh with a still valid token is not an error.
+ */
+export async function ensureFreshToken(minValiditySeconds = 30): Promise<boolean> {
+  if (MOCK_MODE) return true
+  if (!keycloak.authenticated) return false
+  return keycloak.updateToken(minValiditySeconds).then(
+    () => true,
+    () => !keycloak.isTokenExpired(),
+  )
+}

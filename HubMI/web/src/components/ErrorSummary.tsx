@@ -10,24 +10,35 @@ export interface FormErrorItem {
 export interface ErrorSummaryProps {
   title?: string
   errors: FormErrorItem[]
+  /** Replaces the default “focus the field” behaviour, e.g. when the field is on another step of a wizard. */
+  onNavigate?: (fieldId: string) => void
+  /** When given, focus moves to the summary only if this value changes, not whenever `errors` is re-created. */
+  focusKey?: number
 }
 
 export function ErrorSummary({
   title = 'W formularzu występują błędy',
   errors,
+  onNavigate,
+  focusKey,
 }: ErrorSummaryProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
+  const hasErrors = errors.length > 0
   useEffect(() => {
-    if (errors.length > 0) {
+    if (hasErrors) {
       containerRef.current?.focus()
     }
-  }, [errors])
+  }, [focusKey ?? errors, hasErrors]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (errors.length === 0) return null
 
   const handleLinkClick = (fieldId: string) => (event: React.MouseEvent) => {
     event.preventDefault()
+    if (onNavigate) {
+      onNavigate(fieldId)
+      return
+    }
     const element = document.getElementById(fieldId)
     if (element) {
       element.focus()

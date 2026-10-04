@@ -25,3 +25,9 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Mantine's default dimmed and error text colours are below 4.5:1 on white; use darker shades in the light scheme. */
+:root[data-mantine-color-scheme='light'] {
+  --mantine-color-dimmed: var(--mantine-color-gray-7);
+  --mantine-color-error: var(--mantine-color-red-9);
+}

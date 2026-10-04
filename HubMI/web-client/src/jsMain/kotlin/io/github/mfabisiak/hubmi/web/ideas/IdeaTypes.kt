@@ -5,15 +5,20 @@ import arrow.core.raise.either
 import io.github.mfabisiak.hubmi.api.ApplicationDto
 import io.github.mfabisiak.hubmi.api.CallField
 import io.github.mfabisiak.hubmi.api.CreateIdeaRequest
+import io.github.mfabisiak.hubmi.api.DeclarationDto
+import io.github.mfabisiak.hubmi.api.DeclarationsResponse
 import io.github.mfabisiak.hubmi.api.GrantCallDto
 import io.github.mfabisiak.hubmi.api.IdeaDto
 import io.github.mfabisiak.hubmi.api.InnovationStage
+import io.github.mfabisiak.hubmi.api.SaveApplicationDraftRequest
 import io.github.mfabisiak.hubmi.api.TargetGroup
 import io.github.mfabisiak.hubmi.api.UpsertCallRequest
 import io.github.mfabisiak.hubmi.web.ApiErrorJs
 import io.github.mfabisiak.hubmi.web.enumOf
 import io.github.mfabisiak.hubmi.web.enumsOf
 import io.github.mfabisiak.hubmi.web.names
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @JsExport
 class CreateIdeaJs(
@@ -78,9 +83,31 @@ class ApplicationJs(
     val formVersion: Int,
     val title: String?,
     val requestedGrantAmountGrosze: Int?,
+    /**
+     * Everything the applicant fills in (applicant variant, narratives, plan, declarations) as the JSON of
+     * `SaveApplicationDraftRequest`, i.e. exactly what [ApplicationsApi.saveDraft] accepts back. The applicant is a
+     * polymorphic type (`INDIVIDUAL`, `ENTITY`, `NON_FORMAL_GROUP`), which has no JS-friendly shape.
+     */
+    val contentJson: String,
     val submittedAt: String?,
     val createdAt: String,
     val updatedAt: String,
+)
+
+@JsExport
+class DeclarationJs(
+    /** `DeclarationId` name. */
+    val id: String,
+    /** `DeclarationCategory` name. */
+    val category: String,
+    val text: String,
+    val required: Boolean,
+)
+
+@JsExport
+class DeclarationsJs(
+    val formVersion: Int,
+    val declarations: Array<DeclarationJs>,
 )
 
 internal fun IdeaDto.toJs(): IdeaJs =
@@ -109,9 +136,37 @@ internal fun ApplicationDto.toJs(): ApplicationJs =
         formVersion = formVersion,
         title = title,
         requestedGrantAmountGrosze = requestedGrantAmountGrosze,
+        contentJson = contentJson(),
         submittedAt = submittedAt,
         createdAt = createdAt,
         updatedAt = updatedAt,
+    )
+
+internal fun DeclarationsResponse.toJs(): DeclarationsJs =
+    DeclarationsJs(formVersion, declarations.map { it.toJs() }.toTypedArray())
+
+private fun DeclarationDto.toJs(): DeclarationJs = DeclarationJs(id.name, category.name, text, required)
+
+/** Defaults are encoded too, so the TypeScript side always sees every key. */
+private val contentJson = Json { encodeDefaults = true }
+
+private fun ApplicationDto.contentJson(): String =
+    contentJson.encodeToString(
+        SaveApplicationDraftRequest(
+            title = title,
+            applicant = applicant,
+            description = description,
+            innovativeness = innovativeness,
+            problemDiagnosis = problemDiagnosis,
+            socialArea = socialArea,
+            audienceDescription = audienceDescription,
+            expectedChange = expectedChange,
+            futureVision = futureVision,
+            plan = plan,
+            requestedGrantAmountGrosze = requestedGrantAmountGrosze,
+            projectTeam = projectTeam,
+            declarations = declarations,
+        ),
     )
 
 internal fun UpsertCallJs.toDto(): UpsertCallRequest =
