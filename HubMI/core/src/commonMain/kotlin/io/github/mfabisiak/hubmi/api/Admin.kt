@@ -32,6 +32,24 @@ class AdminIdeas(
     )
 }
 
+/** `GET`: adaptation plans written by the Middleman, newest first. */
+@Serializable
+@Resource("adaptations")
+class AdminAdaptations(
+    val parent: Api.Admin = Api.Admin(),
+    val status: AdaptationStatus? = null,
+    val page: Int = 0,
+    val size: Int = 20,
+) {
+    /** `PATCH`: approve or reject a `PENDING_REVIEW` plan; any other transition is a `409`. */
+    @Serializable
+    @Resource("{id}/status")
+    class Status(
+        val parent: AdminAdaptations = AdminAdaptations(),
+        val id: String,
+    )
+}
+
 /** `GET`: grant applications list for admin. */
 @Serializable
 @Resource("applications")

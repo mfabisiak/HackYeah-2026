@@ -4,6 +4,8 @@ import arrow.core.Either
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import com.mongodb.kotlin.client.model.Indexes
+import io.github.mfabisiak.hubmi.adaptations.AdaptationItem
+import io.github.mfabisiak.hubmi.adaptations.adaptations
 import io.github.mfabisiak.hubmi.calls.ApplicationItem
 import io.github.mfabisiak.hubmi.calls.applications
 import io.github.mfabisiak.hubmi.challenges.ChallengeItem
@@ -46,6 +48,8 @@ object MongoIndexes {
             database.materials.createIndex(Indexes.ascending(MaterialItem::areas))
 
             database.ideas.createIndex(Indexes.ascending(IdeaItem::authorId))
+            database.adaptations.createIndex(Indexes.ascending(AdaptationItem::authorId))
+            database.adaptations.createIndex(Indexes.ascending(AdaptationItem::status))
             database.applications.createIndex(Indexes.ascending(ApplicationItem::applicantId))
             database.applications.createIndex(
                 MongoIndexesHelper.compoundIndex(

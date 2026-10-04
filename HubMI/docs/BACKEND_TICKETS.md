@@ -76,6 +76,8 @@ i, jeśli zmienia kontrakt, aktualizacją [API.md](API.md). Zrobione: szkielet s
 
 ## BE-10 Bonus
 - `POST /api/ideas/{id}/assist` i `POST /api/innovations/{id}/adaptations` na lokalnym LLM.
+- Stan i projekt: [ASSISTANT.md](ASSISTANT.md) (asystent z SSE i Middleman zaimplementowane; zostały cache, rate limiting,
+  tryb `QUESTIONS` i ocena jakości).
 
 ## Kolejność
 BE-01 → BE-02 → BE-03 → BE-04 (komplet obligatoryjnego modułu), potem moduły dodatkowe od najtańszych:

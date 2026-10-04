@@ -2,7 +2,13 @@ package io.github.mfabisiak.hubmi.di
 
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
+import io.github.mfabisiak.hubmi.adaptations.AdaptationRepository
+import io.github.mfabisiak.hubmi.adaptations.AdaptationService
 import io.github.mfabisiak.hubmi.admin.AdminDashboardService
+import io.github.mfabisiak.hubmi.assistant.AssistService
+import io.github.mfabisiak.hubmi.assistant.LlmClient
+import io.github.mfabisiak.hubmi.assistant.LlmSlots
+import io.github.mfabisiak.hubmi.assistant.OllamaLlmClient
 import io.github.mfabisiak.hubmi.calls.ApplicationRepository
 import io.github.mfabisiak.hubmi.calls.ApplicationService
 import io.github.mfabisiak.hubmi.calls.GrantCallRepository
@@ -101,6 +107,10 @@ fun appModule(config: AppConfig) =
             val settings = get<AppConfig>()
             OllamaEmbeddingClient(get(), settings.ollamaUrl, settings.embeddingModel)
         }
+        single<LlmClient> {
+            val settings = get<AppConfig>()
+            OllamaLlmClient(get(), settings.ollamaUrl, settings.llmModel)
+        }
         single<MatchingEngine> {
             val keyword = get<KeywordMatchingEngine>()
             when (get<AppConfig>().matchingMode) {
@@ -133,6 +143,26 @@ fun appModule(config: AppConfig) =
         single { GrantCallService(get(), get(), get(), get()) }
         single { ApplicationService(get(), get(), get(), get()) }
         single { MatchService(get(), get()) }
+        single { LlmSlots() }
+        single { AdaptationRepository(get<MongoRepository>().database) }
+        single {
+            val settings = get<AppConfig>()
+            AdaptationService(
+                innovations = get(),
+                adaptations = get(),
+                llm = get(),
+                slots = get(),
+                settings = AdaptationService.Settings(settings.assistantEnabled, settings.llmModel),
+            )
+        }
+        single {
+            AssistService(
+                get(),
+                get(),
+                get(),
+                AssistService.Settings(enabled = get<AppConfig>().assistantEnabled),
+            )
+        }
         single { FeedbackRepository(get<MongoRepository>().database) }
         single { FeedbackService(get(), get()) }
         single { TestRequestRepository(get<MongoRepository>().database) }

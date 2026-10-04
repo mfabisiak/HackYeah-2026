@@ -25,6 +25,12 @@ błąd to zawsze `ErrorResponse(code, message)`. Dostęp: 🌐 publiczny · 🔑
 | 1 | `PUT /api/matches/{needId}/feedback` | 🌐/🔑 | `MatchFeedbackRequest` → `204` *(zaimplementowane; idempotentne – zastępuje poprzednią odpowiedź; potrzebę z właścicielem może ocenić tylko on: bez tokena `401`, ktoś inny `403`)* |
 | 3 | `POST /api/ideas` | 🔑 | `CreateIdeaRequest` → `IdeaDto` *(zaimplementowane)* |
 | 3 | `GET /api/ideas/mine?page&size`, `GET /api/ideas/{id}` | 🔑 | → `Page<IdeaDto>`, `IdeaDto` *(zaimplementowane)* |
+| 3 | `POST /api/ideas/assist` | 🔑 | `AssistDraftRequest` → `AssistResponse` *(zaimplementowane; asystent AI dla pomysłu jeszcze niezapisanego, walidacja jak `POST /api/ideas`; JSON albo strumień zdarzeń, zob. niżej)* |
+| 3 | `POST /api/ideas/{id}/assist` | 🔑 | `AssistRequest` → `AssistResponse` *(zaimplementowane; dla zapisanego pomysłu, dostęp jak `GET /api/ideas/{id}`: autor, admin lub ekspert)* |
+| 7 | `POST /api/innovations/{id}/adaptations` | 🔑 | `InstitutionProfile` → `AdaptationResponse` *(zaimplementowane; Middleman: plan pilotażu innowacji dla instytucji, zapisany do przeglądu admina; `201` z `Location` gdy plan zapisano, `200` z samym `aiStatus` gdy model go nie dał; JSON albo SSE)* |
+| 7 | `GET /api/adaptations/mine?page&size`, `GET /api/adaptations/{id}` | 🔑 | → `Page<AdaptationDto>`, `AdaptationDto` *(zaimplementowane; plan widzi autor albo admin)* |
+| 7 | `GET /api/admin/adaptations?status&page&size` | 🛡️ | → `Page<AdaptationDto>` *(zaimplementowane; kolejka przeglądu, najnowsze pierwsze)* |
+| 7 | `PATCH /api/admin/adaptations/{id}/status` | 🛡️ | `UpdateAdaptationStatusRequest` → `AdaptationDto` *(zaimplementowane; `PENDING_REVIEW → APPROVED \| REJECTED`, odrzucenie wymaga `comment` (`400`), inne przejścia `409`)* |
 | 3 | `GET /api/calls?status`, `GET /api/calls/active`, `GET /api/calls/{id}` | 🌐 | → `List<GrantCallDto>`, `GrantCallDto` *(zaimplementowane)* |
 | 3 | `POST /api/calls`, `PUT`/`DELETE /api/calls/{id}` | 🛡️ | `UpsertCallRequest` → `GrantCallDto` *(zaimplementowane)* |
 | 3 | `GET /api/calls/{id}/declarations?applicantType` | 🌐 | → `DeclarationsResponse` *(zaimplementowane)* |
@@ -53,6 +59,29 @@ błąd to zawsze `ErrorResponse(code, message)`. Dostęp: 🌐 publiczny · 🔑
 `InnovationDto` i `UpsertInnovationRequest` mają opcjonalne sekcje narracyjne zgodne z formularzem aplikacyjnym ROPS
 (`innovativeness` – pkt 4, `problemDiagnosis` – pkt 5, `audienceDescription` – pkt 6, `expectedChange` – pkt 7,
 `futureVision` – pkt 8; pkt 3 to `description`). Dane pomysłodawcy z formularza nie są częścią biblioteki.
+
+### Asystent kreatora (strumień zdarzeń)
+
+Obie trasy `…/assist` odpowiadają w jednej z dwóch postaci, zależnie od nagłówka `Accept`:
+
+- domyślnie **JSON**: `AssistResponse` po zakończeniu generowania (typowo 9–14 s na lokalnym modelu);
+- `Accept: text/event-stream`: **SSE**, jedno zdarzenie na część odpowiedzi (`event:` to nazwa zdarzenia, `data:` to JSON
+  `AssistEvent` z polem `type`): `similar` (natychmiast, to część deterministyczna), `suggestion` (po jednej na gotową
+  podpowiedź) albo `flow`, na końcu zawsze `done` z całą `AssistResponse`. `EventSource` w przeglądarce nie wysyła
+  nagłówka `Authorization`, więc klient `hubmi-client` czyta strumień sam: `hubApi.assistant.assistDraft(idea, mode, listener)`
+  zwraca `AssistStreamJs` z `result` (`Promise<ApiResult<AssistResponseJs>>`) i `cancel()`.
+
+**Middleman** działa tak samo: `Accept: text/event-stream` daje zdarzenia `step` (po jednym na krok planu, gdy model go
+napisze) i na końcu `done` z zapisanym planem albo `failed` z `ErrorResponse`, gdy plan powstał, ale nie udało się go
+zapisać (błąd bazy; w JSON to `500`). Plan zapisuje się dopiero, gdy przejdzie walidację, więc zapisany jest zawsze
+kompletny; `aiGenerated` jest zawsze `true`, a `plan.exceedsBudget` oznacza koszt wyższy niż budżet instytucji. Strumień
+co kilka sekund wysyła linię komentarza (`: keep-alive`), bo między zdarzeniami bywa dużo ciszy (model zajęty albo
+ładowany), a Netty zamyka milczące połączenie po 10 s; klienci ją pomijają.
+
+Błędy znane przed generowaniem (401, 400, 403, 404) to zwykłe odpowiedzi `ErrorResponse` w obu postaciach. Niedostępny
+albo wolny model **nie** jest błędem: odpowiedź ma `aiStatus` (`OK`, `UNAVAILABLE`, `INVALID_OUTPUT`, `NOT_REQUESTED`), a
+`similar` i `noveltyHint` są w niej zawsze. `aiGenerated` jest zawsze `true`: wszystko spod `suggestions` i `flow` trzeba
+pokazać jako wygenerowane przez AI.
 
 Do ustalenia przy implementacji: autoryzacja „autor lub admin" dla `GET /api/ideas/{id}` i wątków (wymaga sprawdzenia
 właściciela, nie tylko roli), rola `expert` w Keycloaku dla modułu 5, limity (rate limiting) dla `POST /api/matches`.

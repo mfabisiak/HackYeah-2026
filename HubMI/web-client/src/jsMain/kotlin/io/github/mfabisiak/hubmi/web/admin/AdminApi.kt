@@ -1,6 +1,9 @@
 package io.github.mfabisiak.hubmi.web.admin
 
 import arrow.core.raise.either
+import io.github.mfabisiak.hubmi.api.AdaptationDto
+import io.github.mfabisiak.hubmi.api.AdaptationStatus
+import io.github.mfabisiak.hubmi.api.AdminAdaptations
 import io.github.mfabisiak.hubmi.api.AdminApplications
 import io.github.mfabisiak.hubmi.api.AdminFeedback
 import io.github.mfabisiak.hubmi.api.AdminFeedbackDto
@@ -18,10 +21,13 @@ import io.github.mfabisiak.hubmi.api.Page
 import io.github.mfabisiak.hubmi.api.PageRequest
 import io.github.mfabisiak.hubmi.api.TestRequestStatus
 import io.github.mfabisiak.hubmi.api.TrendsDto
+import io.github.mfabisiak.hubmi.api.UpdateAdaptationStatusRequest
 import io.github.mfabisiak.hubmi.api.UpdateIdeaStatusRequest
 import io.github.mfabisiak.hubmi.api.UpdateTestRequestStatusRequest
 import io.github.mfabisiak.hubmi.web.ApiResult
 import io.github.mfabisiak.hubmi.web.PageJs
+import io.github.mfabisiak.hubmi.web.adaptations.AdaptationJs
+import io.github.mfabisiak.hubmi.web.adaptations.toJs
 import io.github.mfabisiak.hubmi.web.enumOf
 import io.github.mfabisiak.hubmi.web.enumOrNull
 import io.github.mfabisiak.hubmi.web.fetch
@@ -157,6 +163,44 @@ class AdminApi internal constructor(
                         HttpMethod.Patch,
                         AdminTestRequests.Status(id = id),
                         UpdateTestRequestStatusRequest(enumOf<TestRequestStatus>(status, "status")),
+                    ).bind()
+                    .toJs()
+            }
+        }
+
+    /** Plans of the Middleman waiting for review, newest first. @param status `AdaptationStatus` name to filter by. */
+    fun adaptations(
+        status: String? = null,
+        page: Int = PageRequest.DEFAULT_PAGE,
+        size: Int = PageRequest.DEFAULT_SIZE,
+    ): Promise<ApiResult<PageJs<AdaptationJs>>> =
+        scope.promiseResult {
+            either {
+                client
+                    .fetch<AdminAdaptations, Page<AdaptationDto>>(
+                        AdminAdaptations(
+                            status = enumOrNull<AdaptationStatus>(status, "status"),
+                            page = page,
+                            size = size,
+                        ),
+                    ).bind()
+                    .toPageJs { it.toJs() }
+            }
+        }
+
+    /** Approves or rejects a `PENDING_REVIEW` plan; a decision is final, and rejecting needs a [comment]. */
+    fun reviewAdaptation(
+        id: String,
+        status: String,
+        comment: String? = null,
+    ): Promise<ApiResult<AdaptationJs>> =
+        scope.promiseResult {
+            either {
+                client
+                    .send<AdminAdaptations.Status, UpdateAdaptationStatusRequest, AdaptationDto>(
+                        HttpMethod.Patch,
+                        AdminAdaptations.Status(id = id),
+                        UpdateAdaptationStatusRequest(enumOf<AdaptationStatus>(status, "status"), comment),
                     ).bind()
                     .toJs()
             }

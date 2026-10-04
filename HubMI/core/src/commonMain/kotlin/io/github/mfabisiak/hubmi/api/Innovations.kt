@@ -43,6 +43,17 @@ class Innovations(
         class Feedback(
             val parent: ById,
         )
+
+        /**
+         * `POST` (authenticated): the Middleman. Plans how the innovation could be run by the institution described in
+         * the body and stores the plan for an admin to review. JSON, or a stream of [AdaptationEvent]s when the client
+         * accepts `text/event-stream`.
+         */
+        @Serializable
+        @Resource("adaptations")
+        class Adaptations(
+            val parent: ById,
+        )
     }
 }
 

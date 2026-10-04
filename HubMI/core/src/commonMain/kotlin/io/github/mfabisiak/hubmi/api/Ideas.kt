@@ -20,13 +20,30 @@ class Ideas(
         val size: Int = 20,
     )
 
+    /**
+     * `POST` (authenticated): the assistant for an idea that is not saved yet (the card has no drafts); the idea
+     * comes in the body. Answers as JSON, or as a stream of [AssistEvent]s when the client accepts `text/event-stream`.
+     */
+    @Serializable
+    @Resource("assist")
+    class Assist(
+        val parent: Ideas = Ideas(),
+    )
+
     /** `GET` (authenticated, author or admin). */
     @Serializable
     @Resource("{id}")
     class ById(
         val parent: Ideas = Ideas(),
         val id: String,
-    )
+    ) {
+        /** `POST` (authenticated, author or admin): the assistant for a saved idea; JSON or event stream as in [Assist]. */
+        @Serializable
+        @Resource("assist")
+        class Assist(
+            val parent: ById,
+        )
+    }
 }
 
 /** `GET` (public): calls for proposals; admin manages them with `POST`, `PUT`, `DELETE`. */
